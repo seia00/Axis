@@ -1,0 +1,287 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum Role {
+  STUDENT
+  ORG_LEADER
+  ADMIN
+}
+
+enum OrgTier {
+  MEMBER
+  VERIFIED
+  PARTNER
+}
+
+enum MergeType {
+  FULL_MERGER
+  PROGRAMMATIC_MERGER
+  ABSORB_REBRAND
+  COLLABORATIVE_ALLIANCE
+}
+
+enum MergeStatus {
+  INTAKE
+  ASSESSMENT
+  DESIGN
+  INTEGRATION
+  COMPLETED
+  REJECTED
+}
+
+enum VentureStatus {
+  PENDING
+  ACCEPTED
+  REJECTED
+  LAUNCHED
+}
+
+enum ResourceCategory {
+  LEGAL
+  FINANCIAL
+  DESIGN
+  COMMUNICATIONS
+  SUCCESSION
+  OTHER
+}
+
+model Account {
+  id                String  @id @default(cuid())
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String? @db.Text
+  access_token      String? @db.Text
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String? @db.Text
+  session_state     String?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model VerificationToken {
+  identifier String
+  token      String   @unique
+  expires    DateTime
+
+  @@unique([identifier, token])
+}
+
+model User {
+  id            String    @id @default(cuid())
+  email         String    @unique
+  emailVerified DateTime?
+  name          String?
+  image         String?
+  role          Role      @default(STUDENT)
+  school        String?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  banned        Boolean   @default(false)
+
+  accounts      Account[]
+  sessions      Session[]
+  reviews       Review[]
+  orgsLed       Organization[] @relation("OrgLeader")
+  ventures      Venture[]
+  mergeMessages MergeMessage[]
+}
+
+model Organization {
+  id              String   @id @default(cuid())
+  name            String
+  slug            String   @unique
+  mission         String   @db.Text
+  activitySummary String?  @db.Text
+  focusArea       String[]
+  activityType    String[]
+  location        String
+  isNational      Boolean  @default(false)
+  schoolLevel     String[]
+  tier            OrgTier  @default(MEMBER)
+  verified        Boolean  @default(false)
+  logoUrl         String?
+  bannerUrl       String?
+  website         String?
+  instagram       String?
+  twitter         String?
+  memberCount     Int?
+  leaderId        String
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+  profileViews    Int      @default(0)
+
+  leader        User           @relation("OrgLeader", fields: [leaderId], references: [id])
+  events        Event[]
+  reviews       Review[]
+  mergesInitiated MergeRequest[] @relation("InitiatorOrg")
+  mergesTargeted  MergeRequest[] @relation("TargetOrg")
+  teamMembers   OrgTeamMember[]
+  verificationApplication VerificationApplication?
+}
+
+model OrgTeamMember {
+  id     String @id @default(cuid())
+  orgId  String
+  userId String
+  role   String @default("member")
+
+  org  Organization @relation(fields: [orgId], references: [id], onDelete: Cascade)
+
+  @@unique([orgId, userId])
+}
+
+model Event {
+  id               String    @id @default(cuid())
+  orgId            String
+  title            String
+  description      String    @db.Text
+  date             DateTime
+  endDate          DateTime?
+  location         String?
+  isOnline         Boolean   @default(false)
+  registrationLink String?
+  focusArea        String[]
+  createdAt        DateTime  @default(now())
+
+  org Organization @relation(fields: [orgId], references: [id], onDelete: Cascade)
+}
+
+model Review {
+  id        String   @id @default(cuid())
+  orgId     String
+  userId    String
+  rating    Int
+  content   String   @db.Text
+  createdAt DateTime @default(now())
+  removed   Boolean  @default(false)
+  removedBy String?
+
+  org  Organization @relation(fields: [orgId], references: [id], onDelete: Cascade)
+  user User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([orgId, userId])
+}
+
+model MergeRequest {
+  id              String      @id @default(cuid())
+  initiatorOrgId  String
+  targetOrgId     String?
+  mergeType       MergeType
+  status          MergeStatus @default(INTAKE)
+  description     String?     @db.Text
+  createdAt       DateTime    @default(now())
+  updatedAt       DateTime    @updatedAt
+
+  initiatorOrg Organization   @relation("InitiatorOrg", fields: [initiatorOrgId], references: [id])
+  targetOrg    Organization?  @relation("TargetOrg", fields: [targetOrgId], references: [id])
+  messages     MergeMessage[]
+}
+
+model MergeMessage {
+  id             String   @id @default(cuid())
+  mergeRequestId String
+  senderId       String
+  content        String   @db.Text
+  createdAt      DateTime @default(now())
+
+  mergeRequest MergeRequest @relation(fields: [mergeRequestId], references: [id], onDelete: Cascade)
+  sender       User         @relation(fields: [senderId], references: [id])
+}
+
+model Resource {
+  id            String           @id @default(cuid())
+  category      ResourceCategory
+  title         String
+  description   String?
+  fileUrl       String
+  fileType      String?
+  downloadCount Int              @default(0)
+  uploadedAt    DateTime         @default(now())
+  uploadedBy    String?
+}
+
+model Venture {
+  id              String        @id @default(cuid())
+  name            String
+  leaderId        String
+  status          VentureStatus @default(PENDING)
+  applicationData Json
+  cohort          String?
+  focusArea       String?
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+
+  leader     User               @relation(fields: [leaderId], references: [id])
+  milestones VentureMilestone[]
+  forumPosts ForumPost[]
+}
+
+model VentureMilestone {
+  id          String    @id @default(cuid())
+  ventureId   String
+  title       String
+  description String?
+  completed   Boolean   @default(false)
+  dueDate     DateTime?
+  completedAt DateTime?
+
+  venture Venture @relation(fields: [ventureId], references: [id], onDelete: Cascade)
+}
+
+model ForumPost {
+  id        String   @id @default(cuid())
+  ventureId String
+  authorId  String
+  title     String
+  content   String   @db.Text
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  venture Venture @relation(fields: [ventureId], references: [id], onDelete: Cascade)
+}
+
+model NewsletterSubscriber {
+  id           String   @id @default(cuid())
+  email        String   @unique
+  subscribedAt DateTime @default(now())
+  confirmed    Boolean  @default(false)
+}
+
+model VerificationApplication {
+  id          String    @id @default(cuid())
+  orgId       String    @unique
+  targetTier  OrgTier
+  notes       String?   @db.Text
+  status      String    @default("pending")
+  submittedAt DateTime  @default(now())
+  reviewedAt  DateTime?
+  reviewedBy  String?
+
+  org Organization @relation(fields: [orgId], references: [id], onDelete: Cascade)
+}
+
+model ImpactStat {
+  id        String   @id @default(cuid())
+  key       String   @unique
+  value     Int      @default(0)
+  updatedAt DateTime @updatedAt
+}

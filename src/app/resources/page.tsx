@@ -8,6 +8,8 @@ import { Button } from "@/components/ui/button";
 import {
   Search, Download, ExternalLink, Loader2, BookOpen, Plus, X
 } from "lucide-react";
+import { Reveal, StaggerContainer, StaggerItem } from "@/components/animation";
+import { motion } from "framer-motion";
 
 const CATEGORIES = ["legal", "marketing", "fundraising", "operations", "pitch", "other"];
 const TYPES = ["template", "guide", "video", "tool", "checklist"];
@@ -104,10 +106,12 @@ export default function ResourcesPage() {
       <Navbar />
       <div className="max-w-7xl mx-auto px-4 sm:px-6 py-8">
         <div className="flex items-center justify-between mb-6">
-          <div>
-            <h1 className="text-2xl font-bold tracking-tight">Resource Library</h1>
-            <p className="text-sm text-[var(--muted-foreground)] mt-1">Templates, guides, and tools to help you build and grow</p>
-          </div>
+          <Reveal>
+            <div>
+              <h1 className="text-2xl font-bold tracking-tight">Resource Library</h1>
+              <p className="text-sm text-[var(--muted-foreground)] mt-1">Templates, guides, and tools to help you build and grow</p>
+            </div>
+          </Reveal>
           <Button size="sm" variant="secondary" onClick={() => setShowSubmitForm(true)}>
             <Plus className="w-4 h-4" /> Submit Resource
           </Button>
@@ -151,9 +155,14 @@ export default function ResourcesPage() {
                 <p className="text-[var(--muted-foreground)]">No resources found.</p>
               </div>
             ) : (
-              <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
+              <StaggerContainer className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
                 {resources.map(resource => (
-                  <div key={resource.id} className="card hover:border-indigo-500/30 transition-all flex flex-col">
+                  <StaggerItem key={resource.id}>
+                  <motion.div
+                    className="card hover:border-indigo-500/30 transition-all flex flex-col h-full"
+                    whileHover={{ y: -3, boxShadow: "0 12px 28px rgba(0,0,0,0.25)" }}
+                    transition={{ duration: 0.2 }}
+                  >
                     <div className="flex flex-wrap gap-1.5 mb-2">
                       <span className={`text-xs px-2 py-0.5 rounded-full capitalize ${CATEGORY_COLORS[resource.category] ?? "bg-zinc-800 text-zinc-300"}`}>{resource.category}</span>
                       <span className={`text-xs px-2 py-0.5 rounded-full capitalize ${TYPE_COLORS[resource.type] ?? "bg-zinc-800 text-zinc-300"}`}>{resource.type}</span>
@@ -175,9 +184,10 @@ export default function ResourcesPage() {
                         {resource.externalUrl ? "Open" : "Download"}
                       </button>
                     </div>
-                  </div>
+                  </motion.div>
+                  </StaggerItem>
                 ))}
-              </div>
+              </StaggerContainer>
             )}
           </div>
         </div>

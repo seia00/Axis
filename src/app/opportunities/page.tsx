@@ -5,6 +5,8 @@ import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { Navbar } from "@/components/layout/navbar";
 import { Button } from "@/components/ui/button";
+import { Reveal, StaggerContainer, StaggerItem } from "@/components/animation";
+import { motion } from "framer-motion";
 import Link from "next/link";
 import {
   Search, Filter, ShieldCheck, Bookmark, BookmarkCheck, Calendar,
@@ -146,10 +148,12 @@ export default function OpportunitiesPage() {
       <Navbar />
       <div className="max-w-7xl mx-auto px-4 sm:px-6 py-8">
         <div className="flex items-center justify-between mb-6">
-          <div>
-            <h1 className="text-2xl font-bold tracking-tight">Opportunities</h1>
-            <p className="text-sm text-[var(--muted-foreground)] mt-1">Competitions, fellowships, programs, and scholarships for student founders</p>
-          </div>
+          <Reveal>
+            <div>
+              <h1 className="text-2xl font-bold tracking-tight">Opportunities</h1>
+              <p className="text-sm text-[var(--muted-foreground)] mt-1">Competitions, fellowships, programs, and scholarships for student founders</p>
+            </div>
+          </Reveal>
           <Button size="sm" variant="secondary" onClick={() => setShowSubmitForm(true)}>
             <Plus className="w-4 h-4" />
             Submit Opportunity
@@ -237,9 +241,14 @@ export default function OpportunitiesPage() {
                 <p className="text-[var(--muted-foreground)]">No opportunities found. Try adjusting your filters.</p>
               </div>
             ) : (
-              <div className="space-y-3">
+              <StaggerContainer className="space-y-3">
                 {opportunities.map(opp => (
-                  <div key={opp.id} className="card hover:border-indigo-500/30 transition-all">
+                  <StaggerItem key={opp.id}>
+                  <motion.div
+                    className="card hover:border-indigo-500/30 transition-all"
+                    whileHover={{ y: -3, boxShadow: "0 12px 28px rgba(0,0,0,0.25)" }}
+                    transition={{ duration: 0.2 }}
+                  >
                     <div className="flex items-start justify-between gap-4">
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center gap-2 flex-wrap mb-1">
@@ -301,9 +310,10 @@ export default function OpportunitiesPage() {
                         </Link>
                       </div>
                     </div>
-                  </div>
+                  </motion.div>
+                  </StaggerItem>
                 ))}
-              </div>
+              </StaggerContainer>
             )}
           </div>
         </div>

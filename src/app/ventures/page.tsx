@@ -2,6 +2,7 @@ import { Navbar } from "@/components/layout/navbar";
 import { Footer } from "@/components/layout/footer";
 import { Rocket, Users, BookOpen, Target, ArrowRight, Zap } from "lucide-react";
 import Link from "next/link";
+import { Reveal, StaggerContainer, StaggerItem } from "@/components/animation";
 
 export const metadata = { title: "AXIS Ventures" };
 
@@ -15,39 +16,49 @@ export default function VenturesPage() {
         <div className="absolute inset-0 grid-bg" />
         <div className="absolute inset-0 bg-gradient-to-b from-violet-950/20 via-transparent to-transparent" />
         <div className="relative max-w-7xl mx-auto px-4 sm:px-6 py-20 text-center">
-          <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full border border-violet-500/30 bg-violet-950/40 text-violet-300 text-xs font-medium mb-8">
-            <Rocket className="w-3 h-3" />
-            Applications open for Cohort 2
-          </div>
-          <h1 className="text-4xl sm:text-5xl font-bold tracking-tight mb-4">
-            AXIS <span className="gradient-text">Ventures</span>
-          </h1>
-          <p className="text-lg text-[var(--muted-foreground)] max-w-xl mx-auto mb-8">
-            An incubation program for high-potential student initiatives that don't yet exist as formal organizations. From idea to launch.
-          </p>
-          <Link href="/ventures/apply" className="btn-primary text-base px-6 py-3 gap-2">
-            Apply to Cohort 2 <ArrowRight className="w-4 h-4" />
-          </Link>
+          <Reveal delay={0}>
+            <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full border border-violet-500/30 bg-violet-950/40 text-violet-300 text-xs font-medium mb-8">
+              <Rocket className="w-3 h-3" />
+              Applications open for Cohort 2
+            </div>
+          </Reveal>
+          <Reveal delay={0.1}>
+            <h1 className="text-4xl sm:text-5xl font-bold tracking-tight mb-4">
+              AXIS <span className="gradient-text">Ventures</span>
+            </h1>
+          </Reveal>
+          <Reveal delay={0.2}>
+            <p className="text-lg text-[var(--muted-foreground)] max-w-xl mx-auto mb-8">
+              An incubation program for high-potential student initiatives that don&apos;t yet exist as formal organizations. From idea to launch.
+            </p>
+          </Reveal>
+          <Reveal delay={0.3}>
+            <Link href="/ventures/apply" className="btn-primary text-base px-6 py-3 gap-2">
+              Apply to Cohort 2 <ArrowRight className="w-4 h-4" />
+            </Link>
+          </Reveal>
         </div>
       </section>
 
       {/* What you get */}
       <section className="max-w-7xl mx-auto px-4 sm:px-6 py-20">
         <h2 className="text-2xl font-bold tracking-tight text-center mb-10">What you get</h2>
-        <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        <StaggerContainer className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
           {[
             { icon: Users, title: "Mentorship", desc: "Regular 1-on-1s with experienced student leaders and AXIS advisors." },
             { icon: Users, title: "Peer Cohort", desc: "Be part of a cohort of 5–10 ventures tackling different problems together." },
             { icon: Target, title: "Launch Checklist", desc: "A structured milestone tracker from idea validation to official launch." },
             { icon: BookOpen, title: "Full Resource Library", desc: "Immediate access to all AXIS templates, toolkits, and legal documents." },
           ].map(({ icon: Icon, title, desc }) => (
-            <div key={title} className="card">
-              <Icon className="w-6 h-6 text-violet-400 mb-3" />
-              <h3 className="text-sm font-semibold mb-2">{title}</h3>
-              <p className="text-sm text-[var(--muted-foreground)]">{desc}</p>
-            </div>
+            <StaggerItem key={title}>
+              <div className="card h-full">
+                <Icon className="w-6 h-6 text-violet-400 mb-3" />
+                <h3 className="text-sm font-semibold mb-2">{title}</h3>
+                <p className="text-sm text-[var(--muted-foreground)]">{desc}</p>
+              </div>
+            </StaggerItem>
           ))}
-        </div>
+        </StaggerContainer>
       </section>
 
       {/* Timeline */}

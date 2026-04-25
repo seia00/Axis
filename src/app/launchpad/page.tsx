@@ -7,6 +7,8 @@ import { Navbar } from "@/components/layout/navbar";
 import Link from "next/link";
 import { Loader2, Plus, Rocket, Users } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Reveal, StaggerContainer, StaggerItem } from "@/components/animation";
+import { motion } from "framer-motion";
 
 const STAGES = ["idea", "building", "launched", "scaling"];
 const CATEGORIES = ["technology", "social impact", "education", "health", "environment", "arts", "business", "other"];
@@ -63,10 +65,12 @@ export default function LaunchpadPage() {
       <Navbar />
       <div className="max-w-7xl mx-auto px-4 sm:px-6 py-8">
         <div className="flex items-center justify-between mb-6">
-          <div>
-            <h1 className="text-2xl font-bold tracking-tight">Launch Pad</h1>
-            <p className="text-sm text-[var(--muted-foreground)] mt-1">Find your team, or find your next project</p>
-          </div>
+          <Reveal>
+            <div>
+              <h1 className="text-2xl font-bold tracking-tight">Launch Pad</h1>
+              <p className="text-sm text-[var(--muted-foreground)] mt-1">Find your team, or find your next project</p>
+            </div>
+          </Reveal>
           <Link href="/launchpad/create">
             <Button size="sm">
               <Plus className="w-4 h-4" /> New Project
@@ -108,10 +112,14 @@ export default function LaunchpadPage() {
                 <Link href="/launchpad/create"><Button size="sm"><Plus className="w-4 h-4" /> Create Project</Button></Link>
               </div>
             ) : (
-              <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
+              <StaggerContainer className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
                 {projects.map(project => (
+                  <StaggerItem key={project.id}>
+                  <motion.div
+                    whileHover={{ y: -3, boxShadow: "0 12px 28px rgba(0,0,0,0.25)" }}
+                    transition={{ duration: 0.2 }}
+                  >
                   <Link
-                    key={project.id}
                     href={`/launchpad/${project.id}`}
                     className="card hover:border-indigo-500/30 transition-all flex flex-col"
                   >
@@ -145,8 +153,10 @@ export default function LaunchpadPage() {
                       )}
                     </div>
                   </Link>
+                  </motion.div>
+                  </StaggerItem>
                 ))}
-              </div>
+              </StaggerContainer>
             )}
           </div>
         </div>

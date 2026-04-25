@@ -7,6 +7,8 @@ import { Navbar } from "@/components/layout/navbar";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { Sparkles, RefreshCw, Loader2, User, Briefcase, BookOpen, X, Check } from "lucide-react";
+import { StaggerContainer, StaggerItem } from "@/components/animation";
+import { motion } from "framer-motion";
 
 interface Match {
   id: string;
@@ -185,9 +187,14 @@ export default function MatchPage() {
             </Button>
           </div>
         ) : (
-          <div className="space-y-3">
+          <StaggerContainer className="space-y-3">
             {filteredMatches.map(match => (
-              <div key={match.id} className="card hover:border-indigo-500/30 transition-all">
+              <StaggerItem key={match.id}>
+              <motion.div
+                className="card hover:border-indigo-500/30 transition-all"
+                whileHover={{ y: -3, boxShadow: "0 12px 28px rgba(0,0,0,0.25)" }}
+                transition={{ duration: 0.2 }}
+              >
                 <div className="flex items-start gap-4">
                   <ScoreCircle score={match.score} />
                   <div className="flex-1 min-w-0">
@@ -232,9 +239,10 @@ export default function MatchPage() {
                     </div>
                   </div>
                 </div>
-              </div>
+              </motion.div>
+              </StaggerItem>
             ))}
-          </div>
+          </StaggerContainer>
         )}
       </div>
     </div>

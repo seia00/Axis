@@ -18,14 +18,29 @@ import {
   Shield,
   Menu,
   X,
+  Sparkles,
+  User,
+  Briefcase,
+  Calendar,
+  BookOpen,
+  TrendingUp,
 } from "lucide-react";
 import { useState } from "react";
 
 const navLinks = [
   { href: "/directory", label: "Directory", icon: LayoutGrid },
   { href: "/network", label: "Network", icon: Network },
-  { href: "/ventures", label: "Ventures", icon: Rocket },
+  { href: "/opportunities", label: "Opportunities", icon: Briefcase },
+  { href: "/launchpad", label: "Launch Pad", icon: Rocket },
+  { href: "/ventures", label: "Ventures", icon: TrendingUp },
   { href: "/community", label: "Community", icon: Info },
+];
+
+const userMenuLinks = [
+  { href: "/portfolio", label: "My Portfolio", icon: User },
+  { href: "/match", label: "AXIS Match", icon: Sparkles },
+  { href: "/calendar", label: "Calendar", icon: Calendar },
+  { href: "/resources", label: "Resources", icon: BookOpen },
 ];
 
 export function Navbar() {
@@ -86,11 +101,23 @@ export function Navbar() {
                 {userMenuOpen && (
                   <>
                     <div className="fixed inset-0 z-10" onClick={() => setUserMenuOpen(false)} />
-                    <div className="absolute right-0 top-full mt-1 w-48 rounded-lg border border-[var(--border)] bg-[var(--surface-raised)] shadow-xl z-20 py-1">
+                    <div className="absolute right-0 top-full mt-1 w-52 rounded-lg border border-[var(--border)] bg-[var(--surface-raised)] shadow-xl z-20 py-1">
                       <div className="px-3 py-2 border-b border-[var(--border)]">
                         <p className="text-xs font-medium text-[var(--foreground)] truncate">{session.user.email}</p>
                         <p className="text-xs text-[var(--muted-foreground)] capitalize">{session.user.role.toLowerCase().replace("_", " ")}</p>
                       </div>
+                      {userMenuLinks.map(({ href, label, icon: Icon }) => (
+                        <Link
+                          key={href}
+                          href={href}
+                          onClick={() => setUserMenuOpen(false)}
+                          className="flex items-center gap-2 px-3 py-2 text-sm text-[var(--muted-foreground)] hover:text-[var(--foreground)] hover:bg-[var(--surface-overlay)] transition-colors"
+                        >
+                          <Icon className="w-4 h-4" />
+                          {label}
+                        </Link>
+                      ))}
+                      <div className="border-t border-[var(--border)] my-1" />
                       {session.user.role === "ORG_LEADER" && (
                         <Link
                           href="/network/dashboard"

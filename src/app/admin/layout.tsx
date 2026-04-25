@@ -3,13 +3,14 @@ import { authOptions } from "@/lib/auth";
 import { redirect } from "next/navigation";
 import { Navbar } from "@/components/layout/navbar";
 import { Sidebar } from "@/components/layout/sidebar";
-import { LayoutDashboard, ShieldCheck, Users, BarChart3, Package, MessageSquare, Rocket } from "lucide-react";
+import { LayoutDashboard, ShieldCheck, Users, BarChart3, Package, MessageSquare, Rocket, CheckSquare } from "lucide-react";
 
 export const metadata = { title: "Admin" };
 
 const sidebarItems = [
   { href: "/admin", label: "Overview", icon: LayoutDashboard },
   { href: "/admin/verification", label: "Verification Queue", icon: ShieldCheck },
+  { href: "/admin/verify", label: "Verify Items", icon: CheckSquare },
   { href: "/admin/users", label: "User Management", icon: Users },
   { href: "/admin/analytics", label: "Analytics", icon: BarChart3 },
   { href: "/admin/reviews", label: "Review Moderation", icon: MessageSquare },

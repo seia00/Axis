@@ -1,4 +1,7 @@
 import { PrismaClient, OrgTier, ResourceCategory } from "@prisma/client";
+import { PrismaPg } from "@prisma/adapter-pg";
+// eslint-disable-next-line @typescript-eslint/no-require-imports
+require("dotenv").config();
 
 function slugify(text: string): string {
   return text
@@ -6,7 +9,10 @@ function slugify(text: string): string {
     .replace(/[^a-z0-9]+/g, "-")
     .replace(/(^-|-$)/g, "");
 }
-const prisma = new PrismaClient();
+
+const connectionString = process.env.DATABASE_URL ?? "";
+const adapter = new PrismaPg({ connectionString });
+const prisma = new PrismaClient({ adapter } as any);
 
 async function main() {
   console.log("Seeding database...");
@@ -120,6 +126,290 @@ async function main() {
     await prisma.resource.create({
       data: { ...resource, uploadedBy: admin.id },
     });
+  }
+
+  // Opportunities seed data
+  const opportunities = [
+    {
+      title: "Diamond Challenge",
+      type: "competition",
+      organization: "University of Delaware",
+      description: "The Diamond Challenge is a premier global high school entrepreneurship competition. Students create a business concept and pitch it to experienced entrepreneurs and investors. Top teams win cash prizes and mentorship.",
+      eligibility: "Open to high school students worldwide. Teams of 2-4 students. Must submit a business plan and video pitch.",
+      location: "Newark, Delaware, USA",
+      isRemote: true,
+      url: "https://diamondchallenge.org",
+      deadline: new Date("2025-02-15"),
+      startDate: new Date("2025-03-01"),
+      tags: ["entrepreneurship", "startup", "business", "pitch"],
+      regions: ["Global"],
+      isVerified: true,
+      verifiedAt: new Date(),
+    },
+    {
+      title: "Conrad Challenge",
+      type: "competition",
+      organization: "Conrad Foundation",
+      description: "The Conrad Challenge calls on today's aspiring student innovators to apply science, technology, and innovative thinking to solve real-world problems. Students develop a full business plan and compete for significant prize money and internship opportunities.",
+      eligibility: "Students ages 13-18 from anywhere in the world. Teams of 2-5. Must focus on one of five challenge categories: Cyber-Technology & Security, Energy & Environment, Health & Nutrition, Transportation & Aerospace.",
+      isRemote: true,
+      url: "https://conradchallenge.org",
+      deadline: new Date("2025-01-31"),
+      tags: ["innovation", "STEM", "entrepreneurship", "technology"],
+      regions: ["Global"],
+      isVerified: true,
+      verifiedAt: new Date(),
+    },
+    {
+      title: "Global Youth Entrepreneurship Challenge (GYEC)",
+      type: "competition",
+      organization: "Youth Entrepreneurship Initiative",
+      description: "GYEC brings together the world's most innovative young entrepreneurs to compete, connect, and accelerate their ventures. The summit includes workshops, mentorship sessions, and a final pitch competition with investors.",
+      eligibility: "Entrepreneurs aged 15-25. Must have a working prototype or MVP. Teams or individuals welcome.",
+      isRemote: false,
+      location: "Singapore",
+      url: "https://gyec.org",
+      deadline: new Date("2025-03-01"),
+      startDate: new Date("2025-06-10"),
+      tags: ["entrepreneurship", "startup", "youth", "Asia"],
+      regions: ["Asia", "Global"],
+      isVerified: true,
+      verifiedAt: new Date(),
+    },
+    {
+      title: "TigerLaunch Singapore",
+      type: "competition",
+      organization: "Princeton University Alumni Association of Singapore",
+      description: "TigerLaunch is a global startup competition for student entrepreneurs founded at Princeton. The Singapore edition focuses on Asia-Pacific market opportunities and connects student founders with regional VCs and accelerators.",
+      eligibility: "Currently enrolled undergraduate or graduate students at any university. Must be a student founder.",
+      isRemote: false,
+      location: "Singapore",
+      url: "https://tigerlaunch.com",
+      deadline: new Date("2025-04-01"),
+      tags: ["startup", "VC", "pitch competition", "Asia"],
+      regions: ["Asia", "Global"],
+      isVerified: true,
+      verifiedAt: new Date(),
+    },
+    {
+      title: "TOMODACHI MUFG International Student Scholarship",
+      type: "scholarship",
+      organization: "TOMODACHI Initiative & MUFG",
+      description: "The TOMODACHI MUFG International Student Scholarship provides funding and mentorship for Japanese students pursuing entrepreneurship and social impact. Includes business training, networking with MUFG executives, and a study trip to the USA.",
+      eligibility: "Japanese high school and university students. Must demonstrate entrepreneurial interest or social impact focus. Strong academic record required.",
+      isRemote: false,
+      location: "Tokyo, Japan",
+      url: "https://tomodachi.org/mufg-scholarship",
+      deadline: new Date("2025-05-15"),
+      tags: ["scholarship", "Japan", "entrepreneurship", "social impact", "US-Japan"],
+      regions: ["Japan"],
+      isVerified: true,
+      verifiedAt: new Date(),
+    },
+    {
+      title: "Harvard Crimson Business Competition",
+      type: "competition",
+      organization: "Harvard College",
+      description: "The Harvard Crimson Business Competition invites student entrepreneurs from around the world to submit their business plans. Winners receive mentorship from Harvard faculty and alumni, plus cash prizes up to $25,000.",
+      eligibility: "Any enrolled high school or undergraduate student. Teams of up to 5 members. Business must be in early stage.",
+      isRemote: true,
+      url: "https://hcbc.college.harvard.edu",
+      deadline: new Date("2025-03-20"),
+      tags: ["business plan", "entrepreneurship", "Harvard", "competition"],
+      regions: ["Global"],
+      isVerified: true,
+      verifiedAt: new Date(),
+    },
+    {
+      title: "Stanford Venture Fellowship",
+      type: "fellowship",
+      organization: "Stanford University d.school",
+      description: "The Stanford Venture Fellowship is an intensive 6-week summer program for high school students passionate about design thinking and social entrepreneurship. Fellows work on real-world projects, receive mentorship from Stanford faculty, and build lifelong networks.",
+      eligibility: "Rising high school juniors and seniors (ages 16-18). Must demonstrate interest in social entrepreneurship. All nationalities welcome.",
+      isRemote: false,
+      location: "Stanford, California, USA",
+      url: "https://dschool.stanford.edu/programs/k12-lab",
+      deadline: new Date("2026-03-15"),
+      startDate: new Date("2026-06-20"),
+      endDate: new Date("2026-08-10"),
+      tags: ["fellowship", "design thinking", "social entrepreneurship", "Stanford", "summer"],
+      regions: ["USA", "Global"],
+      isVerified: true,
+      verifiedAt: new Date(),
+    },
+    {
+      title: "FedEx/JA International Trade Challenge",
+      type: "competition",
+      organization: "Junior Achievement & FedEx",
+      description: "Students develop an international trade business plan, competing regionally and globally for prizes and recognition from JA and FedEx executives.",
+      eligibility: "High school students.",
+      isRemote: true,
+      url: "https://jausa.ja.org/programs/ja-international-trade-challenge",
+      deadline: new Date("2026-03-01"),
+      tags: ["trade", "business", "international", "logistics"],
+      regions: ["Global"],
+      isVerified: true,
+      verifiedAt: new Date(),
+    },
+    {
+      title: "Blue Ocean Competition",
+      type: "competition",
+      organization: "Blue Ocean Competition",
+      description: "Social enterprise competition challenging students to find blue ocean market spaces — uncontested market areas — for their social ventures.",
+      eligibility: "High school and undergraduate students.",
+      isRemote: true,
+      url: "https://blueoceancompetition.com",
+      deadline: new Date("2026-04-30"),
+      tags: ["social enterprise", "market strategy", "innovation", "blue ocean"],
+      regions: ["Global"],
+      isVerified: true,
+      verifiedAt: new Date(),
+    },
+    {
+      title: "SAGE Global Competition",
+      type: "competition",
+      organization: "Students for the Advancement of Global Entrepreneurship",
+      description: "SAGE helps young entrepreneurs start and grow their businesses while giving back to their communities. National winners compete globally.",
+      eligibility: "High school students.",
+      isRemote: false,
+      url: "https://sagebusiness.org",
+      deadline: new Date("2026-05-15"),
+      tags: ["entrepreneurship", "community impact", "global competition"],
+      regions: ["Global"],
+      isVerified: true,
+      verifiedAt: new Date(),
+    },
+    {
+      title: "World Schools Debating Championships",
+      type: "competition",
+      organization: "WSDC",
+      description: "The premier international debating competition for secondary school students. Teams represent their countries in this prestigious annual event.",
+      eligibility: "Secondary school students representing national teams.",
+      isRemote: false,
+      url: "https://wsdc.org",
+      deadline: new Date("2026-01-31"),
+      tags: ["debate", "public speaking", "international", "competition"],
+      regions: ["Global"],
+      isVerified: true,
+      verifiedAt: new Date(),
+    },
+    {
+      title: "HLAB Summer School",
+      type: "program",
+      organization: "HLAB",
+      description: "A residential summer school in Japan co-led by Harvard and other top university students. Focus on liberal arts, leadership, and global citizenship for high school students.",
+      eligibility: "Japanese high school students (ages 15-18). English proficiency required.",
+      isRemote: false,
+      location: "Karuizawa, Japan",
+      url: "https://h-lab.co",
+      deadline: new Date("2026-04-01"),
+      startDate: new Date("2026-08-01"),
+      endDate: new Date("2026-08-14"),
+      tags: ["liberal arts", "leadership", "Japan", "summer school", "Harvard"],
+      regions: ["Japan"],
+      isVerified: true,
+      verifiedAt: new Date(),
+    },
+    {
+      title: "Wharton Global Youth Program",
+      type: "program",
+      organization: "Wharton School, University of Pennsylvania",
+      description: "Leadership in the Business World (LBW) is an intensive 4-week program for outstanding high school juniors interested in business and finance.",
+      eligibility: "High school juniors (rising seniors). Must apply and be accepted.",
+      isRemote: false,
+      location: "Philadelphia, PA, USA",
+      url: "https://globalyouth.wharton.upenn.edu",
+      deadline: new Date("2026-02-15"),
+      startDate: new Date("2026-07-05"),
+      endDate: new Date("2026-07-30"),
+      tags: ["business", "Wharton", "finance", "leadership", "summer"],
+      regions: ["Global", "USA"],
+      isVerified: true,
+      verifiedAt: new Date(),
+    },
+    {
+      title: "MIT Launch Summer Program",
+      type: "program",
+      organization: "MIT",
+      description: "An entrepreneurship program for high school students where participants build real companies with MIT mentors and pitch to investors.",
+      eligibility: "High school students ages 15-18. No prior business experience required.",
+      isRemote: true,
+      url: "https://launch.mit.edu",
+      deadline: new Date("2026-03-20"),
+      startDate: new Date("2026-06-28"),
+      endDate: new Date("2026-07-26"),
+      tags: ["MIT", "startup", "entrepreneurship", "technology", "summer"],
+      regions: ["Global"],
+      isVerified: true,
+      verifiedAt: new Date(),
+    },
+    {
+      title: "Lumiere Research Scholar Program",
+      type: "program",
+      organization: "Lumiere Education",
+      description: "One-on-one research programs pairing high school students with PhD researchers from top universities. Students publish original research papers.",
+      eligibility: "High school students with strong academic record.",
+      isRemote: true,
+      url: "https://lumiere-education.com",
+      deadline: new Date("2026-06-01"),
+      tags: ["research", "academic", "publication", "STEM", "humanities"],
+      regions: ["Global"],
+      isVerified: false,
+    },
+  ];
+
+  for (const opp of opportunities) {
+    const existing = await prisma.opportunity.findFirst({ where: { title: opp.title } });
+    if (!existing) {
+      await prisma.opportunity.create({ data: opp });
+    }
+  }
+
+  // Project Resources seed data
+  const projectResources = [
+    {
+      title: "NPO Registration Guide (Japan)",
+      description: "Step-by-step guide to registering a non-profit organization in Japan. Covers documentation, government processes, and timeline.",
+      category: "legal",
+      type: "guide",
+      tags: ["Japan", "NPO", "legal", "registration"],
+      region: "Japan",
+    },
+    {
+      title: "Pitch Deck Framework",
+      description: "A proven framework for building a compelling startup pitch deck. Includes 12-slide structure, key questions per slide, and examples.",
+      category: "pitch",
+      type: "template",
+      tags: ["pitch", "startup", "presentation"],
+    },
+    {
+      title: "Grant Application Template",
+      description: "Comprehensive grant application template used by successful youth organizations. Covers needs assessment, goals, evaluation metrics, and budget.",
+      category: "fundraising",
+      type: "template",
+      tags: ["fundraising", "grants", "nonprofit"],
+    },
+    {
+      title: "Team Agreement Template",
+      description: "A simple team charter and working agreement template for student project teams. Covers roles, commitments, conflict resolution, and decision-making.",
+      category: "operations",
+      type: "template",
+      tags: ["teamwork", "operations", "agreement"],
+    },
+    {
+      title: "Social Enterprise Launch Checklist",
+      description: "100-item checklist covering everything you need to launch a social enterprise from idea to launch. Includes legal, branding, operations, and impact measurement.",
+      category: "operations",
+      type: "checklist",
+      tags: ["launch", "social enterprise", "checklist", "startup"],
+    },
+  ];
+
+  for (const resource of projectResources) {
+    const existing = await prisma.projectResource.findFirst({ where: { title: resource.title } });
+    if (!existing) {
+      await prisma.projectResource.create({ data: resource });
+    }
   }
 
   // Impact stats

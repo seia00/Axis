@@ -1,20 +1,22 @@
 "use client";
 
-import { motion } from "framer-motion";
+import { motion, type Transition } from "framer-motion";
 import Link from "next/link";
 import Image from "next/image";
 import { ArrowRight, ChevronDown } from "lucide-react";
 
+const EASE: [number, number, number, number] = [0.25, 0.1, 0.25, 1];
+
 const fadeUp = (delay = 0) => ({
   initial: { opacity: 0, y: 24 },
   animate: { opacity: 1, y: 0 },
-  transition: { duration: 0.65, delay, ease: [0.25, 0.1, 0.25, 1] },
+  transition: { duration: 0.65, delay, ease: EASE } satisfies Transition,
 });
 
 const fadeIn = (delay = 0) => ({
   initial: { opacity: 0 },
   animate: { opacity: 1 },
-  transition: { duration: 0.7, delay, ease: "easeOut" },
+  transition: { duration: 0.7, delay, ease: EASE } satisfies Transition,
 });
 
 export function HeroSection() {
@@ -95,7 +97,7 @@ export function HeroSection() {
         <span className="text-white/30 text-xs tracking-widest uppercase">Scroll</span>
         <motion.div
           animate={{ y: [0, 8, 0] }}
-          transition={{ duration: 1.4, repeat: Infinity, ease: "easeInOut", delay: 1.2 }}
+          transition={{ duration: 1.4, repeat: Infinity, ease: EASE, delay: 1.2 } satisfies Transition}
         >
           <ChevronDown className="w-5 h-5 text-white/40" />
         </motion.div>

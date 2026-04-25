@@ -85,6 +85,9 @@ export default function PortfolioPage() {
   const [awardInput, setAwardInput] = useState("");
   const [tagInput, setTagInput] = useState("");
   const [copied, setCopied] = useState(false);
+  const [isVerified, setIsVerified] = useState(false);
+  const [verifyLoading, setVerifyLoading] = useState(false);
+  const [verifyError, setVerifyError] = useState("");
 
   const fetchActivities = useCallback(async () => {
     const res = await fetch("/api/activities");
@@ -97,8 +100,25 @@ export default function PortfolioPage() {
 
   useEffect(() => {
     if (status === "unauthenticated") router.push("/auth/signin?callbackUrl=/portfolio");
-    if (status === "authenticated") fetchActivities();
+    if (status === "authenticated") {
+      fetchActivities();
+      // Fetch user verification status
+      fetch("/api/activities").then(r => r.ok ? r.json() : []).catch(() => []);
+    }
   }, [status, router, fetchActivities]);
+
+  const handleClaimVerified = async () => {
+    setVerifyLoading(true);
+    setVerifyError("");
+    const res = await fetch("/api/user/verify-claim", { method: "POST" });
+    if (res.ok) {
+      setIsVerified(true);
+    } else {
+      const data = await res.json();
+      setVerifyError(data.error ?? "Unable to verify at this time.");
+    }
+    setVerifyLoading(false);
+  };
 
   const openAddModal = () => {
     setEditingActivity(null);
@@ -212,11 +232,24 @@ export default function PortfolioPage() {
                 )}
               </div>
               <div>
-                <h1 className="text-xl font-bold">{session?.user?.name ?? "Your Portfolio"}</h1>
+                <div className="flex items-center gap-2 flex-wrap">
+                  <h1 className="text-xl font-bold">{session?.user?.name ?? "Your Portfolio"}</h1>
+                  {isVerified && (
+                    <span className="inline-flex items-center gap-1 text-xs px-1.5 py-0.5 rounded-full bg-amber-950/60 text-amber-300 border border-amber-800/40">
+                      <Star className="w-3 h-3" /> Verified
+                    </span>
+                  )}
+                </div>
                 <p className="text-sm text-[var(--muted-foreground)]">{session?.user?.email}</p>
               </div>
             </div>
             <div className="flex items-center gap-2 flex-wrap">
+              {!isVerified && (
+                <Button variant="secondary" size="sm" onClick={handleClaimVerified} loading={verifyLoading}>
+                  <Star className="w-4 h-4 text-amber-400" />
+                  Claim Verified Status
+                </Button>
+              )}
               <Button variant="secondary" size="sm" onClick={handleCommonApp}>
                 <Download className="w-4 h-4" />
                 Common App Export
@@ -231,6 +264,12 @@ export default function PortfolioPage() {
               </Button>
             </div>
           </div>
+
+          {verifyError && (
+            <div className="mt-3 p-3 rounded-lg border border-amber-800/40 bg-amber-950/20 text-amber-300 text-sm">
+              {verifyError}
+            </div>
+          )}
 
           {/* Stats */}
           <div className="grid grid-cols-3 gap-4 mt-6 pt-6 border-t border-[var(--border)]">

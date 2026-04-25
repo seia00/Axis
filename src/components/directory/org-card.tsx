@@ -2,7 +2,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { TierBadge } from "@/components/ui/badge";
 import { StarRating } from "@/components/ui/star-rating";
-import { MapPin, Calendar, Users } from "lucide-react";
+import { MapPin, Calendar, Users, ArrowRight } from "lucide-react";
 import { OrgTier } from "@prisma/client";
 import { truncate } from "@/lib/utils";
 
@@ -87,6 +87,12 @@ export function OrgCard({ org }: { org: OrgCardOrg }) {
           ) : (
             <span className="text-[var(--muted-foreground)]">No reviews yet</span>
           )}
+        </div>
+
+        <div className="mt-4 pt-3 border-t border-[var(--border)] flex items-center justify-end">
+          <span className="text-xs text-indigo-400 group-hover:text-indigo-300 flex items-center gap-1 transition-colors">
+            View Profile <ArrowRight className="w-3 h-3 group-hover:translate-x-0.5 transition-transform" />
+          </span>
         </div>
       </div>
     </Link>

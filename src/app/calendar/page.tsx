@@ -35,7 +35,7 @@ interface CalEvent {
 }
 
 export default function CalendarPage() {
-  const { data: session, status } = useSession();
+  const { status } = useSession();
   const router = useRouter();
   const [events, setEvents] = useState<CalEvent[]>([]);
   const [loading, setLoading] = useState(true);
@@ -93,8 +93,8 @@ export default function CalendarPage() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 py-8">
         <div className="flex items-center justify-between mb-6">
           <div>
-            <h1 className="text-2xl font-bold tracking-tight">Calendar</h1>
-            <p className="text-sm text-[var(--muted-foreground)] mt-1">Deadlines, events, and personal milestones</p>
+            <h1 className="text-2xl font-bold tracking-tight">My Calendar</h1>
+            <p className="text-sm text-[var(--muted-foreground)] mt-1">Your deadlines, events, and milestones in one place</p>
           </div>
           <Button size="sm" onClick={() => setShowAddModal(true)}>
             <Plus className="w-4 h-4" /> Add Event

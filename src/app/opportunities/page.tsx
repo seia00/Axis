@@ -8,7 +8,7 @@ import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import {
   Search, Filter, ShieldCheck, Bookmark, BookmarkCheck, Calendar,
-  Clock, MapPin, ExternalLink, Loader2, Plus, X
+  MapPin, ExternalLink, Loader2, Plus, X
 } from "lucide-react";
 import { formatDistanceToNow, differenceInDays } from "date-fns";
 
@@ -37,7 +37,7 @@ interface SavedOpp {
 }
 
 export default function OpportunitiesPage() {
-  const { data: session, status } = useSession();
+  const { status } = useSession();
   const router = useRouter();
   const [opportunities, setOpportunities] = useState<Opportunity[]>([]);
   const [saved, setSaved] = useState<SavedOpp[]>([]);
@@ -147,8 +147,8 @@ export default function OpportunitiesPage() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 py-8">
         <div className="flex items-center justify-between mb-6">
           <div>
-            <h1 className="text-2xl font-bold tracking-tight">Opportunity Bridge</h1>
-            <p className="text-sm text-[var(--muted-foreground)] mt-1">Competitions, programs, fellowships and more for student changemakers</p>
+            <h1 className="text-2xl font-bold tracking-tight">Opportunities</h1>
+            <p className="text-sm text-[var(--muted-foreground)] mt-1">Competitions, fellowships, programs, and scholarships for student founders</p>
           </div>
           <Button size="sm" variant="secondary" onClick={() => setShowSubmitForm(true)}>
             <Plus className="w-4 h-4" />

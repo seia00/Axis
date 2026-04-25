@@ -3,7 +3,7 @@ import { authOptions } from "@/lib/auth";
 import { redirect } from "next/navigation";
 import { Navbar } from "@/components/layout/navbar";
 import { Sidebar } from "@/components/layout/sidebar";
-import { LayoutDashboard, ShieldCheck, Users, BarChart3, Package, MessageSquare, Rocket, CheckSquare } from "lucide-react";
+import { LayoutDashboard, ShieldCheck, Users, BarChart3, Package, MessageSquare, Rocket, CheckSquare, Calendar } from "lucide-react";
 
 export const metadata = { title: "Admin" };
 
@@ -16,6 +16,7 @@ const sidebarItems = [
   { href: "/admin/reviews", label: "Review Moderation", icon: MessageSquare },
   { href: "/admin/ventures", label: "Ventures", icon: Rocket },
   { href: "/admin/resources", label: "Resources", icon: Package },
+  { href: "/admin/events", label: "Global Events", icon: Calendar },
 ];
 
 export default async function AdminLayout({ children }: { children: React.ReactNode }) {

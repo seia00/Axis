@@ -42,7 +42,7 @@ interface ProjectResource {
 }
 
 export default function ResourcesPage() {
-  const { data: session, status } = useSession();
+  const { status } = useSession();
   const router = useRouter();
   const [resources, setResources] = useState<ProjectResource[]>([]);
   const [loading, setLoading] = useState(true);
@@ -105,8 +105,8 @@ export default function ResourcesPage() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 py-8">
         <div className="flex items-center justify-between mb-6">
           <div>
-            <h1 className="text-2xl font-bold tracking-tight">Resources Library</h1>
-            <p className="text-sm text-[var(--muted-foreground)] mt-1">Templates, guides, and tools for student changemakers</p>
+            <h1 className="text-2xl font-bold tracking-tight">Resource Library</h1>
+            <p className="text-sm text-[var(--muted-foreground)] mt-1">Templates, guides, and tools to help you build and grow</p>
           </div>
           <Button size="sm" variant="secondary" onClick={() => setShowSubmitForm(true)}>
             <Plus className="w-4 h-4" /> Submit Resource

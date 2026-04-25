@@ -5,7 +5,7 @@ import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { Navbar } from "@/components/layout/navbar";
 import Link from "next/link";
-import { Loader2, Plus, Rocket, Users, Filter } from "lucide-react";
+import { Loader2, Plus, Rocket, Users } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 const STAGES = ["idea", "building", "launched", "scaling"];
@@ -31,7 +31,7 @@ interface Project {
 }
 
 export default function LaunchpadPage() {
-  const { data: session, status } = useSession();
+  const { status } = useSession();
   const router = useRouter();
   const [projects, setProjects] = useState<Project[]>([]);
   const [loading, setLoading] = useState(true);
@@ -65,7 +65,7 @@ export default function LaunchpadPage() {
         <div className="flex items-center justify-between mb-6">
           <div>
             <h1 className="text-2xl font-bold tracking-tight">Launch Pad</h1>
-            <p className="text-sm text-[var(--muted-foreground)] mt-1">Find co-founders, join projects, build something meaningful</p>
+            <p className="text-sm text-[var(--muted-foreground)] mt-1">Find your team, or find your next project</p>
           </div>
           <Link href="/launchpad/create">
             <Button size="sm">

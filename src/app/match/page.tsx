@@ -55,7 +55,7 @@ function ScoreCircle({ score }: { score: number }) {
 }
 
 export default function MatchPage() {
-  const { data: session, status } = useSession();
+  const { status } = useSession();
   const router = useRouter();
   const [matches, setMatches] = useState<MatchWithDetail[]>([]);
   const [loading, setLoading] = useState(true);

@@ -11,7 +11,6 @@ import {
   LayoutGrid,
   Network,
   Rocket,
-  Info,
   ChevronDown,
   LogOut,
   Settings,
@@ -29,11 +28,11 @@ import { useState } from "react";
 
 const navLinks = [
   { href: "/directory", label: "Directory", icon: LayoutGrid },
-  { href: "/network", label: "Network", icon: Network },
   { href: "/opportunities", label: "Opportunities", icon: Briefcase },
   { href: "/launchpad", label: "Launch Pad", icon: Rocket },
   { href: "/ventures", label: "Ventures", icon: TrendingUp },
-  { href: "/community", label: "Community", icon: Info },
+  { href: "/match", label: "Match", icon: Sparkles },
+  { href: "/network", label: "Network", icon: Network },
 ];
 
 const userMenuLinks = [
@@ -67,20 +66,23 @@ export function Navbar() {
 
           {/* Desktop nav */}
           <nav className="hidden md:flex items-center gap-1">
-            {navLinks.map(({ href, label }) => (
-              <Link
-                key={href}
-                href={href}
-                className={cn(
-                  "px-3 py-1.5 text-sm rounded-lg transition-colors",
-                  pathname?.startsWith(href)
-                    ? "bg-[var(--surface-raised)] text-[var(--foreground)]"
-                    : "text-[var(--muted-foreground)] hover:text-[var(--foreground)] hover:bg-[var(--surface-raised)]"
-                )}
-              >
-                {label}
-              </Link>
-            ))}
+            {navLinks.map(({ href, label }) => {
+              const isActive = href === "/" ? pathname === "/" : pathname?.startsWith(href);
+              return (
+                <Link
+                  key={href}
+                  href={href}
+                  className={cn(
+                    "px-3 py-1.5 text-sm rounded-lg transition-colors",
+                    isActive
+                      ? "bg-[var(--surface-raised)] text-[var(--foreground)]"
+                      : "text-[var(--muted-foreground)] hover:text-[var(--foreground)] hover:bg-[var(--surface-raised)]"
+                  )}
+                >
+                  {label}
+                </Link>
+              );
+            })}
           </nav>
 
           {/* Right side */}
@@ -181,22 +183,47 @@ export function Navbar() {
         {/* Mobile nav */}
         {menuOpen && (
           <div className="md:hidden border-t border-[var(--border)] py-3 space-y-1">
-            {navLinks.map(({ href, label, icon: Icon }) => (
-              <Link
-                key={href}
-                href={href}
-                onClick={() => setMenuOpen(false)}
-                className={cn(
-                  "flex items-center gap-2 px-3 py-2 text-sm rounded-lg transition-colors",
-                  pathname?.startsWith(href)
-                    ? "bg-[var(--surface-raised)] text-[var(--foreground)]"
-                    : "text-[var(--muted-foreground)] hover:text-[var(--foreground)]"
-                )}
-              >
-                <Icon className="w-4 h-4" />
-                {label}
-              </Link>
-            ))}
+            {navLinks.map(({ href, label, icon: Icon }) => {
+              const isActive = href === "/" ? pathname === "/" : pathname?.startsWith(href);
+              return (
+                <Link
+                  key={href}
+                  href={href}
+                  onClick={() => setMenuOpen(false)}
+                  className={cn(
+                    "flex items-center gap-2 px-3 py-2 text-sm rounded-lg transition-colors",
+                    isActive
+                      ? "bg-[var(--surface-raised)] text-[var(--foreground)]"
+                      : "text-[var(--muted-foreground)] hover:text-[var(--foreground)]"
+                  )}
+                >
+                  <Icon className="w-4 h-4" />
+                  {label}
+                </Link>
+              );
+            })}
+            {/* Extra mobile links for features in user dropdown */}
+            <div className="pt-2 mt-2 border-t border-[var(--border)] space-y-1">
+              {userMenuLinks.map(({ href, label, icon: Icon }) => {
+                const isActive = pathname?.startsWith(href);
+                return (
+                  <Link
+                    key={href}
+                    href={href}
+                    onClick={() => setMenuOpen(false)}
+                    className={cn(
+                      "flex items-center gap-2 px-3 py-2 text-sm rounded-lg transition-colors",
+                      isActive
+                        ? "bg-[var(--surface-raised)] text-[var(--foreground)]"
+                        : "text-[var(--muted-foreground)] hover:text-[var(--foreground)]"
+                    )}
+                  >
+                    <Icon className="w-4 h-4" />
+                    {label}
+                  </Link>
+                );
+              })}
+            </div>
           </div>
         )}
       </div>

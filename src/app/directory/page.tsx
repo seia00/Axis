@@ -1,7 +1,7 @@
 import { prisma } from "@/lib/prisma";
 import { DirectorySearch } from "@/components/directory/directory-search";
 import { OrgCard } from "@/components/directory/org-card";
-import { LayoutGrid, SlidersHorizontal } from "lucide-react";
+import { LayoutGrid } from "lucide-react";
 import { OrgTier, Prisma } from "@prisma/client";
 
 interface SearchParams {
@@ -63,34 +63,44 @@ export default async function DirectoryPage({
 }: {
   searchParams: SearchParams;
 }) {
-  const orgs = await getOrgs(searchParams);
+  const [orgs, totalCount] = await Promise.all([
+    getOrgs(searchParams),
+    prisma.organization.count(),
+  ]);
 
   const focusAreas = [
     "Environment", "Technology", "Arts", "Sports", "Academic",
     "Social Impact", "Entrepreneurship", "Culture", "Health", "STEM",
   ];
 
+  const hasActiveFilters = Object.values(searchParams).some(Boolean);
+
   return (
     <div>
-      {/* Header */}
-      <div className="flex items-start justify-between mb-6">
-        <div>
-          <div className="flex items-center gap-2 mb-1">
-            <LayoutGrid className="w-5 h-5 text-indigo-400" />
-            <h1 className="text-2xl font-bold tracking-tight">AXIS Directory</h1>
-          </div>
-          <p className="text-sm text-[var(--muted-foreground)]">
-            Discover student organizations across Japan
-          </p>
+      {/* Hero Header */}
+      <div className="mb-8">
+        <div className="flex items-center gap-2 mb-2">
+          <LayoutGrid className="w-5 h-5 text-indigo-400" />
+          <h1 className="text-2xl font-bold tracking-tight">Organization Directory</h1>
         </div>
-        <div className="flex items-center gap-2 text-sm text-[var(--muted-foreground)]">
-          <SlidersHorizontal className="w-4 h-4" />
-          {orgs.length} orgs found
-        </div>
+        <p className="text-sm text-[var(--muted-foreground)] max-w-2xl">
+          Discover student organizations across Japan — from entrepreneurship clubs to social enterprises to research groups.
+        </p>
+        <p className="text-xs text-[var(--muted-foreground)] mt-2">
+          <span className="font-medium text-[var(--foreground)]">{totalCount}</span> organizations listed
+        </p>
       </div>
 
       {/* Search & Filters */}
       <DirectorySearch focusAreas={focusAreas} initialParams={searchParams as Record<string, string | undefined>} />
+
+      {/* Results count when filtered */}
+      {hasActiveFilters && (
+        <p className="text-xs text-[var(--muted-foreground)] mt-4">
+          Showing <span className="font-medium text-[var(--foreground)]">{orgs.length}</span> result{orgs.length !== 1 ? "s" : ""}
+          {searchParams.q && <> for &quot;<span className="text-[var(--foreground)]">{searchParams.q}</span>&quot;</>}
+        </p>
+      )}
 
       {/* Results */}
       {orgs.length === 0 ? (
@@ -98,7 +108,7 @@ export default async function DirectoryPage({
           <LayoutGrid className="w-12 h-12 text-[var(--muted-foreground)] mx-auto mb-4 opacity-50" />
           <h3 className="text-base font-medium mb-2">No organizations found</h3>
           <p className="text-sm text-[var(--muted-foreground)]">
-            Try adjusting your filters or search terms.
+            No organizations match your search. Try different filters or check back soon.
           </p>
         </div>
       ) : (

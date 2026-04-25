@@ -19,7 +19,7 @@ interface RoleForm {
 }
 
 export default function CreateProjectPage() {
-  const { data: session, status } = useSession();
+  const { status } = useSession();
   const router = useRouter();
   const [form, setForm] = useState({
     title: "",

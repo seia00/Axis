@@ -118,6 +118,8 @@ model User {
   projects           Project[]
   projectMembers     ProjectMember[]
   applications       Application[]
+  calendarEvents     CalendarEvent[]
+  matchesFrom        Match[]           @relation("MatchesFrom")
 }
 
 model Organization {
@@ -304,6 +306,7 @@ model ImpactStat {
 model Match {
   id         String   @id @default(cuid())
   fromUserId String
+  fromUser   User     @relation("MatchesFrom", fields: [fromUserId], references: [id], onDelete: Cascade)
   toUserId   String
   type       String
   reason     String   @db.Text
@@ -392,6 +395,7 @@ model Project {
   roles          Role2[]
   members        ProjectMember[]
   applications   Application[]
+  milestones     Milestone[]
 }
 
 model Role2 {
@@ -443,6 +447,7 @@ model CalendarEvent {
   color         String?
   opportunityId String?
   userId        String?
+  user          User?     @relation(fields: [userId], references: [id], onDelete: Cascade)
   isGlobal      Boolean   @default(false)
   createdAt     DateTime  @default(now())
 }
@@ -464,6 +469,7 @@ model ProjectResource {
 model Milestone {
   id          String    @id @default(cuid())
   projectId   String
+  project     Project   @relation(fields: [projectId], references: [id], onDelete: Cascade)
   title       String
   description String?
   isCompleted Boolean   @default(false)

@@ -30,7 +30,7 @@ interface OpportunityDetail {
 }
 
 export default function OpportunityDetailPage() {
-  const { data: session, status } = useSession();
+  const { status } = useSession();
   const router = useRouter();
   const params = useParams();
   const id = params.id as string;

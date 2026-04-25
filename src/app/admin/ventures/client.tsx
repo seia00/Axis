@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { CheckCircle, XCircle, Rocket } from "lucide-react";
+import { CheckCircle, XCircle, Rocket, X } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { format } from "date-fns";
 
@@ -20,15 +20,30 @@ interface Application {
 export function AdminVenturesClient({ applications }: { applications: Application[] }) {
   const router = useRouter();
   const [loading, setLoading] = useState<string | null>(null);
+  const [acceptingId, setAcceptingId] = useState<string | null>(null);
+  const [mentorName, setMentorName] = useState("");
 
-  const handleAction = async (id: string, action: "accepted" | "rejected") => {
-    setLoading(id + action);
+  const handleReject = async (id: string) => {
+    setLoading(id + "rejected");
     await fetch(`/api/admin/ventures/${id}`, {
       method: "PATCH",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ ventureStage: action }),
+      body: JSON.stringify({ ventureStage: "rejected" }),
     });
     setLoading(null);
+    router.refresh();
+  };
+
+  const handleAccept = async (id: string) => {
+    setLoading(id + "accepted");
+    await fetch(`/api/admin/ventures/${id}`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ ventureStage: "accepted", mentorAssigned: mentorName || null }),
+    });
+    setLoading(null);
+    setAcceptingId(null);
+    setMentorName("");
     router.refresh();
   };
 
@@ -70,7 +85,7 @@ export function AdminVenturesClient({ applications }: { applications: Applicatio
                     size="sm"
                     variant="secondary"
                     loading={loading === app.id + "rejected"}
-                    onClick={() => handleAction(app.id, "rejected")}
+                    onClick={() => handleReject(app.id)}
                     className="text-red-400 hover:text-red-300"
                   >
                     <XCircle className="w-4 h-4" /> Reject
@@ -78,12 +93,44 @@ export function AdminVenturesClient({ applications }: { applications: Applicatio
                   <Button
                     size="sm"
                     loading={loading === app.id + "accepted"}
-                    onClick={() => handleAction(app.id, "accepted")}
+                    onClick={() => setAcceptingId(app.id)}
                   >
                     <CheckCircle className="w-4 h-4" /> Accept
                   </Button>
                 </div>
               </div>
+
+              {/* Accept form with mentor assignment */}
+              {acceptingId === app.id && (
+                <div className="mt-4 pt-4 border-t border-[var(--border)]">
+                  <div className="flex items-end gap-3">
+                    <div className="flex-1">
+                      <label className="text-xs text-[var(--muted-foreground)] block mb-1">
+                        Assign Mentor (optional)
+                      </label>
+                      <input
+                        className="input"
+                        placeholder="Mentor name"
+                        value={mentorName}
+                        onChange={e => setMentorName(e.target.value)}
+                      />
+                    </div>
+                    <Button
+                      size="sm"
+                      loading={loading === app.id + "accepted"}
+                      onClick={() => handleAccept(app.id)}
+                    >
+                      Confirm Accept
+                    </Button>
+                    <button
+                      onClick={() => { setAcceptingId(null); setMentorName(""); }}
+                      className="p-1.5 rounded-lg hover:bg-[var(--surface-raised)] text-[var(--muted-foreground)] transition-colors"
+                    >
+                      <X className="w-4 h-4" />
+                    </button>
+                  </div>
+                </div>
+              )}
             </div>
           ))}
         </div>

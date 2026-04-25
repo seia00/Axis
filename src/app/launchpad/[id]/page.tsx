@@ -6,7 +6,7 @@ import { useRouter, useParams } from "next/navigation";
 import { Navbar } from "@/components/layout/navbar";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
-import { ArrowLeft, Users, Globe, CheckCircle, X, Loader2 } from "lucide-react";
+import { ArrowLeft, Users, Globe, CheckCircle, X, Loader2, TrendingUp } from "lucide-react";
 
 const STAGE_COLORS: Record<string, string> = {
   idea: "bg-amber-950/60 text-amber-300 border border-amber-800/40",
@@ -41,6 +41,7 @@ interface Project {
   tags: string[];
   websiteUrl?: string;
   creatorId: string;
+  ventureStage?: string;
   roles: Role[];
   members: Member[];
   creator: { id: string; name?: string; image?: string; email?: string };
@@ -57,13 +58,42 @@ export default function ProjectDetailPage() {
   const [message, setMessage] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [applied, setApplied] = useState(false);
+  const [showVentureModal, setShowVentureModal] = useState(false);
+  const [ventureForm, setVentureForm] = useState({ description: "", teamOverview: "", traction: "", helpNeeded: "" });
+  const [ventureSubmitting, setVentureSubmitting] = useState(false);
+  const [ventureApplied, setVentureApplied] = useState(false);
 
   useEffect(() => {
     if (status === "unauthenticated") router.push("/auth/signin?callbackUrl=/launchpad/" + id);
     if (status === "authenticated") {
-      fetch(`/api/projects/${id}`).then(r => r.json()).then(data => { setProject(data); setLoading(false); });
+      fetch(`/api/projects/${id}`).then(r => r.json()).then(data => {
+        setProject(data);
+        setLoading(false);
+        if (data?.description) {
+          setVentureForm(f => ({ ...f, description: data.description }));
+        }
+      });
     }
   }, [status, id, router]);
+
+  const handleVentureApply = async () => {
+    if (!project) return;
+    setVentureSubmitting(true);
+    const res = await fetch("/api/ventures/apply", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ projectId: project.id, ...ventureForm }),
+    });
+    if (res.ok) {
+      setVentureApplied(true);
+      setShowVentureModal(false);
+      setProject(prev => prev ? { ...prev, ventureStage: "applied" } : prev);
+    } else {
+      const err = await res.json();
+      alert(err.error ?? "Failed to submit");
+    }
+    setVentureSubmitting(false);
+  };
 
   const handleApply = async () => {
     if (!applyingRole) return;
@@ -100,6 +130,12 @@ export default function ProjectDetailPage() {
         {applied && (
           <div className="mb-4 p-3 rounded-lg border border-emerald-800/40 bg-emerald-950/20 text-emerald-300 text-sm flex items-center gap-2">
             <CheckCircle className="w-4 h-4" /> Application submitted! The team will review it shortly.
+          </div>
+        )}
+
+        {ventureApplied && (
+          <div className="mb-4 p-3 rounded-lg border border-violet-800/40 bg-violet-950/20 text-violet-300 text-sm flex items-center gap-2">
+            <TrendingUp className="w-4 h-4" /> AXIS Ventures application submitted! We'll review it soon.
           </div>
         )}
 
@@ -158,6 +194,31 @@ export default function ProjectDetailPage() {
 
           {/* Sidebar */}
           <div className="space-y-4">
+            {isCreator && !project.ventureStage && (
+              <div className="card border-violet-800/30 bg-violet-950/10">
+                <div className="flex items-center gap-2 mb-2">
+                  <TrendingUp className="w-4 h-4 text-violet-400" />
+                  <h3 className="text-sm font-semibold text-violet-300">AXIS Ventures</h3>
+                </div>
+                <p className="text-xs text-[var(--muted-foreground)] mb-3">
+                  Apply to AXIS Ventures to get mentorship, resources, and support to launch your project.
+                </p>
+                <Button size="sm" onClick={() => setShowVentureModal(true)} className="w-full">
+                  <TrendingUp className="w-4 h-4" /> Apply to AXIS Ventures
+                </Button>
+              </div>
+            )}
+            {isCreator && project.ventureStage && (
+              <div className="card border-violet-800/30 bg-violet-950/10">
+                <div className="flex items-center gap-2">
+                  <TrendingUp className="w-4 h-4 text-violet-400" />
+                  <div>
+                    <p className="text-sm font-semibold text-violet-300">AXIS Ventures</p>
+                    <p className="text-xs text-[var(--muted-foreground)] capitalize">Status: {project.ventureStage}</p>
+                  </div>
+                </div>
+              </div>
+            )}
             <div className="card">
               <h3 className="text-xs font-semibold text-[var(--muted-foreground)] uppercase tracking-wider mb-3">Team</h3>
               <div className="space-y-2.5">
@@ -192,6 +253,73 @@ export default function ProjectDetailPage() {
           </div>
         </div>
       </div>
+
+      {/* AXIS Ventures Apply Modal */}
+      {showVentureModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+          <div className="fixed inset-0 bg-black/60 backdrop-blur-sm" onClick={() => setShowVentureModal(false)} />
+          <div className="relative bg-[var(--surface-raised)] rounded-xl border border-[var(--border)] w-full max-w-lg p-6 shadow-2xl">
+            <div className="flex items-center justify-between mb-4">
+              <div className="flex items-center gap-2">
+                <TrendingUp className="w-5 h-5 text-violet-400" />
+                <h2 className="text-lg font-semibold">Apply to AXIS Ventures</h2>
+              </div>
+              <button onClick={() => setShowVentureModal(false)}><X className="w-4 h-4" /></button>
+            </div>
+            <p className="text-sm text-[var(--muted-foreground)] mb-4">
+              Tell us more about your project and what you need to take it to the next level.
+            </p>
+            <div className="space-y-3">
+              <div>
+                <label className="text-xs text-[var(--muted-foreground)] block mb-1">Project description for AXIS Ventures *</label>
+                <textarea
+                  className="input min-h-[80px]"
+                  placeholder="Describe your project and its goals..."
+                  value={ventureForm.description}
+                  onChange={e => setVentureForm(f => ({ ...f, description: e.target.value }))}
+                />
+              </div>
+              <div>
+                <label className="text-xs text-[var(--muted-foreground)] block mb-1">Team overview *</label>
+                <textarea
+                  className="input min-h-[60px]"
+                  placeholder="Who are the team members and what are their roles?"
+                  value={ventureForm.teamOverview}
+                  onChange={e => setVentureForm(f => ({ ...f, teamOverview: e.target.value }))}
+                />
+              </div>
+              <div>
+                <label className="text-xs text-[var(--muted-foreground)] block mb-1">Traction so far</label>
+                <textarea
+                  className="input min-h-[60px]"
+                  placeholder="What have you built? Who have you reached? Any early results?"
+                  value={ventureForm.traction}
+                  onChange={e => setVentureForm(f => ({ ...f, traction: e.target.value }))}
+                />
+              </div>
+              <div>
+                <label className="text-xs text-[var(--muted-foreground)] block mb-1">What help do you need? *</label>
+                <textarea
+                  className="input min-h-[60px]"
+                  placeholder="Mentorship, funding, resources, network...?"
+                  value={ventureForm.helpNeeded}
+                  onChange={e => setVentureForm(f => ({ ...f, helpNeeded: e.target.value }))}
+                />
+              </div>
+            </div>
+            <div className="flex justify-end gap-3 mt-4 pt-4 border-t border-[var(--border)]">
+              <Button variant="secondary" onClick={() => setShowVentureModal(false)}>Cancel</Button>
+              <Button
+                onClick={handleVentureApply}
+                loading={ventureSubmitting}
+                disabled={!ventureForm.description || !ventureForm.teamOverview || !ventureForm.helpNeeded}
+              >
+                Submit Application
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Apply Modal */}
       {applyingRole && (

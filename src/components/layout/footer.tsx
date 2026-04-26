@@ -19,7 +19,7 @@ const footerLinks = {
     { href: "https://discord.gg/axis", label: "Discord" },
   ],
   Legal: [
-    { href: "/legal/privacy",    label: "Privacy" },
+    { href: "https://axis-privacy-policy.vercel.app/", label: "Privacy Policy" },
     { href: "/legal/terms",      label: "Terms" },
     { href: "/legal/guidelines", label: "Guidelines" },
   ],
@@ -54,16 +54,30 @@ export function Footer() {
                 {category}
               </p>
               <ul className="space-y-2.5">
-                {links.map(({ href, label }) => (
-                  <li key={href}>
-                    <Link
-                      href={href}
-                      className="text-xs text-white/35 hover:text-white/60 transition-colors duration-150"
-                    >
-                      {label}
-                    </Link>
-                  </li>
-                ))}
+                {links.map(({ href, label }) => {
+                  const isExternal = href.startsWith("http");
+                  return (
+                    <li key={href}>
+                      {isExternal ? (
+                        <a
+                          href={href}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="text-xs text-white/35 hover:text-white/60 transition-colors duration-150"
+                        >
+                          {label}
+                        </a>
+                      ) : (
+                        <Link
+                          href={href}
+                          className="text-xs text-white/35 hover:text-white/60 transition-colors duration-150"
+                        >
+                          {label}
+                        </Link>
+                      )}
+                    </li>
+                  );
+                })}
               </ul>
             </div>
           ))}

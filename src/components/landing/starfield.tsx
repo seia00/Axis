@@ -22,7 +22,8 @@ export function Starfield() {
     if (!ctx) return;
 
     const isMobile = window.innerWidth < 768;
-    const starCount = isMobile ? 120 : 250;
+    // Fewer, dimmer stars — premium not planetarium
+    const starCount = isMobile ? 90 : 180;
 
     let stars: Star[] = [];
 
@@ -38,11 +39,14 @@ export function Starfield() {
       stars = Array.from({ length: starCount }, (_, i) => ({
         x: Math.random() * canvas.width,
         y: Math.random() * canvas.height,
-        size: Math.random() * 2 + 0.5,
-        baseOpacity: Math.random() * 0.6 + 0.2,
-        speed: Math.random() * 0.015 + 0.003,
+        // Smaller stars — more delicate
+        size: Math.random() * 1.2 + 0.3,
+        // Dimmer opacity range: 0.08 – 0.45
+        baseOpacity: Math.random() * 0.37 + 0.08,
+        speed: Math.random() * 0.012 + 0.002,
         phase: Math.random() * Math.PI * 2,
-        isBright: i < 8,
+        // Only 4 bright accent stars
+        isBright: i < 4,
       }));
     }
 
@@ -60,27 +64,34 @@ export function Starfield() {
 
       if (!canvas || !ctx) return;
 
-      // Background gradient
+      // Near-black radial gradient — center barely lighter than edges
       const grad = ctx.createRadialGradient(
-        canvas.width / 2, canvas.height * 0.3, 0,
-        canvas.width / 2, canvas.height * 0.3, canvas.width * 0.8
+        canvas.width / 2, canvas.height * 0.35, 0,
+        canvas.width / 2, canvas.height * 0.35, canvas.width * 0.75
       );
-      grad.addColorStop(0, "#0c1425");
-      grad.addColorStop(1, "#050a18");
+      grad.addColorStop(0, "#0d0d10"); // zinc-950 center — very slightly warmer
+      grad.addColorStop(1, "#09090b"); // zinc-950 edge — pure near-black
       ctx.fillStyle = grad;
       ctx.fillRect(0, 0, canvas.width, canvas.height);
 
       stars.forEach((star) => {
-        const twinkle = Math.sin(time * star.speed + star.phase) * 0.3;
+        const twinkle = Math.sin(time * star.speed + star.phase) * 0.18;
         const opacity = Math.max(0, Math.min(1, star.baseOpacity + twinkle));
 
         ctx.beginPath();
-        ctx.arc(star.x, star.y, star.isBright ? star.size + 1 : star.size, 0, Math.PI * 2);
+        ctx.arc(
+          star.x,
+          star.y,
+          star.isBright ? star.size + 0.6 : star.size,
+          0,
+          Math.PI * 2
+        );
         ctx.fillStyle = `rgba(255, 255, 255, ${opacity})`;
 
         if (star.isBright) {
-          ctx.shadowBlur = 10;
-          ctx.shadowColor = `rgba(180, 210, 255, ${opacity * 0.6})`;
+          // Subtle violet-tinted glow on the 4 accent stars
+          ctx.shadowBlur = 8;
+          ctx.shadowColor = `rgba(180, 160, 255, ${opacity * 0.5})`;
         } else {
           ctx.shadowBlur = 0;
         }
@@ -92,7 +103,6 @@ export function Starfield() {
 
     animFrame = requestAnimationFrame(animate);
 
-    // Resize debounce
     let resizeTimer: ReturnType<typeof setTimeout>;
     const handleResize = () => {
       clearTimeout(resizeTimer);

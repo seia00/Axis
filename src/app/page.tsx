@@ -1,5 +1,4 @@
 import Link from "next/link";
-import { Navbar } from "@/components/layout/navbar";
 import { Footer } from "@/components/layout/footer";
 import { Starfield } from "@/components/landing/starfield";
 import { AxisDiagram } from "@/components/landing/axis-diagram";
@@ -24,31 +23,37 @@ async function getStats() {
 function CTASection() {
   return (
     <section className="relative z-10 py-32 px-4 text-center">
-      <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-        <div className="w-[500px] h-[300px] bg-indigo-700/10 rounded-full blur-[100px]" />
+      {/* Single ambient glow behind CTA */}
+      <div
+        className="absolute inset-0 flex items-center justify-center pointer-events-none"
+        aria-hidden
+      >
+        <div
+          className="w-[400px] h-[220px]"
+          style={{
+            background: "radial-gradient(ellipse, rgba(139,92,246,0.08) 0%, transparent 70%)",
+            filter: "blur(50px)",
+          }}
+        />
       </div>
-      <div className="relative max-w-2xl mx-auto">
-        <h2 className="text-4xl sm:text-5xl font-bold text-white mb-5 leading-tight">
-          Ready to start?
+
+      <div className="relative max-w-lg mx-auto">
+        <h2 className="text-3xl sm:text-4xl font-bold text-white mb-4 tracking-tight">
+          Ready to start building?
         </h2>
-        <p className="text-white/50 text-lg mb-8">
-          Join Japan's growing community of student founders — free, forever.
+        <p className="text-white/40 text-base mb-8 leading-relaxed">
+          Join Japan's community of student founders — free, forever.
         </p>
         <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
-          <a
+          <Link
             href="/auth/signin"
-            className="inline-flex items-center gap-2 px-8 py-3.5 rounded-lg text-white font-semibold text-sm transition-all duration-200 hover:scale-105"
-            style={{
-              background: "linear-gradient(135deg, #4f46e5, #7c3aed)",
-              boxShadow: "0 0 30px rgba(79,70,229,0.3)",
-            }}
+            className="inline-flex items-center gap-2 px-7 py-3 rounded-lg bg-white text-black font-medium text-sm transition-colors duration-150 hover:bg-white/90"
           >
             Join AXIS Free
-          </a>
+          </Link>
           <Link
             href="/directory"
-            className="inline-flex items-center gap-2 px-8 py-3.5 rounded-lg border text-white/70 hover:text-white font-semibold text-sm transition-all duration-200 backdrop-blur-sm"
-            style={{ borderColor: "rgba(255,255,255,0.15)" }}
+            className="inline-flex items-center gap-2 px-7 py-3 rounded-lg border border-white/[0.10] text-white/55 hover:text-white hover:border-white/[0.20] font-medium text-sm transition-all duration-200"
           >
             Browse Directory
           </Link>
@@ -62,19 +67,14 @@ export default async function LandingPage() {
   const stats = await getStats();
 
   return (
-    <div className="relative min-h-screen" style={{ background: "#050a18" }}>
-      {/* Starfield — fixed, behind everything */}
+    <div className="relative min-h-screen bg-[#09090b]">
+      {/* Starfield canvas — fixed, behind everything */}
       <Starfield />
-
-      {/* Navbar sits above starfield */}
-      <div className="relative z-50">
-        <Navbar />
-      </div>
 
       {/* HERO */}
       <HeroSection />
 
-      {/* AXIS DIAGRAM — the signature scroll section */}
+      {/* AXIS DIAGRAM — signature scroll section */}
       <AxisDiagram />
 
       {/* PRODUCT CARDS */}

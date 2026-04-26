@@ -2,6 +2,8 @@ import type { Metadata } from "next";
 import "./globals.css";
 import { Providers } from "./providers";
 import { PageTransition } from "@/components/animation";
+import { AppSidebar } from "@/components/layout/app-sidebar";
+import { SidebarLayout } from "@/components/layout/sidebar-layout";
 
 export const metadata: Metadata = {
   title: { default: "AXIS — Japan's Student Organization Platform", template: "%s | AXIS" },
@@ -20,9 +22,15 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     <html lang="en" className="dark">
       <body className="antialiased min-h-screen bg-[var(--background)] text-[var(--foreground)]">
         <Providers>
-          <PageTransition>
-            {children}
-          </PageTransition>
+          {/* Fixed sidebar — minimal on landing, full on inner pages */}
+          <AppSidebar />
+
+          {/* Content area — offset right on inner pages to clear sidebar */}
+          <SidebarLayout>
+            <PageTransition>
+              {children}
+            </PageTransition>
+          </SidebarLayout>
         </Providers>
       </body>
     </html>

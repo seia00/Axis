@@ -13,66 +13,60 @@ const PRODUCTS = [
     name: "Directory",
     tagline: "Find your people",
     description:
-      "Browse 50+ verified student organizations across Japan. Filter by focus area, location, and tier to find communities that match your ambitions.",
+      "Browse 50+ verified student organizations across Japan. Filter by focus area, location, and tier.",
     route: "/directory",
     cx: 20,
     cy: 75,
-    color: "#818cf8",
   },
   {
     id: "network",
     name: "Network",
     tagline: "Build your circle",
     description:
-      "Connect with other student founders, join organizations, and build the relationships that turn into co-founder partnerships and lifelong collaborations.",
+      "Connect with student founders, join organizations, and build the relationships that become co-founder partnerships.",
     route: "/network",
     cx: 38,
     cy: 58,
-    color: "#a78bfa",
   },
   {
     id: "opportunities",
     name: "Opportunities",
     tagline: "Discover what's out there",
     description:
-      "Access competitions, fellowships, scholarships, and programs from around the world — curated and verified for high school student founders.",
+      "Competitions, fellowships, scholarships, and programs — curated and verified for student founders.",
     route: "/opportunities",
     cx: 52,
     cy: 48,
-    color: "#60a5fa",
   },
   {
     id: "launchpad",
     name: "Launch Pad",
     tagline: "Build something real",
     description:
-      "Post your project, define the roles you need, and recruit talented co-founders and teammates to build something that matters.",
+      "Post your project, define roles, and recruit talented co-founders to build something that matters.",
     route: "/launchpad",
     cx: 68,
     cy: 35,
-    color: "#34d399",
   },
   {
     id: "ventures",
     name: "Ventures",
     tagline: "Scale your vision",
     description:
-      "Apply to AXIS Ventures — our youth incubator for the most ambitious student founders. Get mentorship, resources, and a community of builders.",
+      "AXIS Ventures — our youth incubator for the most ambitious student founders. Mentorship, resources, community.",
     route: "/ventures",
     cx: 82,
     cy: 22,
-    color: "#f59e0b",
   },
   {
     id: "match",
     name: "AXIS Match",
     tagline: "Your AI navigator",
     description:
-      "Our AI engine analyzes your profile and surfaces personalized opportunity matches, co-founder suggestions, and program recommendations.",
+      "Our AI surfaces personalized opportunity matches, co-founder suggestions, and program recommendations.",
     route: "/match",
     cx: 58,
     cy: 28,
-    color: "#e879f9",
   },
 ];
 
@@ -86,6 +80,9 @@ const CONNECTIONS = [
   [4, 5],
 ];
 
+// Accent violet — single color for all dots
+const ACCENT = "#8b5cf6";
+
 export function AxisDiagram() {
   const sectionRef = useRef<HTMLDivElement>(null);
   const svgRef = useRef<SVGSVGElement>(null);
@@ -97,12 +94,10 @@ export function AxisDiagram() {
 
   useEffect(() => {
     const ctx = gsap.context(() => {
-      // Set initial state — dots invisible, labels invisible
       gsap.set(".axis-dot", { scale: 0, opacity: 0, transformOrigin: "center center" });
-      gsap.set(".axis-label", { opacity: 0, y: 6 });
+      gsap.set(".axis-label", { opacity: 0, y: 5 });
       gsap.set(".constellation-line", { strokeDashoffset: 300, opacity: 0 });
 
-      // Use strokeDasharray for line drawing
       const axisLen = 600;
       gsap.set(".x-axis-line", { strokeDasharray: axisLen, strokeDashoffset: axisLen });
       gsap.set(".y-axis-line", { strokeDasharray: axisLen, strokeDashoffset: axisLen });
@@ -118,25 +113,22 @@ export function AxisDiagram() {
         },
       });
 
-      // Draw axes
+      // Draw axes — very faint
       tl.to(".x-axis-line", { strokeDashoffset: 0, duration: 1.5, ease: "none" })
         .to(".y-axis-line", { strokeDashoffset: 0, duration: 1.5, ease: "none" }, "-=1")
         .to(".axis-label-x, .axis-label-y", { opacity: 1, duration: 0.5 }, "-=0.3");
 
-      // Plot each product
+      // Plot each product dot
       PRODUCTS.forEach((_, i) => {
-        const dotClass = `.axis-dot-${i}`;
-        const labelClass = `.axis-label-${i}`;
-
-        tl.to(dotClass, { scale: 1, opacity: 1, duration: 0.6, ease: "back.out(2)" })
-          .to(labelClass, { opacity: 1, y: 0, duration: 0.4 }, "-=0.2")
+        tl.to(`.axis-dot-${i}`, { scale: 1, opacity: 1, duration: 0.6, ease: "back.out(1.8)" })
+          .to(`.axis-label-${i}`, { opacity: 1, y: 0, duration: 0.4 }, "-=0.2")
           .call(() => setActiveDesc(i))
-          .to({}, { duration: 0.8 }); // pause on this dot
+          .to({}, { duration: 0.8 });
       });
 
-      // Draw constellation lines
-      tl.to({}, { duration: 0.3 }); // brief pause
-      CONNECTIONS.forEach(([, ], i) => {
+      // Constellation lines
+      tl.to({}, { duration: 0.3 });
+      CONNECTIONS.forEach(([,], i) => {
         tl.to(`.constellation-line-${i}`, {
           strokeDashoffset: 0,
           opacity: 1,
@@ -145,8 +137,8 @@ export function AxisDiagram() {
         }, i === 0 ? undefined : "-=0.2");
       });
 
-      // Fade axes, make interactive
-      tl.to(".x-axis-line, .y-axis-line", { opacity: 0.12, duration: 0.5 })
+      // Fade axis lines back, unlock interactive
+      tl.to(".x-axis-line, .y-axis-line", { opacity: 0.08, duration: 0.5 })
         .call(() => {
           setInteractive(true);
           setActiveDesc(-1);
@@ -160,18 +152,21 @@ export function AxisDiagram() {
     if (!interactive || transitioning) return;
     setTransitioning(true);
 
-    const dot = document.querySelector(`.axis-dot-click-${product.id}`) as HTMLElement;
+    const dot = document.querySelector(`.dot-glow-${product.id}`) as HTMLElement;
     if (dot) {
-      gsap.to(dot, { scale: 60, opacity: 0.8, duration: 0.7, ease: "power2.in" });
+      // Warp — expand glow to fill screen
+      gsap.to(dot, {
+        scale: 50,
+        opacity: 0.7,
+        duration: 0.9,
+        ease: "power3.in",
+      });
     }
-    gsap.to(".axis-section-content", { opacity: 0, duration: 0.5, delay: 0.2 });
+    gsap.to(".axis-section-content", { opacity: 0, duration: 0.45, delay: 0.45 });
 
-    setTimeout(() => {
-      router.push(product.route);
-    }, 800);
+    setTimeout(() => router.push(product.route), 900);
   };
 
-  // Get the description to show
   const descProduct = activeDesc >= 0 ? PRODUCTS[activeDesc] : null;
   const hoveredProduct = hovered ? PRODUCTS.find((p) => p.id === hovered) : null;
   const displayProduct = hoveredProduct || descProduct;
@@ -184,39 +179,33 @@ export function AxisDiagram() {
       style={{ minHeight: "100vh" }}
     >
       <div className="axis-section-content relative w-full h-screen flex items-center justify-center">
-        {/* Description panel */}
-        <div className="absolute left-6 top-1/2 -translate-y-1/2 w-64 pointer-events-none z-20 hidden lg:block">
+
+        {/* Description panel — left side, desktop only */}
+        <div className="absolute left-6 top-1/2 -translate-y-1/2 w-60 pointer-events-none z-20 hidden lg:block">
           <div
-            className="transition-all duration-500"
+            className="transition-all duration-400"
             style={{
               opacity: displayProduct ? 1 : 0,
               transform: displayProduct ? "translateY(0)" : "translateY(8px)",
             }}
           >
             {displayProduct && (
-              <div
-                className="rounded-xl p-5 border backdrop-blur-md"
-                style={{
-                  background: "rgba(10, 16, 40, 0.75)",
-                  borderColor: `${displayProduct.color}30`,
-                  boxShadow: `0 0 30px ${displayProduct.color}15`,
-                }}
-              >
-                <div
-                  className="text-xs font-semibold uppercase tracking-widest mb-1"
-                  style={{ color: displayProduct.color }}
-                >
+              <div className="rounded-xl p-5 border border-white/[0.06] bg-white/[0.03]">
+                <div className="text-[10px] font-medium uppercase tracking-[0.18em] text-white/30 mb-2">
                   {displayProduct.tagline}
                 </div>
-                <div className="text-white font-bold text-lg mb-2">{displayProduct.name}</div>
-                <p className="text-white/55 text-sm leading-relaxed">{displayProduct.description}</p>
+                <div className="text-white font-semibold text-base mb-2 tracking-tight">
+                  {displayProduct.name}
+                </div>
+                <p className="text-white/45 text-xs leading-relaxed">
+                  {displayProduct.description}
+                </p>
                 {interactive && (
                   <button
                     onClick={() => handleDotClick(displayProduct)}
-                    className="mt-3 text-xs font-medium transition-colors pointer-events-auto"
-                    style={{ color: displayProduct.color }}
+                    className="mt-4 text-xs font-medium text-white/50 hover:text-white pointer-events-auto transition-colors duration-150"
                   >
-                    Explore →
+                    Enter {displayProduct.name} →
                   </button>
                 )}
               </div>
@@ -224,49 +213,86 @@ export function AxisDiagram() {
           </div>
         </div>
 
-        {/* SVG Axis Diagram */}
-        <div className="relative w-full max-w-2xl mx-auto px-8" style={{ aspectRatio: "1 / 0.75" }}>
+        {/* SVG diagram */}
+        <div
+          className="relative w-full max-w-2xl mx-auto px-8"
+          style={{ aspectRatio: "1 / 0.75" }}
+        >
           <svg
             ref={svgRef}
             viewBox="0 0 100 80"
             className="w-full h-full overflow-visible"
-            style={{ filter: "drop-shadow(0 0 1px rgba(255,255,255,0.1))" }}
           >
-            {/* Grid lines (subtle) */}
+            {/* Very faint grid */}
             {[20, 40, 60, 80].map((v) => (
               <g key={v}>
-                <line x1={v} y1="4" x2={v} y2="76" stroke="rgba(255,255,255,0.04)" strokeWidth="0.3" />
-                <line x1="8" y1={v} x2="96" y2={v} stroke="rgba(255,255,255,0.04)" strokeWidth="0.3" />
+                <line
+                  x1={v} y1="4" x2={v} y2="76"
+                  stroke="rgba(255,255,255,0.025)"
+                  strokeWidth="0.2"
+                />
+                <line
+                  x1="8" y1={v} x2="96" y2={v}
+                  stroke="rgba(255,255,255,0.025)"
+                  strokeWidth="0.2"
+                />
               </g>
             ))}
 
-            {/* X axis */}
+            {/* X axis — very faint */}
             <line
               className="x-axis-line"
               x1="10" y1="76" x2="96" y2="76"
-              stroke="rgba(255,255,255,0.5)"
-              strokeWidth="0.6"
+              stroke="rgba(255,255,255,0.10)"
+              strokeWidth="0.5"
               strokeLinecap="round"
             />
-            {/* Arrowhead X */}
-            <polygon points="96,74.8 99,76 96,77.2" fill="rgba(255,255,255,0.5)" className="axis-label-x" style={{ opacity: 0 }} />
+            <polygon
+              points="96,74.8 99,76 96,77.2"
+              fill="rgba(255,255,255,0.10)"
+              className="axis-label-x"
+              style={{ opacity: 0 }}
+            />
 
-            {/* Y axis */}
+            {/* Y axis — very faint */}
             <line
               className="y-axis-line"
               x1="10" y1="76" x2="10" y2="4"
-              stroke="rgba(255,255,255,0.5)"
-              strokeWidth="0.6"
+              stroke="rgba(255,255,255,0.10)"
+              strokeWidth="0.5"
               strokeLinecap="round"
             />
-            {/* Arrowhead Y */}
-            <polygon points="8.8,4 10,1 11.2,4" fill="rgba(255,255,255,0.5)" className="axis-label-y" style={{ opacity: 0 }} />
+            <polygon
+              points="8.8,4 10,1 11.2,4"
+              fill="rgba(255,255,255,0.10)"
+              className="axis-label-y"
+              style={{ opacity: 0 }}
+            />
 
-            {/* Axis labels */}
-            <text x="100" y="77" textAnchor="end" fontSize="3.5" fill="rgba(255,255,255,0.5)" className="axis-label-x" style={{ opacity: 0 }}>Impact →</text>
-            <text x="11" y="3" textAnchor="start" fontSize="3.5" fill="rgba(255,255,255,0.5)" className="axis-label-y" style={{ opacity: 0 }} transform="rotate(-90, 11, 3) translate(-62, 0)">Growth ↑</text>
+            {/* Axis labels — tiny, faint, uppercase */}
+            <text
+              x="100" y="77"
+              textAnchor="end"
+              fontSize="2.8"
+              fill="rgba(255,255,255,0.25)"
+              className="axis-label-x"
+              style={{ opacity: 0, fontFamily: "Inter, sans-serif", letterSpacing: "0.15em" }}
+            >
+              IMPACT
+            </text>
+            <text
+              x="11" y="3"
+              textAnchor="start"
+              fontSize="2.8"
+              fill="rgba(255,255,255,0.25)"
+              className="axis-label-y"
+              style={{ opacity: 0, fontFamily: "Inter, sans-serif", letterSpacing: "0.15em" }}
+              transform="rotate(-90, 11, 3) translate(-62, 0)"
+            >
+              GROWTH
+            </text>
 
-            {/* Constellation lines */}
+            {/* Constellation lines — almost invisible */}
             {CONNECTIONS.map(([from, to], i) => {
               const pFrom = PRODUCTS[from];
               const pTo = PRODUCTS[to];
@@ -279,46 +305,51 @@ export function AxisDiagram() {
                   className={`constellation-line constellation-line-${i}`}
                   x1={pFrom.cx} y1={pFrom.cy}
                   x2={pTo.cx} y2={pTo.cy}
-                  stroke="rgba(255,255,255,0.12)"
-                  strokeWidth="0.3"
+                  stroke="rgba(255,255,255,0.04)"
+                  strokeWidth="0.25"
                   strokeDasharray={len}
                   strokeDashoffset={len}
                 />
               );
             })}
 
-            {/* Dots */}
+            {/* Dots — monochrome white with violet glow */}
             {PRODUCTS.map((product, i) => (
-              <g key={product.id} className={`axis-dot axis-dot-${i}`} style={{ transformOrigin: `${product.cx}px ${product.cy}px` }}>
-                {/* Outer glow ring */}
+              <g
+                key={product.id}
+                className={`axis-dot axis-dot-${i}`}
+                style={{ transformOrigin: `${product.cx}px ${product.cy}px` }}
+              >
+                {/* Glow halo */}
                 <circle
                   cx={product.cx}
                   cy={product.cy}
                   r="3.5"
                   fill="none"
-                  stroke={product.color}
-                  strokeWidth="0.4"
-                  opacity="0.4"
+                  stroke={ACCENT}
+                  strokeWidth="0.3"
+                  opacity={hovered === product.id ? 0.6 : 0.25}
                 />
-                {/* Glow */}
+                {/* Soft glow fill */}
                 <circle
                   cx={product.cx}
                   cy={product.cy}
                   r="2"
-                  fill={product.color}
-                  opacity="0.2"
+                  fill={ACCENT}
+                  opacity={hovered === product.id ? 0.25 : 0.12}
                 />
-                {/* Core dot */}
+                {/* Core dot — white */}
                 <circle
                   cx={product.cx}
                   cy={product.cy}
                   r="1.2"
-                  fill={product.color}
+                  fill="white"
+                  opacity={hovered === product.id ? 1 : 0.85}
                 />
               </g>
             ))}
 
-            {/* Labels */}
+            {/* Labels — clean, minimal */}
             {PRODUCTS.map((product, i) => (
               <text
                 key={product.id}
@@ -326,38 +357,83 @@ export function AxisDiagram() {
                 x={product.cx + (product.cx > 50 ? -3 : 3)}
                 y={product.cy - 3.5}
                 textAnchor={product.cx > 50 ? "end" : "start"}
-                fontSize="3"
-                fill="rgba(255,255,255,0.75)"
-                fontWeight="600"
+                fontSize="2.8"
+                fill={hovered === product.id ? "rgba(255,255,255,0.95)" : "rgba(255,255,255,0.65)"}
+                fontWeight="500"
+                style={{ fontFamily: "Inter, sans-serif", letterSpacing: "-0.01em" }}
               >
                 {product.name}
               </text>
             ))}
+
+            {/* Taglines — even fainter */}
+            {PRODUCTS.map((product, i) => (
+              <text
+                key={`tag-${product.id}`}
+                className={`axis-label axis-label-${i}`}
+                x={product.cx + (product.cx > 50 ? -3 : 3)}
+                y={product.cy - 0.5}
+                textAnchor={product.cx > 50 ? "end" : "start"}
+                fontSize="2.2"
+                fill="rgba(255,255,255,0.30)"
+                style={{ fontFamily: "Inter, sans-serif" }}
+              >
+                {product.tagline}
+              </text>
+            ))}
           </svg>
 
-          {/* Invisible click targets (positioned over dots) */}
+          {/* Invisible click targets + glow elements over dots */}
           {interactive && (
             <div className="absolute inset-0 pointer-events-none">
               {PRODUCTS.map((product) => {
-                // Map SVG coords (0-100) to percentage of container
                 const leftPct = (product.cx / 100) * 100;
                 const topPct = (product.cy / 80) * 100;
+                const isHov = hovered === product.id;
                 return (
                   <div
                     key={product.id}
-                    className={`axis-dot-click-${product.id} absolute pointer-events-auto cursor-pointer`}
+                    className="absolute pointer-events-auto"
                     style={{
                       left: `${leftPct}%`,
                       top: `${topPct}%`,
                       transform: "translate(-50%, -50%)",
-                      width: 36,
-                      height: 36,
-                      borderRadius: "50%",
                     }}
-                    onMouseEnter={() => setHovered(product.id)}
-                    onMouseLeave={() => setHovered(null)}
-                    onClick={() => handleDotClick(product)}
-                  />
+                  >
+                    {/* Expandable glow — used for warp transition */}
+                    <div
+                      className={`dot-glow-${product.id} absolute inset-0 rounded-full`}
+                      style={{
+                        width: 12,
+                        height: 12,
+                        transform: "translate(-50%, -50%) translate(6px, 6px)",
+                        background: `radial-gradient(circle, ${ACCENT} 0%, transparent 70%)`,
+                        filter: isHov ? "blur(4px)" : "blur(2px)",
+                        opacity: isHov ? 0.7 : 0.3,
+                        transition: "opacity 0.2s, filter 0.2s",
+                      }}
+                    />
+                    {/* Click target */}
+                    <div
+                      className="cursor-pointer"
+                      style={{
+                        width: 40,
+                        height: 40,
+                        transform: "translate(-50%, -50%)",
+                        position: "absolute",
+                        borderRadius: "50%",
+                      }}
+                      onMouseEnter={() => setHovered(product.id)}
+                      onMouseLeave={() => setHovered(null)}
+                      onClick={() => handleDotClick(product)}
+                      role="button"
+                      tabIndex={0}
+                      aria-label={`Navigate to ${product.name}`}
+                      onKeyDown={(e) => {
+                        if (e.key === "Enter" || e.key === " ") handleDotClick(product);
+                      }}
+                    />
+                  </div>
                 );
               })}
             </div>
@@ -367,19 +443,25 @@ export function AxisDiagram() {
         {/* Mobile description */}
         <div className="absolute bottom-8 left-4 right-4 lg:hidden">
           <div
-            className="transition-all duration-500"
+            className="transition-all duration-400"
             style={{ opacity: displayProduct ? 1 : 0 }}
           >
             {displayProduct && (
-              <div
-                className="rounded-xl p-4 border backdrop-blur-md text-center"
-                style={{
-                  background: "rgba(10, 16, 40, 0.85)",
-                  borderColor: `${displayProduct.color}30`,
-                }}
-              >
-                <div className="text-white font-bold text-base mb-1">{displayProduct.name}</div>
-                <p className="text-white/55 text-xs leading-relaxed line-clamp-2">{displayProduct.description}</p>
+              <div className="rounded-xl p-4 border border-white/[0.06] bg-white/[0.03] text-center">
+                <div className="text-white font-semibold text-sm mb-1 tracking-tight">
+                  {displayProduct.name}
+                </div>
+                <p className="text-white/40 text-xs leading-relaxed line-clamp-2">
+                  {displayProduct.description}
+                </p>
+                {interactive && (
+                  <button
+                    onClick={() => handleDotClick(displayProduct)}
+                    className="mt-2 text-xs text-white/50 hover:text-white transition-colors"
+                  >
+                    Enter →
+                  </button>
+                )}
               </div>
             )}
           </div>
@@ -387,21 +469,16 @@ export function AxisDiagram() {
 
         {/* Scroll hint */}
         {!interactive && (
-          <div className="absolute bottom-4 left-1/2 -translate-x-1/2 text-white/25 text-xs text-center">
+          <div className="absolute bottom-4 left-1/2 -translate-x-1/2 text-white/20 text-[10px] tracking-[0.2em] uppercase">
             scroll to explore
           </div>
         )}
         {interactive && (
-          <div className="absolute bottom-4 left-1/2 -translate-x-1/2 text-white/40 text-xs text-center animate-pulse">
+          <div className="absolute bottom-4 left-1/2 -translate-x-1/2 text-white/30 text-[10px] tracking-[0.15em] uppercase">
             click any node to enter
           </div>
         )}
       </div>
-
-      {/* Transition overlay */}
-      {transitioning && (
-        <div className="fixed inset-0 z-50 bg-[#050a18] opacity-0" id="transition-overlay" />
-      )}
     </section>
   );
 }

@@ -181,7 +181,7 @@ export function AxisDiagram() {
       <div className="axis-section-content relative w-full h-screen flex items-center justify-center">
 
         {/* Description panel — left side, desktop only */}
-        <div className="absolute left-6 top-1/2 -translate-y-1/2 w-60 pointer-events-none z-20 hidden lg:block">
+        <div className="absolute left-20 top-1/2 -translate-y-1/2 w-60 pointer-events-none z-20 hidden lg:block">
           <div
             className="transition-all duration-400"
             style={{

@@ -1,11 +1,11 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { Navbar } from "@/components/layout/navbar";
 import { Button } from "@/components/ui/button";
-import { Plus, Trash2, ArrowLeft } from "lucide-react";
+import { Plus, Trash2, ArrowLeft, Loader2 } from "lucide-react";
 import Link from "next/link";
 
 const STAGES = ["idea", "building", "launched", "scaling"];
@@ -34,9 +34,22 @@ export default function CreateProjectPage() {
   const [saving, setSaving] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
 
-  if (status === "unauthenticated") {
-    router.push("/auth/signin?callbackUrl=/launchpad/create");
-    return null;
+  // Redirect unauthenticated users — must be in useEffect, not during render
+  useEffect(() => {
+    if (status === "unauthenticated") {
+      router.push("/auth/signin?callbackUrl=/launchpad/create");
+    }
+  }, [status, router]);
+
+  if (status === "loading" || status === "unauthenticated") {
+    return (
+      <div className="min-h-screen">
+        <Navbar />
+        <div className="flex items-center justify-center mt-32">
+          <Loader2 className="w-6 h-6 animate-spin text-indigo-400" />
+        </div>
+      </div>
+    );
   }
 
   const validate = () => {

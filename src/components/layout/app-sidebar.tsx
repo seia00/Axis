@@ -24,6 +24,7 @@ import {
   Shield,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { useLanguage } from "@/contexts/language-context";
 
 const navItems = [
   { href: "/directory",     label: "Directory",     icon: LayoutGrid },
@@ -48,6 +49,7 @@ function NavList({
   collapsed: boolean;
   onLinkClick?: () => void;
 }) {
+  const { lang, toggle } = useLanguage();
   return (
     <>
       {/* Main nav */}
@@ -143,6 +145,19 @@ function NavList({
             {!collapsed && <span>Sign in</span>}
           </Link>
         )}
+
+        {/* Language toggle */}
+        <button
+          onClick={toggle}
+          title={collapsed ? (lang === "en" ? "日本語" : "English") : undefined}
+          className={cn(
+            "w-full flex items-center gap-3 px-3 py-2 mt-1 text-xs rounded-lg text-white/30 hover:text-white/60 hover:bg-white/[0.04] transition-all duration-150",
+            collapsed && "justify-center"
+          )}
+        >
+          <span className="text-[13px] flex-shrink-0">{lang === "en" ? "🇯🇵" : "🇬🇧"}</span>
+          {!collapsed && <span>{lang === "en" ? "日本語" : "English"}</span>}
+        </button>
       </div>
     </>
   );

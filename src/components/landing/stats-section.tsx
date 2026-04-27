@@ -3,6 +3,7 @@
 import { useEffect, useRef } from "react";
 import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
+import { useLanguage } from "@/contexts/language-context";
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -12,12 +13,13 @@ interface Props {
 
 export function StatsSection({ stats }: Props) {
   const ref = useRef<HTMLDivElement>(null);
+  const { t } = useLanguage();
 
   const items = [
-    { value: Math.max(stats.orgCount, 50),      label: "Organizations",    suffix: "+" },
-    { value: 1000,                               label: "Students Reached", suffix: "+" },
-    { value: Math.max(stats.oppCount, 50),       label: "Opportunities",    suffix: "+" },
-    { value: Math.max(stats.projectCount, 20),   label: "Projects Launched", suffix: "+" },
+    { value: Math.max(stats.orgCount, 50),      labelKey: "stats.orgs",     suffix: "+" },
+    { value: 1000,                               labelKey: "stats.founders", suffix: "+" },
+    { value: Math.max(stats.oppCount, 50),       labelKey: "stats.opps",     suffix: "+" },
+    { value: 0,                                  labelKey: "stats.free",     suffix: "" },
   ];
 
   useEffect(() => {
@@ -79,16 +81,22 @@ export function StatsSection({ stats }: Props) {
         {/* Stats row with dividers */}
         <div className="grid grid-cols-2 md:grid-cols-4 divide-x divide-white/[0.06]">
           {items.map((item, i) => (
-            <div key={item.label} className="text-center px-8 py-4">
-              <div className="flex items-baseline justify-center gap-0.5 mb-1">
-                <span className={`stat-number-${i} text-4xl md:text-5xl font-bold text-white tabular-nums tracking-tight`}>
-                  0
-                </span>
-                <span className="text-xl md:text-2xl font-bold text-white/40">
-                  {item.suffix}
-                </span>
-              </div>
-              <p className="text-white/35 text-xs mt-1 tracking-wide">{item.label}</p>
+            <div key={item.labelKey} className="text-center px-8 py-4">
+              {item.value > 0 ? (
+                <div className="flex items-baseline justify-center gap-0.5 mb-1">
+                  <span className={`stat-number-${i} text-4xl md:text-5xl font-bold text-white tabular-nums tracking-tight`}>
+                    0
+                  </span>
+                  <span className="text-xl md:text-2xl font-bold text-white/40">
+                    {item.suffix}
+                  </span>
+                </div>
+              ) : (
+                <div className="flex items-baseline justify-center gap-0.5 mb-1">
+                  <span className="text-3xl md:text-4xl font-bold gradient-text tracking-tight">∞</span>
+                </div>
+              )}
+              <p className="text-white/35 text-xs mt-1 tracking-wide">{t(item.labelKey)}</p>
             </div>
           ))}
         </div>

@@ -2,7 +2,8 @@ import { prisma } from "@/lib/prisma";
 import { notFound } from "next/navigation";
 import { Navbar } from "@/components/layout/navbar";
 import { format } from "date-fns";
-import { User, Clock, Users, Trophy, Briefcase, Code2, Heart, BookOpen, Star } from "lucide-react";
+import { User, Clock, Users, Trophy, Briefcase, Code2, Heart, BookOpen, Star, Globe } from "lucide-react";
+import { XIcon, InstagramIcon, LinkedInIcon } from "@/components/ui/brand-icons";
 
 const TYPE_COLORS: Record<string, string> = {
   competition: "#6366f1",
@@ -64,11 +65,71 @@ export default async function PublicPortfolioPage({ params }: { params: { userna
                 <User className="w-7 h-7 text-indigo-400" />
               )}
             </div>
-            <div>
-              <h1 className="text-xl font-bold">{user.name ?? params.username}</h1>
+            <div className="min-w-0">
+              <div className="flex items-center gap-2 flex-wrap">
+                <h1 className="text-xl font-bold">{user.name ?? params.username}</h1>
+                {user.isVerified && (
+                  <span className="inline-flex items-center gap-1 text-xs px-1.5 py-0.5 rounded-full bg-amber-950/60 text-amber-300 border border-amber-800/40">
+                    <Star className="w-3 h-3" /> Verified
+                  </span>
+                )}
+              </div>
               {user.headline && <p className="text-sm text-indigo-300 mt-0.5">{user.headline}</p>}
-              {user.location && <p className="text-xs text-[var(--muted-foreground)] mt-0.5">{user.location}</p>}
-              {user.bio && <p className="text-sm text-[var(--muted-foreground)] mt-2 max-w-lg">{user.bio}</p>}
+              <div className="flex items-center gap-3 flex-wrap mt-1">
+                {user.location && <p className="text-xs text-[var(--muted-foreground)]">{user.location}</p>}
+                {user.school && <p className="text-xs text-[var(--muted-foreground)]">· {user.school}</p>}
+              </div>
+              {user.bio && <p className="text-sm text-[var(--muted-foreground)] mt-2 max-w-lg leading-relaxed">{user.bio}</p>}
+
+              {/* Social links */}
+              {(user.twitterHandle || user.instagramHandle || user.linkedinUrl || user.websiteUrl) && (
+                <div className="flex items-center gap-3 mt-3 flex-wrap">
+                  {user.twitterHandle && (
+                    <a
+                      href={`https://twitter.com/${user.twitterHandle}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="flex items-center gap-1.5 text-xs text-[var(--muted-foreground)] hover:text-sky-400 transition-colors"
+                    >
+                      <XIcon className="w-3.5 h-3.5" />
+                      @{user.twitterHandle}
+                    </a>
+                  )}
+                  {user.instagramHandle && (
+                    <a
+                      href={`https://instagram.com/${user.instagramHandle}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="flex items-center gap-1.5 text-xs text-[var(--muted-foreground)] hover:text-pink-400 transition-colors"
+                    >
+                      <InstagramIcon className="w-3.5 h-3.5" />
+                      @{user.instagramHandle}
+                    </a>
+                  )}
+                  {user.linkedinUrl && (
+                    <a
+                      href={user.linkedinUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="flex items-center gap-1.5 text-xs text-[var(--muted-foreground)] hover:text-blue-400 transition-colors"
+                    >
+                      <LinkedInIcon className="w-3.5 h-3.5" />
+                      LinkedIn
+                    </a>
+                  )}
+                  {user.websiteUrl && (
+                    <a
+                      href={user.websiteUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="flex items-center gap-1.5 text-xs text-[var(--muted-foreground)] hover:text-emerald-400 transition-colors"
+                    >
+                      <Globe className="w-3.5 h-3.5" />
+                      Website
+                    </a>
+                  )}
+                </div>
+              )}
             </div>
           </div>
 

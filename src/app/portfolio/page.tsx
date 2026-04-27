@@ -7,8 +7,10 @@ import { Navbar } from "@/components/layout/navbar";
 import { Button } from "@/components/ui/button";
 import {
   Plus, User, Clock, Users, Download, Share2, Pencil, Trash2,
-  Trophy, Briefcase, Code2, Heart, BookOpen, Star, X, Loader2, CheckCircle
+  Trophy, Briefcase, Code2, Heart, BookOpen, Star, X, Loader2, CheckCircle,
+  Globe, Settings,
 } from "lucide-react";
+import { XIcon, InstagramIcon, LinkedInIcon } from "@/components/ui/brand-icons";
 import {
   RadarChart, Radar, PolarGrid, PolarAngleAxis, ResponsiveContainer,
   PieChart, Pie, Cell, Tooltip, Legend
@@ -88,6 +90,9 @@ export default function PortfolioPage() {
   const [isVerified, setIsVerified] = useState(false);
   const [verifyLoading, setVerifyLoading] = useState(false);
   const [verifyError, setVerifyError] = useState("");
+  const [socialLinks, setSocialLinks] = useState({
+    twitterHandle: "", instagramHandle: "", linkedinUrl: "", websiteUrl: "",
+  });
 
   const fetchActivities = useCallback(async () => {
     const res = await fetch("/api/activities");
@@ -102,8 +107,15 @@ export default function PortfolioPage() {
     if (status === "unauthenticated") router.push("/auth/signin?callbackUrl=/portfolio");
     if (status === "authenticated") {
       fetchActivities();
-      // Fetch user verification status
-      fetch("/api/activities").then(r => r.ok ? r.json() : []).catch(() => []);
+      // Fetch social links from profile
+      fetch("/api/user/profile").then(r => r.ok ? r.json() : null).then(data => {
+        if (data) setSocialLinks({
+          twitterHandle: data.twitterHandle ?? "",
+          instagramHandle: data.instagramHandle ?? "",
+          linkedinUrl: data.linkedinUrl ?? "",
+          websiteUrl: data.websiteUrl ?? "",
+        });
+      }).catch(() => {});
     }
   }, [status, router, fetchActivities]);
 
@@ -241,6 +253,40 @@ export default function PortfolioPage() {
                   )}
                 </div>
                 <p className="text-sm text-[var(--muted-foreground)]">{session?.user?.email}</p>
+                {/* Social links row */}
+                {(socialLinks.twitterHandle || socialLinks.instagramHandle || socialLinks.linkedinUrl || socialLinks.websiteUrl) && (
+                  <div className="flex items-center gap-3 mt-2 flex-wrap">
+                    {socialLinks.twitterHandle && (
+                      <a href={`https://twitter.com/${socialLinks.twitterHandle}`} target="_blank" rel="noopener noreferrer"
+                        className="flex items-center gap-1 text-xs text-[var(--muted-foreground)] hover:text-sky-400 transition-colors">
+                        <XIcon className="w-3.5 h-3.5" />@{socialLinks.twitterHandle}
+                      </a>
+                    )}
+                    {socialLinks.instagramHandle && (
+                      <a href={`https://instagram.com/${socialLinks.instagramHandle}`} target="_blank" rel="noopener noreferrer"
+                        className="flex items-center gap-1 text-xs text-[var(--muted-foreground)] hover:text-pink-400 transition-colors">
+                        <InstagramIcon className="w-3.5 h-3.5" />@{socialLinks.instagramHandle}
+                      </a>
+                    )}
+                    {socialLinks.linkedinUrl && (
+                      <a href={socialLinks.linkedinUrl} target="_blank" rel="noopener noreferrer"
+                        className="flex items-center gap-1 text-xs text-[var(--muted-foreground)] hover:text-blue-400 transition-colors">
+                        <LinkedInIcon className="w-3.5 h-3.5" />LinkedIn
+                      </a>
+                    )}
+                    {socialLinks.websiteUrl && (
+                      <a href={socialLinks.websiteUrl} target="_blank" rel="noopener noreferrer"
+                        className="flex items-center gap-1 text-xs text-[var(--muted-foreground)] hover:text-emerald-400 transition-colors">
+                        <Globe className="w-3.5 h-3.5" />Website
+                      </a>
+                    )}
+                  </div>
+                )}
+                {!socialLinks.twitterHandle && !socialLinks.instagramHandle && !socialLinks.linkedinUrl && !socialLinks.websiteUrl && (
+                  <a href="/settings" className="mt-1.5 flex items-center gap-1 text-xs text-[var(--muted-foreground)] hover:text-indigo-400 transition-colors w-fit">
+                    <Settings className="w-3 h-3" /> Add social links
+                  </a>
+                )}
               </div>
             </div>
             <div className="flex items-center gap-2 flex-wrap">

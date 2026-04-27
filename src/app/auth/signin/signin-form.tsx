@@ -94,7 +94,7 @@ export function SignInForm() {
                 By signing in, you agree to our{" "}
                 <Link href="/legal/terms" className="text-indigo-400 hover:underline">Terms</Link>
                 {" "}and{" "}
-                <Link href="/legal/privacy" className="text-indigo-400 hover:underline">Privacy Policy</Link>.
+                <a href="https://axis-privacy-policy.vercel.app/" target="_blank" rel="noopener noreferrer" className="text-indigo-400 hover:underline">Privacy Policy</a>.
               </p>
             </>
           )}

@@ -1,6 +1,6 @@
 "use client";
 
-import React, { createContext, useContext, useState, useEffect, useCallback } from "react";
+import React, { createContext, useContext, useState, useEffect, useCallback, useMemo } from "react";
 
 export type Lang = "en" | "ja";
 
@@ -282,19 +282,33 @@ const LanguageContext = createContext<LanguageContextValue>({
 
 export function LanguageProvider({ children }: { children: React.ReactNode }) {
   const [lang, setLang] = useState<Lang>("en");
+  const [hydrated, setHydrated] = useState(false);
 
-  // Hydrate from localStorage
+  // Hydrate from localStorage on mount
   useEffect(() => {
-    const stored = localStorage.getItem("axis-lang") as Lang | null;
-    if (stored === "ja") setLang("ja");
+    try {
+      const stored = localStorage.getItem("axis-lang");
+      if (stored === "ja" || stored === "en") {
+        setLang(stored);
+      }
+    } catch {
+      /* localStorage unavailable — stick with default */
+    }
+    setHydrated(true);
   }, []);
 
+  // Persist whenever lang changes (after hydration)
+  useEffect(() => {
+    if (!hydrated) return;
+    try {
+      localStorage.setItem("axis-lang", lang);
+    } catch {
+      /* ignore */
+    }
+  }, [lang, hydrated]);
+
   const toggle = useCallback(() => {
-    setLang(prev => {
-      const next: Lang = prev === "en" ? "ja" : "en";
-      localStorage.setItem("axis-lang", next);
-      return next;
-    });
+    setLang(prev => (prev === "en" ? "ja" : "en"));
   }, []);
 
   const t = useCallback(
@@ -302,8 +316,10 @@ export function LanguageProvider({ children }: { children: React.ReactNode }) {
     [lang],
   );
 
+  const value = useMemo(() => ({ lang, toggle, t }), [lang, toggle, t]);
+
   return (
-    <LanguageContext.Provider value={{ lang, toggle, t }}>
+    <LanguageContext.Provider value={value}>
       {children}
     </LanguageContext.Provider>
   );

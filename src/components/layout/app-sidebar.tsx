@@ -19,15 +19,12 @@ import {
   ChevronLeft,
   ChevronRight,
   Menu,
-  X,
   User,
   Shield,
-  MoreHorizontal,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useLanguage } from "@/contexts/language-context";
 
-// Main nav — labelKey maps to translation
 const navItems = [
   { href: "/directory",     labelKey: "nav.directory",     icon: LayoutGrid  },
   { href: "/network",       labelKey: "nav.network",       icon: Users       },
@@ -39,10 +36,7 @@ const navItems = [
   { href: "/resources",     labelKey: "nav.resources",     icon: BookOpen    },
 ];
 
-// Bottom nav shows 5 items; rest go in "More" drawer
-const BOTTOM_NAV_ITEMS = navItems.slice(0, 5);
-
-// ─── Shared nav list (desktop sidebar) ───────────────────────────────────────
+// ─── Shared nav list ──────────────────────────────────────────────────────────
 function NavList({
   pathname,
   session,
@@ -170,204 +164,47 @@ function NavList({
   );
 }
 
-// ─── Mobile full drawer (opened by "More") ────────────────────────────────────
-function MobileDrawer({
-  pathname,
-  session,
-  onClose,
-}: {
-  pathname: string;
-  session: ReturnType<typeof useSession>["data"];
-  onClose: () => void;
-}) {
-  return (
-    <>
-      <div
-        className="fixed inset-0 z-40 bg-black/60 backdrop-blur-sm"
-        onClick={onClose}
-      />
-      <div className="fixed left-0 top-0 h-screen w-64 z-50 bg-[#09090b] border-r border-white/[0.06] flex flex-col">
-        <div className="flex items-center justify-between px-4 h-14 border-b border-white/[0.04] flex-shrink-0">
-          <Link href="/" onClick={onClose}>
-            <Image
-              src="/AXISLOGO.png"
-              alt="AXIS"
-              width={72}
-              height={36}
-              className="h-5 w-auto object-contain opacity-80"
-            />
-          </Link>
-          <button
-            onClick={onClose}
-            className="p-1.5 rounded-lg text-white/30 hover:text-white/70 hover:bg-white/[0.04] transition-colors"
-          >
-            <X className="w-4 h-4" />
-          </button>
-        </div>
-        <NavList
-          pathname={pathname}
-          session={session}
-          collapsed={false}
-          onLinkClick={onClose}
-        />
-      </div>
-    </>
-  );
-}
-
-// ─── Mobile bottom navigation bar ─────────────────────────────────────────────
-function BottomNav({
-  pathname,
-  onMoreClick,
-}: {
-  pathname: string;
-  onMoreClick: () => void;
-}) {
-  const { t } = useLanguage();
-
-  return (
-    <nav className="fixed bottom-0 left-0 right-0 z-40 md:hidden bg-[#09090b]/95 backdrop-blur-md border-t border-white/[0.06] safe-area-bottom">
-      <div className="flex items-center justify-around h-16 px-1">
-        {BOTTOM_NAV_ITEMS.map(({ href, labelKey, icon: Icon }) => {
-          const label = t(labelKey);
-          const active = pathname?.startsWith(href);
-          return (
-            <Link
-              key={href}
-              href={href}
-              className={cn(
-                "flex flex-col items-center justify-center gap-0.5 flex-1 py-2 rounded-xl transition-all duration-150",
-                active ? "text-white" : "text-white/35 hover:text-white/70"
-              )}
-            >
-              <Icon className={cn("w-5 h-5", active && "drop-shadow-[0_0_6px_rgba(139,92,246,0.7)]")} />
-              <span className="text-[9px] font-medium tracking-wide truncate max-w-[52px] text-center leading-none">
-                {label}
-              </span>
-            </Link>
-          );
-        })}
-
-        {/* More button */}
-        <button
-          onClick={onMoreClick}
-          className="flex flex-col items-center justify-center gap-0.5 flex-1 py-2 rounded-xl text-white/35 hover:text-white/70 transition-all duration-150"
-        >
-          <MoreHorizontal className="w-5 h-5" />
-          <span className="text-[9px] font-medium tracking-wide leading-none">{t("nav.more")}</span>
-        </button>
-      </div>
-    </nav>
-  );
-}
-
-// ─── Main AppSidebar ──────────────────────────────────────────────────────────
+// ─── Main AppSidebar — desktop only ──────────────────────────────────────────
 export function AppSidebar() {
   const pathname = usePathname();
   const { data: session } = useSession();
   const [collapsed, setCollapsed] = useState(false);
-  const [mobileOpen, setMobileOpen] = useState(false);
 
   const isLanding = pathname === "/";
 
   // ── Landing page: icon-strip that expands on demand ───────────────────────
   if (isLanding) {
     return (
-      <>
-        {/* Desktop: collapsed icon-strip (64px) — expand button at top */}
-        <div
-          className={cn(
-            "fixed left-0 top-0 h-screen z-50 bg-[#09090b]/80 backdrop-blur-md border-r border-white/[0.04] hidden md:flex flex-col transition-[width] duration-200 ease-out overflow-hidden",
-            collapsed ? "w-60" : "w-16"
-          )}
-        >
-          <div className={cn(
-            "flex items-center border-b border-white/[0.04] h-14 px-3 flex-shrink-0",
-            collapsed ? "justify-between" : "justify-center"
-          )}>
-            {collapsed && (
-              <Link href="/">
-                <Image
-                  src="/AXISLOGO.png"
-                  alt="AXIS"
-                  width={64}
-                  height={32}
-                  className="h-5 w-auto object-contain opacity-70"
-                />
-              </Link>
-            )}
-            <button
-              onClick={() => setCollapsed(!collapsed)}
-              className="p-2 rounded-lg text-white/20 hover:text-white/60 hover:bg-white/[0.04] transition-all duration-150"
-              aria-label={collapsed ? "Collapse sidebar" : "Open navigation"}
-            >
-              {collapsed ? (
-                <ChevronLeft className="w-4 h-4" />
-              ) : (
-                <Menu className="w-4 h-4" />
-              )}
-            </button>
-          </div>
-
-          <NavList
-            pathname={pathname}
-            session={session}
-            collapsed={!collapsed}
-            onLinkClick={() => setCollapsed(false)}
-          />
-        </div>
-
-        {/* Mobile: bottom nav bar */}
-        <BottomNav pathname={pathname} onMoreClick={() => setMobileOpen(true)} />
-
-        {mobileOpen && (
-          <MobileDrawer
-            pathname={pathname}
-            session={session}
-            onClose={() => setMobileOpen(false)}
-          />
-        )}
-      </>
-    );
-  }
-
-  // ── Inner pages: full sidebar, always visible on desktop ──────────────────
-  return (
-    <>
-      {/* Desktop sidebar */}
       <div
         className={cn(
-          "fixed left-0 top-0 h-screen z-40 bg-[#09090b] border-r border-white/[0.06] hidden md:flex flex-col transition-[width] duration-200 ease-out overflow-hidden",
-          collapsed ? "w-16" : "w-60"
+          "fixed left-0 top-0 h-screen z-50 bg-[#09090b]/80 backdrop-blur-md border-r border-white/[0.04] hidden md:flex flex-col transition-[width] duration-200 ease-out overflow-hidden",
+          collapsed ? "w-60" : "w-16"
         )}
       >
-        {/* Logo + collapse toggle */}
-        <div
-          className={cn(
-            "flex items-center border-b border-white/[0.04] h-14 px-3 flex-shrink-0",
-            collapsed ? "justify-center" : "justify-between px-4"
-          )}
-        >
-          {!collapsed && (
+        <div className={cn(
+          "flex items-center border-b border-white/[0.04] h-14 px-3 flex-shrink-0",
+          collapsed ? "justify-between" : "justify-center"
+        )}>
+          {collapsed && (
             <Link href="/">
               <Image
                 src="/AXISLOGO.png"
                 alt="AXIS"
-                width={72}
-                height={36}
-                className="h-5 w-auto object-contain opacity-80 hover:opacity-100 transition-opacity"
+                width={64}
+                height={32}
+                className="h-5 w-auto object-contain opacity-70"
               />
             </Link>
           )}
           <button
             onClick={() => setCollapsed(!collapsed)}
-            title={collapsed ? "Expand sidebar" : "Collapse sidebar"}
-            className="p-2 rounded-lg text-white/20 hover:text-white/50 hover:bg-white/[0.04] transition-all duration-150 flex-shrink-0"
+            className="p-2 rounded-lg text-white/20 hover:text-white/60 hover:bg-white/[0.04] transition-all duration-150"
+            aria-label={collapsed ? "Collapse sidebar" : "Open navigation"}
           >
             {collapsed ? (
-              <ChevronRight className="w-4 h-4" />
-            ) : (
               <ChevronLeft className="w-4 h-4" />
+            ) : (
+              <Menu className="w-4 h-4" />
             )}
           </button>
         </div>
@@ -375,20 +212,57 @@ export function AppSidebar() {
         <NavList
           pathname={pathname}
           session={session}
-          collapsed={collapsed}
+          collapsed={!collapsed}
+          onLinkClick={() => setCollapsed(false)}
         />
       </div>
+    );
+  }
 
-      {/* Mobile: bottom nav bar */}
-      <BottomNav pathname={pathname} onMoreClick={() => setMobileOpen(true)} />
-
-      {mobileOpen && (
-        <MobileDrawer
-          pathname={pathname}
-          session={session}
-          onClose={() => setMobileOpen(false)}
-        />
+  // ── Inner pages: full sidebar ─────────────────────────────────────────────
+  return (
+    <div
+      className={cn(
+        "fixed left-0 top-0 h-screen z-40 bg-[#09090b] border-r border-white/[0.06] hidden md:flex flex-col transition-[width] duration-200 ease-out overflow-hidden",
+        collapsed ? "w-16" : "w-60"
       )}
-    </>
+    >
+      {/* Logo + collapse toggle */}
+      <div
+        className={cn(
+          "flex items-center border-b border-white/[0.04] h-14 px-3 flex-shrink-0",
+          collapsed ? "justify-center" : "justify-between px-4"
+        )}
+      >
+        {!collapsed && (
+          <Link href="/">
+            <Image
+              src="/AXISLOGO.png"
+              alt="AXIS"
+              width={72}
+              height={36}
+              className="h-5 w-auto object-contain opacity-80 hover:opacity-100 transition-opacity"
+            />
+          </Link>
+        )}
+        <button
+          onClick={() => setCollapsed(!collapsed)}
+          title={collapsed ? "Expand sidebar" : "Collapse sidebar"}
+          className="p-2 rounded-lg text-white/20 hover:text-white/50 hover:bg-white/[0.04] transition-all duration-150 flex-shrink-0"
+        >
+          {collapsed ? (
+            <ChevronRight className="w-4 h-4" />
+          ) : (
+            <ChevronLeft className="w-4 h-4" />
+          )}
+        </button>
+      </div>
+
+      <NavList
+        pathname={pathname}
+        session={session}
+        collapsed={collapsed}
+      />
+    </div>
   );
 }

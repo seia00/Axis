@@ -21,7 +21,7 @@ export function Sidebar({ items, title }: SidebarProps) {
   const pathname = usePathname();
 
   return (
-    <aside className="w-56 flex-shrink-0">
+    <aside className="w-56 flex-shrink-0 hidden md:block">
       {title && (
         <p className="text-xs font-semibold text-[var(--muted-foreground)] uppercase tracking-wider mb-3 px-3">
           {title}

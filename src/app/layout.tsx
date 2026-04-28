@@ -3,6 +3,7 @@ import "./globals.css";
 import { Providers } from "./providers";
 import { PageTransition } from "@/components/animation";
 import { AppSidebar } from "@/components/layout/app-sidebar";
+import { MobileNav } from "@/components/layout/mobile-nav";
 import { SidebarLayout } from "@/components/layout/sidebar-layout";
 
 export const metadata: Metadata = {
@@ -22,8 +23,10 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     <html lang="en" className="dark">
       <body className="antialiased min-h-screen bg-[var(--background)] text-[var(--foreground)]">
         <Providers>
-          {/* Fixed sidebar — minimal on landing, full on inner pages */}
+          {/* Desktop sidebar */}
           <AppSidebar />
+          {/* Mobile top nav (dropdown) */}
+          <MobileNav />
 
           {/* Content area — offset right on inner pages to clear sidebar */}
           <SidebarLayout>

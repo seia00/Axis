@@ -11,7 +11,7 @@ export function SidebarLayout({ children }: { children: React.ReactNode }) {
   const isLanding = pathname === "/";
 
   return (
-    <div className={`${isLanding ? "" : "md:pl-60"} pb-20 md:pb-0`}>
+    <div className={`${isLanding ? "" : "md:pl-60"} pt-14 md:pt-0`}>
       {children}
     </div>
   );

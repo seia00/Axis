@@ -1,6 +1,5 @@
 import { prisma } from "@/lib/prisma";
 import { notFound } from "next/navigation";
-import { Navbar } from "@/components/layout/navbar";
 import { format } from "date-fns";
 import { User, Clock, Users, Trophy, Briefcase, Code2, Heart, BookOpen, Star, Globe } from "lucide-react";
 import { XIcon, InstagramIcon, LinkedInIcon } from "@/components/ui/brand-icons";
@@ -52,7 +51,6 @@ export default async function PublicPortfolioPage({ params }: { params: { userna
 
   return (
     <div className="min-h-screen">
-      <Navbar />
       <div className="max-w-4xl mx-auto px-4 sm:px-6 py-8">
         {/* Header */}
         <div className="card mb-6">

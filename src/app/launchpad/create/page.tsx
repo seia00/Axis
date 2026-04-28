@@ -3,7 +3,6 @@
 import { useState, useEffect } from "react";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
-import { Navbar } from "@/components/layout/navbar";
 import { Button } from "@/components/ui/button";
 import { Plus, Trash2, ArrowLeft, Loader2 } from "lucide-react";
 import Link from "next/link";
@@ -44,7 +43,6 @@ export default function CreateProjectPage() {
   if (status === "loading" || status === "unauthenticated") {
     return (
       <div className="min-h-screen">
-        <Navbar />
         <div className="flex items-center justify-center mt-32">
           <Loader2 className="w-6 h-6 animate-spin text-indigo-400" />
         </div>
@@ -91,7 +89,6 @@ export default function CreateProjectPage() {
 
   return (
     <div className="min-h-screen">
-      <Navbar />
       <div className="max-w-2xl mx-auto px-4 sm:px-6 py-8">
         <Link href="/launchpad" className="inline-flex items-center gap-1.5 text-sm text-[var(--muted-foreground)] hover:text-[var(--foreground)] transition-colors mb-6">
           <ArrowLeft className="w-4 h-4" /> Back to Launch Pad

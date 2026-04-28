@@ -1,7 +1,6 @@
 export const dynamic = "force-dynamic";
 
 import { prisma } from "@/lib/prisma";
-import { Navbar } from "@/components/layout/navbar";
 import { Footer } from "@/components/layout/footer";
 import { Calendar, MapPin, ExternalLink } from "lucide-react";
 import Link from "next/link";
@@ -25,7 +24,6 @@ export default async function EventsPage() {
 
   return (
     <div className="min-h-screen">
-      <Navbar />
       <main className="max-w-4xl mx-auto px-4 sm:px-6 py-8">
         <div className="flex items-center gap-2 mb-6">
           <Calendar className="w-5 h-5 text-indigo-400" />

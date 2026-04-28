@@ -1,4 +1,3 @@
-import { Navbar } from "@/components/layout/navbar";
 import { Footer } from "@/components/layout/footer";
 import { VentureApplicationForm } from "@/components/ventures/application-form";
 import { getServerSession } from "next-auth";
@@ -12,7 +11,6 @@ export default async function VentureApplyPage() {
 
   return (
     <div className="min-h-screen">
-      <Navbar />
       <main className="max-w-2xl mx-auto px-4 sm:px-6 py-12">
         <div className="mb-8">
           <h1 className="text-2xl font-bold tracking-tight mb-2">Apply to AXIS Ventures</h1>

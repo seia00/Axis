@@ -3,7 +3,6 @@
 import { useState, useEffect, useCallback } from "react";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
-import { Navbar } from "@/components/layout/navbar";
 import { Button } from "@/components/ui/button";
 import {
   ChevronLeft, ChevronRight, Plus, Loader2, X, Calendar as CalendarIcon,
@@ -85,11 +84,10 @@ export default function CalendarPage() {
     .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime())
     .slice(0, 10);
 
-  if (status === "loading") return <div className="min-h-screen"><Navbar /><div className="flex items-center justify-center mt-32"><Loader2 className="w-6 h-6 animate-spin text-indigo-400" /></div></div>;
+  if (status === "loading") return <div className="min-h-screen"><div className="flex items-center justify-center mt-32"><Loader2 className="w-6 h-6 animate-spin text-indigo-400" /></div></div>;
 
   return (
     <div className="min-h-screen">
-      <Navbar />
       <div className="max-w-7xl mx-auto px-4 sm:px-6 py-8">
         <div className="flex items-center justify-between mb-6">
           <div>

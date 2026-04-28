@@ -3,7 +3,6 @@
 import { useState, useEffect, useCallback } from "react";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
-import { Navbar } from "@/components/layout/navbar";
 import { Button } from "@/components/ui/button";
 import { Loader2, CheckCircle, Circle, Plus, User, TrendingUp, X } from "lucide-react";
 
@@ -85,12 +84,11 @@ export default function VenturesDashboardPage() {
   const completedCount = milestones.filter(m => m.isCompleted).length;
   const progress = milestones.length > 0 ? Math.round((completedCount / milestones.length) * 100) : 0;
 
-  if (status === "loading" || loading) return <div className="min-h-screen"><Navbar /><div className="flex items-center justify-center mt-32"><Loader2 className="w-6 h-6 animate-spin text-indigo-400" /></div></div>;
+  if (status === "loading" || loading) return <div className="min-h-screen"><div className="flex items-center justify-center mt-32"><Loader2 className="w-6 h-6 animate-spin text-indigo-400" /></div></div>;
 
   if (!project) {
     return (
       <div className="min-h-screen">
-        <Navbar />
         <div className="max-w-2xl mx-auto px-4 sm:px-6 py-16 text-center">
           <TrendingUp className="w-12 h-12 text-[var(--muted-foreground)] mx-auto mb-4" />
           <h1 className="text-2xl font-bold mb-3">Ventures Dashboard</h1>
@@ -103,7 +101,6 @@ export default function VenturesDashboardPage() {
 
   return (
     <div className="min-h-screen">
-      <Navbar />
       <div className="max-w-4xl mx-auto px-4 sm:px-6 py-8">
         <div className="flex items-center gap-2 mb-6">
           <TrendingUp className="w-6 h-6 text-violet-400" />

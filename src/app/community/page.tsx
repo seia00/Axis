@@ -1,6 +1,5 @@
 export const dynamic = "force-dynamic";
 
-import { Navbar } from "@/components/layout/navbar";
 import { Footer } from "@/components/layout/footer";
 import { NewsletterForm } from "@/components/community/newsletter-form";
 import { prisma } from "@/lib/prisma";
@@ -28,7 +27,6 @@ export default async function CommunityPage() {
 
   return (
     <div className="min-h-screen">
-      <Navbar />
 
       {/* About */}
       <section className="max-w-4xl mx-auto px-4 sm:px-6 pt-16 pb-12">

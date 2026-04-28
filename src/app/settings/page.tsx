@@ -3,7 +3,6 @@
 import { useState, useEffect, useCallback } from "react";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
-import { Navbar } from "@/components/layout/navbar";
 import { Footer } from "@/components/layout/footer";
 import { Button } from "@/components/ui/button";
 import {
@@ -88,7 +87,6 @@ export default function SettingsPage() {
   if (status === "loading") {
     return (
       <div className="min-h-screen">
-        <Navbar />
         <div className="flex items-center justify-center mt-32">
           <Loader2 className="w-6 h-6 animate-spin text-indigo-400" />
         </div>
@@ -101,7 +99,6 @@ export default function SettingsPage() {
 
   return (
     <div className="min-h-screen">
-      <Navbar />
 
       <main className="max-w-3xl mx-auto px-4 py-12 space-y-8">
         <div>

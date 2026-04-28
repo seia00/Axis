@@ -1,4 +1,3 @@
-import { Navbar } from "@/components/layout/navbar";
 import { Footer } from "@/components/layout/footer";
 import { Rocket, Users, BookOpen, Target, ArrowRight, Zap } from "lucide-react";
 import Link from "next/link";
@@ -9,7 +8,6 @@ export const metadata = { title: "AXIS Ventures" };
 export default function VenturesPage() {
   return (
     <div className="min-h-screen">
-      <Navbar />
 
       {/* Hero */}
       <section className="relative overflow-hidden border-b border-[var(--border)]">

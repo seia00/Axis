@@ -3,7 +3,6 @@
 import { useState, useEffect, useCallback } from "react";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
-import { Navbar } from "@/components/layout/navbar";
 import { Button } from "@/components/ui/button";
 import {
   Plus, User, Clock, Users, Download, Share2, Pencil, Trash2,
@@ -219,7 +218,6 @@ export default function PortfolioPage() {
   if (status === "loading" || loading) {
     return (
       <div className="min-h-screen">
-        <Navbar />
         <div className="flex items-center justify-center mt-32">
           <Loader2 className="w-6 h-6 animate-spin text-indigo-400" />
         </div>
@@ -229,7 +227,6 @@ export default function PortfolioPage() {
 
   return (
     <div className="min-h-screen">
-      <Navbar />
       <div className="max-w-5xl mx-auto px-4 sm:px-6 py-8">
         {/* Header */}
         <div className="card mb-6">

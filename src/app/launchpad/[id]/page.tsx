@@ -3,7 +3,6 @@
 import { useState, useEffect } from "react";
 import { useSession } from "next-auth/react";
 import { useRouter, useParams } from "next/navigation";
-import { Navbar } from "@/components/layout/navbar";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { ArrowLeft, Users, Globe, CheckCircle, X, Loader2, TrendingUp } from "lucide-react";
@@ -116,12 +115,11 @@ export default function ProjectDetailPage() {
 
   const isCreator = session?.user?.id === project?.creatorId;
 
-  if (loading || status === "loading") return <div className="min-h-screen"><Navbar /><div className="flex items-center justify-center mt-32"><Loader2 className="w-6 h-6 animate-spin text-indigo-400" /></div></div>;
-  if (!project) return <div className="min-h-screen"><Navbar /><p className="text-center mt-20 text-[var(--muted-foreground)]">Project not found</p></div>;
+  if (loading || status === "loading") return <div className="min-h-screen"><div className="flex items-center justify-center mt-32"><Loader2 className="w-6 h-6 animate-spin text-indigo-400" /></div></div>;
+  if (!project) return <div className="min-h-screen"><p className="text-center mt-20 text-[var(--muted-foreground)]">Project not found</p></div>;
 
   return (
     <div className="min-h-screen">
-      <Navbar />
       <div className="max-w-4xl mx-auto px-4 sm:px-6 py-8">
         <Link href="/launchpad" className="inline-flex items-center gap-1.5 text-sm text-[var(--muted-foreground)] hover:text-[var(--foreground)] transition-colors mb-6">
           <ArrowLeft className="w-4 h-4" /> Back to Launch Pad

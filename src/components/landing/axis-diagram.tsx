@@ -4,70 +4,17 @@ import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
+import { useLanguage } from "@/contexts/language-context";
 
 gsap.registerPlugin(ScrollTrigger);
 
-const PRODUCTS = [
-  {
-    id: "directory",
-    name: "Directory",
-    tagline: "Find your people",
-    description:
-      "Browse 50+ verified student organizations across Japan. Filter by focus area, location, and tier.",
-    route: "/directory",
-    cx: 20,
-    cy: 75,
-  },
-  {
-    id: "network",
-    name: "Network",
-    tagline: "Build your circle",
-    description:
-      "Connect with student founders, join organizations, and build the relationships that become co-founder partnerships.",
-    route: "/network",
-    cx: 38,
-    cy: 58,
-  },
-  {
-    id: "opportunities",
-    name: "Opportunities",
-    tagline: "Discover what's out there",
-    description:
-      "Competitions, fellowships, scholarships, and programs — curated and verified for student founders.",
-    route: "/opportunities",
-    cx: 52,
-    cy: 48,
-  },
-  {
-    id: "launchpad",
-    name: "Launch Pad",
-    tagline: "Build something real",
-    description:
-      "Post your project, define roles, and recruit talented co-founders to build something that matters.",
-    route: "/launchpad",
-    cx: 68,
-    cy: 35,
-  },
-  {
-    id: "ventures",
-    name: "Ventures",
-    tagline: "Scale your vision",
-    description:
-      "AXIS Ventures — our youth incubator for the most ambitious student founders. Mentorship, resources, community.",
-    route: "/ventures",
-    cx: 82,
-    cy: 22,
-  },
-  {
-    id: "match",
-    name: "AXIS Match",
-    tagline: "Your AI navigator",
-    description:
-      "Our AI surfaces personalized opportunity matches, co-founder suggestions, and program recommendations.",
-    route: "/match",
-    cx: 58,
-    cy: 28,
-  },
+const PRODUCT_NODES = [
+  { id: "directory",     route: "/directory",     cx: 20, cy: 75 },
+  { id: "network",       route: "/network",        cx: 38, cy: 58 },
+  { id: "opportunities", route: "/opportunities",  cx: 52, cy: 48 },
+  { id: "launchpad",     route: "/launchpad",      cx: 68, cy: 35 },
+  { id: "ventures",      route: "/ventures",       cx: 82, cy: 22 },
+  { id: "match",         route: "/match",          cx: 58, cy: 28 },
 ];
 
 // Constellation connections [fromIndex, toIndex]
@@ -87,10 +34,19 @@ export function AxisDiagram() {
   const sectionRef = useRef<HTMLDivElement>(null);
   const svgRef = useRef<SVGSVGElement>(null);
   const router = useRouter();
+  const { t } = useLanguage();
   const [activeDesc, setActiveDesc] = useState<number>(-1);
   const [interactive, setInteractive] = useState(false);
   const [hovered, setHovered] = useState<string | null>(null);
   const [transitioning, setTransitioning] = useState(false);
+
+  // Build translated product list — used in render only (not in GSAP setup)
+  const PRODUCTS = PRODUCT_NODES.map(node => ({
+    ...node,
+    name:        t(`product.${node.id}.name`),
+    tagline:     t(`product.${node.id}.tagline`),
+    description: t(`product.${node.id}.desc`),
+  }));
 
   useEffect(() => {
     const ctx = gsap.context(() => {
@@ -119,7 +75,7 @@ export function AxisDiagram() {
         .to(".axis-label-x, .axis-label-y", { opacity: 1, duration: 0.5 }, "-=0.3");
 
       // Plot each product dot
-      PRODUCTS.forEach((_, i) => {
+      PRODUCT_NODES.forEach((_, i) => {
         tl.to(`.axis-dot-${i}`, { scale: 1, opacity: 1, duration: 0.6, ease: "back.out(1.8)" })
           .to(`.axis-label-${i}`, { opacity: 1, y: 0, duration: 0.4 }, "-=0.2")
           .call(() => setActiveDesc(i))
@@ -205,7 +161,7 @@ export function AxisDiagram() {
                     onClick={() => handleDotClick(displayProduct)}
                     className="mt-4 text-xs font-medium text-white/50 hover:text-white pointer-events-auto transition-colors duration-150"
                   >
-                    Enter {displayProduct.name} →
+                    {t("diagram.enter")} {displayProduct.name} →
                   </button>
                 )}
               </div>
@@ -278,7 +234,7 @@ export function AxisDiagram() {
               className="axis-label-x"
               style={{ opacity: 0, fontFamily: "Inter, sans-serif", letterSpacing: "0.15em" }}
             >
-              IMPACT
+              {t("diagram.xaxis")}
             </text>
             <text
               x="11" y="3"
@@ -289,7 +245,7 @@ export function AxisDiagram() {
               style={{ opacity: 0, fontFamily: "Inter, sans-serif", letterSpacing: "0.15em" }}
               transform="rotate(-90, 11, 3) translate(-62, 0)"
             >
-              GROWTH
+              {t("diagram.yaxis")}
             </text>
 
             {/* Constellation lines — almost invisible */}
@@ -459,7 +415,7 @@ export function AxisDiagram() {
                     onClick={() => handleDotClick(displayProduct)}
                     className="mt-2 text-xs text-white/50 hover:text-white transition-colors"
                   >
-                    Enter →
+                    {t("diagram.enter")} →
                   </button>
                 )}
               </div>
@@ -470,12 +426,12 @@ export function AxisDiagram() {
         {/* Scroll hint */}
         {!interactive && (
           <div className="absolute bottom-4 left-1/2 -translate-x-1/2 text-white/20 text-[10px] tracking-[0.2em] uppercase">
-            scroll to explore
+            {t("diagram.scroll")}
           </div>
         )}
         {interactive && (
           <div className="absolute bottom-4 left-1/2 -translate-x-1/2 text-white/30 text-[10px] tracking-[0.15em] uppercase">
-            click any node to enter
+            {t("diagram.click")}
           </div>
         )}
       </div>

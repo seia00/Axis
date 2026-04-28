@@ -22,22 +22,27 @@ import {
   X,
   User,
   Shield,
+  MoreHorizontal,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useLanguage } from "@/contexts/language-context";
 
+// Main nav — labelKey maps to translation
 const navItems = [
-  { href: "/directory",     label: "Directory",     icon: LayoutGrid },
-  { href: "/network",       label: "Network",       icon: Users },
-  { href: "/opportunities", label: "Opportunities", icon: Briefcase },
-  { href: "/launchpad",     label: "Launch Pad",    icon: Rocket },
-  { href: "/ventures",      label: "Ventures",      icon: TrendingUp },
-  { href: "/match",         label: "Match",         icon: Sparkles },
-  { href: "/calendar",      label: "Calendar",      icon: Calendar },
-  { href: "/resources",     label: "Resources",     icon: BookOpen },
+  { href: "/directory",     labelKey: "nav.directory",     icon: LayoutGrid  },
+  { href: "/network",       labelKey: "nav.network",       icon: Users       },
+  { href: "/opportunities", labelKey: "nav.opportunities", icon: Briefcase   },
+  { href: "/launchpad",     labelKey: "nav.launchpad",     icon: Rocket      },
+  { href: "/ventures",      labelKey: "nav.ventures",      icon: TrendingUp  },
+  { href: "/match",         labelKey: "nav.match",         icon: Sparkles    },
+  { href: "/calendar",      labelKey: "nav.calendar",      icon: Calendar    },
+  { href: "/resources",     labelKey: "nav.resources",     icon: BookOpen    },
 ];
 
-// ─── Shared nav list ──────────────────────────────────────────────────────────
+// Bottom nav shows 5 items; rest go in "More" drawer
+const BOTTOM_NAV_ITEMS = navItems.slice(0, 5);
+
+// ─── Shared nav list (desktop sidebar) ───────────────────────────────────────
 function NavList({
   pathname,
   session,
@@ -49,12 +54,14 @@ function NavList({
   collapsed: boolean;
   onLinkClick?: () => void;
 }) {
-  const { lang, toggle } = useLanguage();
+  const { lang, toggle, t } = useLanguage();
+
   return (
     <>
       {/* Main nav */}
       <nav className="flex-1 px-2 py-4 space-y-0.5 overflow-y-auto">
-        {navItems.map(({ href, label, icon: Icon }) => {
+        {navItems.map(({ href, labelKey, icon: Icon }) => {
+          const label = t(labelKey);
           const active = pathname?.startsWith(href);
           return (
             <Link
@@ -84,65 +91,65 @@ function NavList({
             <Link
               href="/portfolio"
               onClick={onLinkClick}
-              title={collapsed ? "Portfolio" : undefined}
+              title={collapsed ? t("nav.portfolio") : undefined}
               className={cn(
                 "flex items-center gap-3 px-3 py-2 text-sm rounded-lg text-white/40 hover:text-white/80 hover:bg-white/[0.04] transition-all duration-150",
                 collapsed && "justify-center"
               )}
             >
               <User className="w-[18px] h-[18px] flex-shrink-0" />
-              {!collapsed && <span>Portfolio</span>}
+              {!collapsed && <span>{t("nav.portfolio")}</span>}
             </Link>
             {(session.user as { role?: string }).role === "ADMIN" && (
               <Link
                 href="/admin"
                 onClick={onLinkClick}
-                title={collapsed ? "Admin" : undefined}
+                title={collapsed ? t("nav.admin") : undefined}
                 className={cn(
                   "flex items-center gap-3 px-3 py-2 text-sm rounded-lg text-white/40 hover:text-white/80 hover:bg-white/[0.04] transition-all duration-150",
                   collapsed && "justify-center"
                 )}
               >
                 <Shield className="w-[18px] h-[18px] flex-shrink-0" />
-                {!collapsed && <span>Admin</span>}
+                {!collapsed && <span>{t("nav.admin")}</span>}
               </Link>
             )}
             <Link
               href="/settings"
               onClick={onLinkClick}
-              title={collapsed ? "Settings" : undefined}
+              title={collapsed ? t("nav.settings") : undefined}
               className={cn(
                 "flex items-center gap-3 px-3 py-2 text-sm rounded-lg text-white/40 hover:text-white/80 hover:bg-white/[0.04] transition-all duration-150",
                 collapsed && "justify-center"
               )}
             >
               <Settings className="w-[18px] h-[18px] flex-shrink-0" />
-              {!collapsed && <span>Settings</span>}
+              {!collapsed && <span>{t("nav.settings")}</span>}
             </Link>
             <button
               onClick={() => { onLinkClick?.(); signOut(); }}
-              title={collapsed ? "Sign out" : undefined}
+              title={collapsed ? t("nav.signout") : undefined}
               className={cn(
                 "w-full flex items-center gap-3 px-3 py-2 text-sm rounded-lg text-white/40 hover:text-red-400/80 hover:bg-white/[0.04] transition-all duration-150",
                 collapsed && "justify-center"
               )}
             >
               <LogOut className="w-[18px] h-[18px] flex-shrink-0" />
-              {!collapsed && <span>Sign out</span>}
+              {!collapsed && <span>{t("nav.signout")}</span>}
             </button>
           </>
         ) : (
           <Link
             href="/auth/signin"
             onClick={onLinkClick}
-            title={collapsed ? "Sign in" : undefined}
+            title={collapsed ? t("nav.signin") : undefined}
             className={cn(
               "flex items-center gap-3 px-3 py-2 text-sm rounded-lg text-white/40 hover:text-white/80 hover:bg-white/[0.04] transition-all duration-150",
               collapsed && "justify-center"
             )}
           >
             <User className="w-[18px] h-[18px] flex-shrink-0" />
-            {!collapsed && <span>Sign in</span>}
+            {!collapsed && <span>{t("nav.signin")}</span>}
           </Link>
         )}
 
@@ -163,7 +170,7 @@ function NavList({
   );
 }
 
-// ─── Mobile drawer ────────────────────────────────────────────────────────────
+// ─── Mobile full drawer (opened by "More") ────────────────────────────────────
 function MobileDrawer({
   pathname,
   session,
@@ -175,14 +182,11 @@ function MobileDrawer({
 }) {
   return (
     <>
-      {/* Backdrop */}
       <div
         className="fixed inset-0 z-40 bg-black/60 backdrop-blur-sm"
         onClick={onClose}
       />
-      {/* Panel */}
       <div className="fixed left-0 top-0 h-screen w-64 z-50 bg-[#09090b] border-r border-white/[0.06] flex flex-col">
-        {/* Header */}
         <div className="flex items-center justify-between px-4 h-14 border-b border-white/[0.04] flex-shrink-0">
           <Link href="/" onClick={onClose}>
             <Image
@@ -211,6 +215,52 @@ function MobileDrawer({
   );
 }
 
+// ─── Mobile bottom navigation bar ─────────────────────────────────────────────
+function BottomNav({
+  pathname,
+  onMoreClick,
+}: {
+  pathname: string;
+  onMoreClick: () => void;
+}) {
+  const { t } = useLanguage();
+
+  return (
+    <nav className="fixed bottom-0 left-0 right-0 z-40 md:hidden bg-[#09090b]/95 backdrop-blur-md border-t border-white/[0.06] safe-area-bottom">
+      <div className="flex items-center justify-around h-16 px-1">
+        {BOTTOM_NAV_ITEMS.map(({ href, labelKey, icon: Icon }) => {
+          const label = t(labelKey);
+          const active = pathname?.startsWith(href);
+          return (
+            <Link
+              key={href}
+              href={href}
+              className={cn(
+                "flex flex-col items-center justify-center gap-0.5 flex-1 py-2 rounded-xl transition-all duration-150",
+                active ? "text-white" : "text-white/35 hover:text-white/70"
+              )}
+            >
+              <Icon className={cn("w-5 h-5", active && "drop-shadow-[0_0_6px_rgba(139,92,246,0.7)]")} />
+              <span className="text-[9px] font-medium tracking-wide truncate max-w-[52px] text-center leading-none">
+                {label}
+              </span>
+            </Link>
+          );
+        })}
+
+        {/* More button */}
+        <button
+          onClick={onMoreClick}
+          className="flex flex-col items-center justify-center gap-0.5 flex-1 py-2 rounded-xl text-white/35 hover:text-white/70 transition-all duration-150"
+        >
+          <MoreHorizontal className="w-5 h-5" />
+          <span className="text-[9px] font-medium tracking-wide leading-none">{t("nav.more")}</span>
+        </button>
+      </div>
+    </nav>
+  );
+}
+
 // ─── Main AppSidebar ──────────────────────────────────────────────────────────
 export function AppSidebar() {
   const pathname = usePathname();
@@ -231,7 +281,6 @@ export function AppSidebar() {
             collapsed ? "w-60" : "w-16"
           )}
         >
-          {/* Toggle button at top */}
           <div className={cn(
             "flex items-center border-b border-white/[0.04] h-14 px-3 flex-shrink-0",
             collapsed ? "justify-between" : "justify-center"
@@ -268,14 +317,8 @@ export function AppSidebar() {
           />
         </div>
 
-        {/* Mobile: hamburger in top-right corner */}
-        <button
-          className="fixed top-4 right-4 z-50 md:hidden p-2 rounded-lg text-white/30 hover:text-white/70 transition-colors"
-          onClick={() => setMobileOpen(true)}
-          aria-label="Open menu"
-        >
-          <Menu className="w-5 h-5" />
-        </button>
+        {/* Mobile: bottom nav bar */}
+        <BottomNav pathname={pathname} onMoreClick={() => setMobileOpen(true)} />
 
         {mobileOpen && (
           <MobileDrawer
@@ -336,14 +379,8 @@ export function AppSidebar() {
         />
       </div>
 
-      {/* Mobile: hamburger top-left */}
-      <button
-        className="fixed top-3 left-3 z-50 md:hidden p-2 rounded-lg bg-[#09090b]/90 backdrop-blur-sm border border-white/[0.06] text-white/40 hover:text-white/80 transition-colors"
-        onClick={() => setMobileOpen(true)}
-        aria-label="Open menu"
-      >
-        <Menu className="w-4 h-4" />
-      </button>
+      {/* Mobile: bottom nav bar */}
+      <BottomNav pathname={pathname} onMoreClick={() => setMobileOpen(true)} />
 
       {mobileOpen && (
         <MobileDrawer

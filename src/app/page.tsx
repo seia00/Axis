@@ -1,6 +1,4 @@
-import Link from "next/link";
 import { Footer } from "@/components/layout/footer";
-import { Starfield } from "@/components/landing/starfield";
 import { AxisDiagram } from "@/components/landing/axis-diagram";
 import { ProductCards } from "@/components/landing/product-cards";
 import { StatsSection } from "@/components/landing/stats-section";
@@ -25,10 +23,7 @@ export default async function LandingPage() {
   const stats = await getStats();
 
   return (
-    <div className="relative min-h-screen bg-[#09090b]">
-      {/* Starfield canvas — fixed, behind everything */}
-      <Starfield />
-
+    <div className="relative min-h-screen">
       {/* HERO */}
       <HeroSection />
 

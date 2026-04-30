@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import "./globals.css";
 import { Providers } from "./providers";
-import { PageTransition } from "@/components/animation";
+import { PageTransition, Animated3DStackBackground } from "@/components/animation";
 import { AppSidebar } from "@/components/layout/app-sidebar";
 import { MobileNav } from "@/components/layout/mobile-nav";
 import { SidebarLayout } from "@/components/layout/sidebar-layout";
@@ -21,7 +21,8 @@ export const metadata: Metadata = {
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en" className="dark">
-      <body className="antialiased min-h-screen bg-[var(--background)] text-[var(--foreground)]">
+      <body className="antialiased min-h-screen text-[var(--foreground)]">
+        <Animated3DStackBackground />
         <Providers>
           {/* Desktop sidebar */}
           <AppSidebar />

@@ -16,7 +16,11 @@ const ContentSecurityPolicy = [
   "font-src 'self' data: https://fonts.gstatic.com",
   "img-src 'self' data: blob: https:",
   "media-src 'self' blob: https:",
-  "connect-src 'self' https://*.supabase.co wss://*.supabase.co https://accounts.google.com https://api.resend.com https://va.vercel-scripts.com",
+  // raw.githack.com hosts the drei `<Environment preset>` HDR maps used by
+  // the 3D landing/animation components. Without it the WebGL canvas loses
+  // context and the page errors. cdn.jsdelivr.net is the fallback CDN drei
+  // uses for some assets.
+  "connect-src 'self' https://*.supabase.co wss://*.supabase.co https://accounts.google.com https://api.resend.com https://va.vercel-scripts.com https://raw.githack.com https://cdn.jsdelivr.net",
   "frame-src 'self' https://accounts.google.com",
   "frame-ancestors 'none'",
   "form-action 'self' https://accounts.google.com",

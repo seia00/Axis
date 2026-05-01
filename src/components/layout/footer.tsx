@@ -19,9 +19,7 @@ const footerLinks = {
     { href: "https://discord.gg/axis", label: "Discord" },
   ],
   Legal: [
-    { href: "https://axis-privacy-policy.vercel.app/", label: "Privacy Policy" },
-    { href: "/legal/terms",      label: "Terms" },
-    { href: "/legal/guidelines", label: "Guidelines" },
+    { href: "https://axis-privacy-policy.vercel.app/", label: "Privacy Policy, User Guidelines, Terms of Service" },
   ],
 };
 
@@ -42,8 +40,8 @@ export function Footer() {
               />
             </div>
             <p className="text-xs text-white/30 leading-relaxed max-w-[200px]">
-              Infrastructure for Japan's student organization ecosystem.
-              Free for all students, always.
+              Infrastructure for Japan's student founder ecosystem.
+              LinkedIn, Instagram, and Y Combinator — all in one place.
             </p>
           </div>
 

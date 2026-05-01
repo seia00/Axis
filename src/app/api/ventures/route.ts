@@ -1,51 +1,75 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getServerSession } from "next-auth";
-import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { z } from "zod";
+import { requireSession, rateLimit, safeError, safeString } from "@/lib/security";
 
 const schema = z.object({
-  name: z.string().min(2).max(100),
-  focusArea: z.string(),
+  name:      z.string().min(2).max(100),
+  focusArea: z.string().min(1).max(100),
   applicationData: z.object({
-    foundingTeam: z.string().min(10),
-    targetStudents: z.string().min(10),
-    problemStatement: z.string().min(20),
-    proposedSolution: z.string().min(20),
-    currentTraction: z.string(),
-    supportNeeded: z.string().min(10),
+    foundingTeam:     z.string().min(10).max(2000),
+    targetStudents:   z.string().min(10).max(2000),
+    problemStatement: z.string().min(20).max(5000),
+    proposedSolution: z.string().min(20).max(5000),
+    currentTraction:  z.string().max(5000),
+    supportNeeded:    z.string().min(10).max(5000),
   }),
 });
 
 export async function POST(req: NextRequest) {
-  const session = await getServerSession(authOptions);
-  if (!session) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  try {
+    const { session, error } = await requireSession();
+    if (error) return error;
 
-  const body = await req.json();
-  const parsed = schema.safeParse(body);
-  if (!parsed.success) return NextResponse.json({ error: parsed.error.message }, { status: 400 });
+    // Cap submissions — prevents application spam
+    const limited = rateLimit(req, "venture-create", 3, 3600_000, session.user.id);
+    if (limited) return limited;
 
-  const venture = await prisma.venture.create({
-    data: {
-      name: parsed.data.name,
-      focusArea: parsed.data.focusArea,
-      leaderId: session.user.id,
-      applicationData: parsed.data.applicationData,
-    },
-  });
+    const body = await req.json().catch(() => ({}));
+    const parsed = schema.safeParse(body);
+    if (!parsed.success) {
+      return NextResponse.json({ error: "Invalid application" }, { status: 400 });
+    }
 
-  return NextResponse.json(venture);
+    // Sanitize text fields in the JSONB application data
+    const app = parsed.data.applicationData;
+    const sanitizedAppData = {
+      foundingTeam:     safeString(app.foundingTeam, 2000),
+      targetStudents:   safeString(app.targetStudents, 2000),
+      problemStatement: safeString(app.problemStatement, 5000),
+      proposedSolution: safeString(app.proposedSolution, 5000),
+      currentTraction:  safeString(app.currentTraction, 5000),
+      supportNeeded:    safeString(app.supportNeeded, 5000),
+    };
+
+    const venture = await prisma.venture.create({
+      data: {
+        name:            safeString(parsed.data.name, 100),
+        focusArea:       parsed.data.focusArea,
+        leaderId:        session.user.id,
+        applicationData: sanitizedAppData,
+      },
+    });
+
+    return NextResponse.json(venture);
+  } catch (err) {
+    return safeError(err);
+  }
 }
 
 export async function GET(_req: NextRequest) {
-  const session = await getServerSession(authOptions);
-  if (!session) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  try {
+    const { session, error } = await requireSession();
+    if (error) return error;
 
-  const ventures = await prisma.venture.findMany({
-    where: { leaderId: session.user.id },
-    include: { milestones: true, _count: { select: { forumPosts: true } } },
-    orderBy: { createdAt: "desc" },
-  });
+    const ventures = await prisma.venture.findMany({
+      where: { leaderId: session.user.id },
+      include: { milestones: true, _count: { select: { forumPosts: true } } },
+      orderBy: { createdAt: "desc" },
+    });
 
-  return NextResponse.json(ventures);
+    return NextResponse.json(ventures);
+  } catch (err) {
+    return safeError(err);
+  }
 }

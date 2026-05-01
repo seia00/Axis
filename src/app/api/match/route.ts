@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
+import { rateLimit, safeError } from "@/lib/security";
 
 async function callClaude(prompt: string): Promise<string> {
   const response = await fetch("https://api.anthropic.com/v1/messages", {
@@ -34,9 +35,16 @@ export async function GET(_req: NextRequest) {
   return NextResponse.json(matches);
 }
 
-export async function POST(_req: NextRequest) {
+export async function POST(req: NextRequest) {
+  try {
   const session = await getServerSession(authOptions);
   if (!session) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+
+  // CRITICAL: Claude API costs real money. Cap to 5 match-generations per
+  // user per hour. Without this, anyone signed in could rack up an
+  // unlimited bill via auto-clicking the regenerate button.
+  const limited = rateLimit(req, "match-generate", 5, 3600_000, session.user.id);
+  if (limited) return limited;
 
   const user = await prisma.user.findUnique({ where: { id: session.user.id } });
   if (!user) return NextResponse.json({ error: "User not found" }, { status: 404 });
@@ -187,4 +195,7 @@ Programs: ${JSON.stringify(programs.map(p => ({ id: p.id, title: p.title, descri
   });
 
   return NextResponse.json(matches);
+  } catch (err) {
+    return safeError(err);
+  }
 }

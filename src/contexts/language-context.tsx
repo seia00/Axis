@@ -17,14 +17,14 @@ export const translations: Record<Lang, Record<string, string>> = {
     "hero.badge":          "Live across Japan — 50+ organizations and counting",
     "hero.headline":       "Where ambition meets opportunity.",
     "hero.subtext":        "Japan's platform for student founders — discover opportunities, build your team, and launch your venture.",
-    "hero.subtext.free":   "Free, forever.",
+    "hero.subtext.free":   "LinkedIn, Instagram, and Y Combinator — all in one place.",
     "hero.cta.primary":    "Get Started Free",
     "hero.cta.secondary":  "Explore Platform",
     "hero.scroll":         "Scroll",
 
     // ── CTA section ───────────────────────────────────────────────────────────
     "cta.headline":   "Ready to start building?",
-    "cta.sub":        "Join Japan's community of student founders — free, forever.",
+    "cta.sub":        "Join Japan's community of student founders — LinkedIn, Instagram, and Y Combinator all in one place.",
     "cta.join":       "Join AXIS Free",
     "cta.browse":     "Browse Directory",
 
@@ -119,7 +119,7 @@ export const translations: Record<Lang, Record<string, string>> = {
     "stats.orgs":      "Student Orgs",
     "stats.opps":      "Opportunities",
     "stats.founders":  "Founders",
-    "stats.free":      "Free Forever",
+    "stats.free":      "All-in-One",
 
     // ── Navigation labels ─────────────────────────────────────────────────────
     "nav.directory":     "Directory",
@@ -147,14 +147,14 @@ export const translations: Record<Lang, Record<string, string>> = {
     "hero.badge":          "日本全土で展開中 — 50以上の団体と成長中",
     "hero.headline":       "野心と機会が出会う場所。",
     "hero.subtext":        "日本の学生起業家のためのプラットフォーム — 機会を見つけ、チームを作り、ベンチャーを立ち上げよう。",
-    "hero.subtext.free":   "ずっと無料。",
+    "hero.subtext.free":   "LinkedInも、Instagramも、Y Combinatorも — すべてが一つに。",
     "hero.cta.primary":    "無料で始める",
     "hero.cta.secondary":  "プラットフォームを見る",
     "hero.scroll":         "スクロール",
 
     // ── CTA section ───────────────────────────────────────────────────────────
     "cta.headline":   "さあ、作り始めよう。",
-    "cta.sub":        "日本の学生起業家コミュニティへ — ずっと無料。",
+    "cta.sub":        "日本の学生起業家コミュニティへ — LinkedIn・Instagram・Y Combinatorが一つに。",
     "cta.join":       "AXISに参加する（無料）",
     "cta.browse":     "団体一覧を見る",
 
@@ -249,7 +249,7 @@ export const translations: Record<Lang, Record<string, string>> = {
     "stats.orgs":      "学生団体",
     "stats.opps":      "機会",
     "stats.founders":  "起業家",
-    "stats.free":      "ずっと無料",
+    "stats.free":      "すべてが一つに",
 
     // ── Navigation labels ─────────────────────────────────────────────────────
     "nav.directory":     "ディレクトリ",

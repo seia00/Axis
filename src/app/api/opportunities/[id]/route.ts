@@ -1,26 +1,31 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getServerSession } from "next-auth";
-import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
+import { requireSession, safeError } from "@/lib/security";
 
 export async function GET(_req: NextRequest, { params }: { params: { id: string } }) {
-  const session = await getServerSession(authOptions);
-  if (!session) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  try {
+    const { error } = await requireSession();
+    if (error) return error;
 
-  const opportunity = await prisma.opportunity.findUnique({ where: { id: params.id } });
-  if (!opportunity) return NextResponse.json({ error: "Not found" }, { status: 404 });
+    const opportunity = await prisma.opportunity.findUnique({ where: { id: params.id } });
+    if (!opportunity) return NextResponse.json({ error: "Not found" }, { status: 404 });
 
-  await prisma.opportunity.update({ where: { id: params.id }, data: { viewCount: { increment: 1 } } });
+    // Increment view count (best-effort, don't block on failure)
+    void prisma.opportunity
+      .update({ where: { id: params.id }, data: { viewCount: { increment: 1 } } })
+      .catch(() => {});
 
-  // Get related opportunities by shared tags
-  const related = await prisma.opportunity.findMany({
-    where: {
-      id: { not: params.id },
-      tags: { hasSome: opportunity.tags },
-    },
-    take: 4,
-    orderBy: { savedCount: "desc" },
-  });
+    const related = await prisma.opportunity.findMany({
+      where: {
+        id: { not: params.id },
+        tags: { hasSome: opportunity.tags },
+      },
+      take: 4,
+      orderBy: { savedCount: "desc" },
+    });
 
-  return NextResponse.json({ ...opportunity, related });
+    return NextResponse.json({ ...opportunity, related });
+  } catch (err) {
+    return safeError(err);
+  }
 }

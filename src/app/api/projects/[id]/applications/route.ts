@@ -1,30 +1,38 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getServerSession } from "next-auth";
-import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
+import { requireSession, safeError } from "@/lib/security";
 
 export async function GET(_req: NextRequest, { params }: { params: { id: string } }) {
-  const session = await getServerSession(authOptions);
-  if (!session) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  try {
+    const { session, error } = await requireSession();
+    if (error) return error;
 
-  const project = await prisma.project.findUnique({ where: { id: params.id } });
-  if (!project) return NextResponse.json({ error: "Not found" }, { status: 404 });
-  if (project.creatorId !== session.user.id) return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+    const project = await prisma.project.findUnique({
+      where: { id: params.id },
+      select: { id: true, creatorId: true },
+    });
+    if (!project) return NextResponse.json({ error: "Not found" }, { status: 404 });
+    if (project.creatorId !== session.user.id && session.user.role !== "ADMIN") {
+      return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+    }
 
-  const applications = await prisma.application.findMany({
-    where: { projectId: params.id },
-    orderBy: { createdAt: "desc" },
-  });
+    const applications = await prisma.application.findMany({
+      where: { projectId: params.id },
+      orderBy: { createdAt: "desc" },
+      take: 500,
+    });
 
-  // Fetch applicant info
-  const userIds = Array.from(new Set(applications.map(a => a.userId)));
-  const users = await prisma.user.findMany({
-    where: { id: { in: userIds } },
-    select: { id: true, name: true, image: true, email: true },
-  });
-  const usersMap = Object.fromEntries(users.map(u => [u.id, u]));
+    const userIds = Array.from(new Set(applications.map(a => a.userId)));
+    const users = await prisma.user.findMany({
+      where: { id: { in: userIds } },
+      select: { id: true, name: true, image: true, email: true },
+    });
+    const usersMap = Object.fromEntries(users.map(u => [u.id, u]));
 
-  return NextResponse.json(
-    applications.map(a => ({ ...a, applicant: usersMap[a.userId] }))
-  );
+    return NextResponse.json(
+      applications.map(a => ({ ...a, applicant: usersMap[a.userId] }))
+    );
+  } catch (err) {
+    return safeError(err);
+  }
 }

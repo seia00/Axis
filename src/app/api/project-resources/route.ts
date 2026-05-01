@@ -1,49 +1,97 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getServerSession } from "next-auth";
-import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
+import { z } from "zod";
+import { requireSession, requireAdmin, sanitizeUrl, safeError, safeString } from "@/lib/security";
+
+const querySchema = z.object({
+  category: z.string().max(50).optional(),
+  type:     z.string().max(50).optional(),
+  search:   z.string().max(200).optional(),
+});
+
+const createSchema = z.object({
+  title:       z.string().min(1).max(200),
+  description: z.string().max(2000).optional(),
+  category:    z.string().min(1).max(50),
+  type:        z.string().min(1).max(50),
+  fileUrl:     z.string().max(2048).optional(),
+  externalUrl: z.string().max(2048).optional(),
+  tags:        z.array(z.string().max(50)).max(20).optional(),
+  region:      z.string().max(50).optional(),
+});
 
 export async function GET(req: NextRequest) {
   try {
-    const session = await getServerSession(authOptions);
-    if (!session) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    const { error } = await requireSession();
+    if (error) return error;
 
     const { searchParams } = new URL(req.url);
-    const category = searchParams.get("category");
-    const type = searchParams.get("type");
-    const search = searchParams.get("search");
+    const parsed = querySchema.safeParse(Object.fromEntries(searchParams.entries()));
+    if (!parsed.success) {
+      return NextResponse.json({ error: "Invalid filters" }, { status: 400 });
+    }
+    const q = parsed.data;
 
     const resources = await prisma.projectResource.findMany({
       where: {
-        ...(category ? { category } : {}),
-        ...(type ? { type } : {}),
-        ...(search ? {
+        ...(q.category ? { category: q.category } : {}),
+        ...(q.type ? { type: q.type } : {}),
+        ...(q.search ? {
           OR: [
-            { title: { contains: search, mode: "insensitive" } },
-            { description: { contains: search, mode: "insensitive" } },
+            { title: { contains: q.search, mode: "insensitive" } },
+            { description: { contains: q.search, mode: "insensitive" } },
           ],
         } : {}),
       },
       orderBy: { downloadCount: "desc" },
+      take: 500,
     });
 
     return NextResponse.json(resources);
-  } catch {
-    return NextResponse.json({ error: "Internal server error" }, { status: 500 });
+  } catch (err) {
+    return safeError(err);
   }
 }
 
 export async function POST(req: NextRequest) {
   try {
-    const session = await getServerSession(authOptions);
-    if (!session || session.user.role !== "ADMIN") {
-      return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+    const { error } = await requireAdmin();
+    if (error) return error;
+
+    const body = await req.json().catch(() => ({}));
+    const parsed = createSchema.safeParse(body);
+    if (!parsed.success) {
+      return NextResponse.json({ error: "Invalid resource" }, { status: 400 });
+    }
+    const data = parsed.data;
+
+    let safeFileUrl: string | undefined;
+    let safeExtUrl: string | undefined;
+    if (data.fileUrl) {
+      const s = sanitizeUrl(data.fileUrl);
+      if (!s) return NextResponse.json({ error: "Invalid file URL" }, { status: 400 });
+      safeFileUrl = s;
+    }
+    if (data.externalUrl) {
+      const s = sanitizeUrl(data.externalUrl);
+      if (!s) return NextResponse.json({ error: "Invalid external URL" }, { status: 400 });
+      safeExtUrl = s;
     }
 
-    const body = await req.json();
-    const resource = await prisma.projectResource.create({ data: body });
+    const resource = await prisma.projectResource.create({
+      data: {
+        title:       safeString(data.title, 200),
+        description: data.description ? safeString(data.description, 2000) : undefined,
+        category:    data.category,
+        type:        data.type,
+        fileUrl:     safeFileUrl,
+        externalUrl: safeExtUrl,
+        tags:        data.tags ?? [],
+        region:      data.region,
+      },
+    });
     return NextResponse.json(resource, { status: 201 });
-  } catch {
-    return NextResponse.json({ error: "Internal server error" }, { status: 500 });
+  } catch (err) {
+    return safeError(err);
   }
 }

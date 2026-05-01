@@ -55,7 +55,7 @@ export default async function CommunityPage() {
         <h2 className="text-2xl font-bold tracking-tight mb-6">What we believe</h2>
         <div className="grid sm:grid-cols-2 gap-4">
           {[
-            { title: "Free forever", body: "AXIS will never charge students or organizations. The platform is a public good." },
+            { title: "All-in-one platform", body: "LinkedIn, Instagram, and Y Combinator — every tool a student founder needs, unified in one place." },
             { title: "Student-led", body: "AXIS is built and operated entirely by high schoolers. We know the problem because we lived it." },
             { title: "Open infrastructure", body: "Our resources, templates, and tools are shared freely across the entire network." },
             { title: "Privacy first", body: "Student data is never sold or shared. Reviews are anonymous. Profiles show only what orgs choose to share." },

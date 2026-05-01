@@ -11,17 +11,20 @@
 // protection (style XSS surface is tiny vs. script XSS).
 const ContentSecurityPolicy = [
   "default-src 'self'",
-  "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://accounts.google.com https://apis.google.com https://va.vercel-scripts.com",
-  "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
-  "font-src 'self' data: https://fonts.gstatic.com",
+  // vercel.live is the preview-deploy feedback/comments widget injected by
+  // Vercel automatically. Production deploys don't use it but preview URLs do.
+  "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://accounts.google.com https://apis.google.com https://va.vercel-scripts.com https://vercel.live",
+  "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://vercel.live",
+  "font-src 'self' data: https://fonts.gstatic.com https://vercel.live https://assets.vercel.com",
   "img-src 'self' data: blob: https:",
   "media-src 'self' blob: https:",
-  // raw.githack.com hosts the drei `<Environment preset>` HDR maps used by
-  // the 3D landing/animation components. Without it the WebGL canvas loses
-  // context and the page errors. cdn.jsdelivr.net is the fallback CDN drei
-  // uses for some assets.
-  "connect-src 'self' https://*.supabase.co wss://*.supabase.co https://accounts.google.com https://api.resend.com https://va.vercel-scripts.com https://raw.githack.com https://cdn.jsdelivr.net",
-  "frame-src 'self' https://accounts.google.com",
+  // raw.githubusercontent.com & raw.githack.com both host drei's HDR
+  // environment maps (different drei versions use different hosts).
+  // cdn.jsdelivr.net is the fallback CDN drei uses for some assets.
+  // vercel.live is the preview-deploy feedback widget — needs both
+  // script-src and connect-src to function.
+  "connect-src 'self' https://*.supabase.co wss://*.supabase.co https://accounts.google.com https://api.resend.com https://va.vercel-scripts.com https://raw.githubusercontent.com https://raw.githack.com https://cdn.jsdelivr.net https://vercel.live wss://ws-us3.pusher.com",
+  "frame-src 'self' https://accounts.google.com https://vercel.live",
   "frame-ancestors 'none'",
   "form-action 'self' https://accounts.google.com",
   "base-uri 'self'",

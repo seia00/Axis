@@ -23,7 +23,7 @@ const ContentSecurityPolicy = [
   // cdn.jsdelivr.net is the fallback CDN drei uses for some assets.
   // vercel.live is the preview-deploy feedback widget — needs both
   // script-src and connect-src to function.
-  "connect-src 'self' https://*.supabase.co wss://*.supabase.co https://accounts.google.com https://api.resend.com https://va.vercel-scripts.com https://raw.githubusercontent.com https://raw.githack.com https://cdn.jsdelivr.net https://vercel.live wss://ws-us3.pusher.com",
+  "connect-src 'self' https://*.supabase.co wss://*.supabase.co https://accounts.google.com https://api.resend.com https://va.vercel-scripts.com https://raw.githubusercontent.com https://raw.githack.com https://cdn.jsdelivr.net https://vercel.live wss://ws-us3.pusher.com https://prod.spline.design",
   "frame-src 'self' https://accounts.google.com https://vercel.live",
   "frame-ancestors 'none'",
   "form-action 'self' https://accounts.google.com",

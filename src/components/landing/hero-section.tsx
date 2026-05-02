@@ -5,7 +5,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { ArrowRight, ChevronDown, Compass, Layers3 } from "lucide-react";
 import { useLanguage } from "@/contexts/language-context";
-import { NeuralSphereHero } from "@/components/landing/neural-sphere-hero";
+import { SplineHero } from "@/components/landing/spline-hero";
 
 const EASE: [number, number, number, number] = [0.25, 0.1, 0.25, 1];
 
@@ -26,9 +26,15 @@ export function HeroSection() {
 
   return (
     <section className="relative z-10 flex min-h-[100svh] items-center overflow-hidden bg-[#05020b] px-4 pt-20 pb-24 text-center">
-      <NeuralSphereHero className="z-0 opacity-95" nodeCount={430} innerParticleCount={190} radius={2.1} />
-      <div className="absolute inset-0 z-[1] bg-[radial-gradient(circle_at_50%_45%,rgba(167,139,250,0.05),transparent_36%),linear-gradient(180deg,rgba(5,2,11,0.1)_0%,rgba(5,2,11,0.34)_60%,rgba(9,9,11,0.96)_100%)]" />
-      <div className="absolute inset-0 z-[1] bg-[linear-gradient(90deg,rgba(12,5,24,0.72)_0%,rgba(12,5,24,0.22)_50%,rgba(12,5,24,0.72)_100%)]" />
+      {/* Spline particle planet — fills the full hero */}
+      <SplineHero />
+
+      {/* Subtle vignette so edges don't feel cut-off */}
+      <div className="absolute inset-0 z-[1] bg-[radial-gradient(ellipse_120%_80%_at_50%_50%,transparent_45%,rgba(5,2,11,0.55)_100%)]" />
+      {/* Top + bottom fade — text legibility */}
+      <div className="absolute inset-0 z-[1] bg-[linear-gradient(180deg,rgba(5,2,11,0.72)_0%,rgba(5,2,11,0.18)_28%,rgba(5,2,11,0.18)_68%,rgba(9,9,11,0.97)_100%)]" />
+      {/* Side fade — keeps content centred visually */}
+      <div className="absolute inset-0 z-[1] bg-[linear-gradient(90deg,rgba(5,2,11,0.62)_0%,transparent_28%,transparent_72%,rgba(5,2,11,0.62)_100%)]" />
 
       {/* Language toggle — top right */}
       <motion.button

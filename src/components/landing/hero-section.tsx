@@ -1,14 +1,11 @@
 "use client";
 
-import { Suspense, useMemo, useRef } from "react";
-import { Canvas, useFrame } from "@react-three/fiber";
-import { Environment, Float, RoundedBox } from "@react-three/drei";
 import { motion, type Transition } from "framer-motion";
 import Link from "next/link";
 import Image from "next/image";
 import { ArrowRight, ChevronDown, Compass, Layers3 } from "lucide-react";
-import * as THREE from "three";
 import { useLanguage } from "@/contexts/language-context";
+import { NeuralSphereHero } from "@/components/landing/neural-sphere-hero";
 
 const EASE: [number, number, number, number] = [0.25, 0.1, 0.25, 1];
 
@@ -24,158 +21,20 @@ const fadeIn = (delay = 0) => ({
   transition: { duration: 0.7, delay, ease: EASE } satisfies Transition,
 });
 
-function TerrainRibbon({
-  index,
-  color,
-}: {
-  index: number;
-  color: string;
-}) {
-  const meshRef = useRef<THREE.Mesh>(null);
-  const points = useMemo(() => {
-    return Array.from({ length: 54 }, (_, i) => {
-      const x = -4.2 + i * 0.16;
-      const y =
-        Math.sin(i * 0.34 + index * 0.7) * 0.16 +
-        Math.cos(i * 0.12 + index) * 0.08;
-      return new THREE.Vector3(x, y, 0);
-    });
-  }, [index]);
-
-  const curve = useMemo(() => new THREE.CatmullRomCurve3(points), [points]);
-
-  useFrame(({ clock }) => {
-    const mesh = meshRef.current;
-    if (!mesh) return;
-
-    mesh.position.x = Math.sin(clock.elapsedTime * 0.35 + index) * 0.035;
-    mesh.rotation.z = Math.sin(clock.elapsedTime * 0.2 + index) * 0.01;
-  });
-
-  return (
-    <mesh
-      ref={meshRef}
-      position={[0, -0.95 + index * 0.34, -0.55 - index * 0.22]}
-      rotation={[0.08, -0.1, -0.05]}
-    >
-      <tubeGeometry args={[curve, 88, 0.012, 8, false]} />
-      <meshStandardMaterial
-        color={color}
-        emissive={color}
-        emissiveIntensity={0.52}
-        roughness={0.38}
-      />
-    </mesh>
-  );
-}
-
-function RenderViewport() {
-  const groupRef = useRef<THREE.Group>(null);
-
-  useFrame(({ clock, pointer }) => {
-    const group = groupRef.current;
-    if (!group) return;
-
-    group.rotation.x = -0.22 + pointer.y * 0.05;
-    group.rotation.y = -0.42 + pointer.x * 0.08;
-    group.position.y = Math.sin(clock.elapsedTime * 0.45) * 0.05;
-  });
-
-  return (
-    <Float speed={1.15} rotationIntensity={0.15} floatIntensity={0.32}>
-      <group
-        ref={groupRef}
-        position={[1.72, -0.34, 0]}
-        rotation={[-0.24, -0.42, 0.02]}
-        scale={[1.16, 1.16, 1.16]}
-      >
-        <RoundedBox args={[4.4, 2.72, 0.08]} radius={0.08} smoothness={10}>
-          <meshPhysicalMaterial
-            color="#dbeafe"
-            transparent
-            opacity={0.18}
-            roughness={0.16}
-            metalness={0.02}
-            clearcoat={1}
-            clearcoatRoughness={0.12}
-            side={THREE.DoubleSide}
-          />
-        </RoundedBox>
-
-        <RoundedBox args={[4.55, 2.86, 0.05]} radius={0.11} smoothness={12} position={[0, 0, -0.05]}>
-          <meshStandardMaterial color="#08111d" transparent opacity={0.34} roughness={0.25} />
-        </RoundedBox>
-
-        {["#d9f99d", "#7dd3fc", "#bfdbfe", "#fef3c7", "#ffffff"].map((color, index) => (
-          <TerrainRibbon key={color} index={index} color={color} />
-        ))}
-
-        <mesh position={[0.3, -0.6, -0.2]} rotation={[-Math.PI / 2.6, 0, 0.14]}>
-          <planeGeometry args={[4.2, 1.65, 32, 12]} />
-          <meshStandardMaterial
-            color="#9cc8a8"
-            transparent
-            opacity={0.34}
-            roughness={0.5}
-            wireframe
-          />
-        </mesh>
-
-        <mesh position={[-1.75, 0.95, 0.1]}>
-          <sphereGeometry args={[0.045, 18, 18]} />
-          <meshStandardMaterial color="#f8fafc" emissive="#c7d2fe" emissiveIntensity={0.4} />
-        </mesh>
-        <mesh position={[1.9, -0.8, 0.1]}>
-          <sphereGeometry args={[0.055, 18, 18]} />
-          <meshStandardMaterial color="#e0f2fe" emissive="#7dd3fc" emissiveIntensity={0.38} />
-        </mesh>
-      </group>
-    </Float>
-  );
-}
-
-function LandscapeRenderView() {
-  return (
-    <div className="pointer-events-none absolute inset-0 z-[1] opacity-[0.32] sm:opacity-90">
-      <Canvas
-        camera={{ position: [0.2, 0.08, 6.2], fov: 36 }}
-        gl={{ antialias: true, alpha: true }}
-        dpr={[1, 1.5]}
-      >
-        <ambientLight intensity={0.8} />
-        <directionalLight position={[-3.8, 4.2, 4]} intensity={3.1} color="#fff2d8" />
-        <pointLight position={[3.2, 1.2, 3.8]} intensity={7.2} color="#bae6fd" distance={8} />
-        <Suspense fallback={null}>
-          <RenderViewport />
-          <Environment preset="sunset" />
-        </Suspense>
-      </Canvas>
-    </div>
-  );
-}
-
 export function HeroSection() {
   const { t, toggle, lang } = useLanguage();
 
   return (
-    <section className="relative z-10 flex min-h-[100svh] items-center overflow-hidden px-4 pt-20 pb-24 text-center">
-      <Image
-        src="/hero-landscape.png"
-        alt=""
-        fill
-        priority
-        sizes="100vw"
-        className="absolute inset-0 -z-30 object-cover"
-      />
-      <div className="absolute inset-0 -z-20 bg-[linear-gradient(180deg,rgba(4,8,13,0.18)_0%,rgba(4,8,13,0.58)_58%,rgba(9,9,11,0.98)_100%)]" />
-      <div className="absolute inset-0 -z-20 bg-[radial-gradient(circle_at_74%_42%,rgba(191,219,254,0.2),transparent_34%),linear-gradient(90deg,rgba(4,8,13,0.78)_0%,rgba(4,8,13,0.42)_44%,rgba(4,8,13,0.22)_100%)]" />
-      <LandscapeRenderView />
+    <section className="relative z-10 flex min-h-[100svh] items-center overflow-hidden bg-[#05020b] px-4 pt-20 pb-24 text-center">
+      <NeuralSphereHero className="z-0 opacity-95" nodeCount={430} innerParticleCount={190} radius={2.1} />
+      <div className="absolute inset-0 z-[1] bg-[radial-gradient(circle_at_50%_45%,rgba(167,139,250,0.05),transparent_36%),linear-gradient(180deg,rgba(5,2,11,0.1)_0%,rgba(5,2,11,0.34)_60%,rgba(9,9,11,0.96)_100%)]" />
+      <div className="absolute inset-0 z-[1] bg-[linear-gradient(90deg,rgba(12,5,24,0.72)_0%,rgba(12,5,24,0.22)_50%,rgba(12,5,24,0.72)_100%)]" />
 
       {/* Language toggle — top right */}
       <motion.button
         {...fadeIn(0.05)}
         onClick={toggle}
-        className="absolute right-4 top-5 z-20 inline-flex items-center gap-1.5 rounded-lg border border-white/15 bg-black/20 px-3 py-1.5 text-xs font-medium text-white/70 backdrop-blur-md transition-all duration-200 hover:border-white/25 hover:text-white sm:right-6 sm:top-6"
+        className="absolute right-4 top-5 z-20 inline-flex items-center gap-1.5 rounded-lg border border-violet-200/15 bg-violet-950/20 px-3 py-1.5 text-xs font-medium text-violet-50/72 shadow-[0_18px_50px_rgba(76,29,149,0.18)] backdrop-blur-md transition-all duration-200 hover:border-violet-200/30 hover:text-white sm:right-6 sm:top-6"
         aria-label="Toggle language"
       >
         <span className="text-[10px]">{lang === "en" ? "🇯🇵" : "🇬🇧"}</span>
@@ -186,9 +45,9 @@ export function HeroSection() {
         {/* Badge — sits above the logo */}
         <motion.div
           {...fadeUp(0.18)}
-          className="mb-6 inline-flex items-center gap-2 rounded-full border border-white/15 bg-black/20 px-3 py-1 text-xs tracking-wide text-white/72 shadow-[0_12px_40px_rgba(0,0,0,0.28)] backdrop-blur-md"
+          className="mb-6 inline-flex items-center gap-2 rounded-full border border-violet-200/15 bg-violet-950/20 px-3 py-1 text-xs tracking-wide text-violet-50/74 shadow-[0_18px_50px_rgba(76,29,149,0.22)] backdrop-blur-md"
         >
-          <Compass className="h-3.5 w-3.5 text-sky-100" />
+          <Compass className="h-3.5 w-3.5 text-violet-200" />
           {t("hero.badge")}
         </motion.div>
 
@@ -212,12 +71,12 @@ export function HeroSection() {
           {lang === "en" ? (
             <>
               Where ambition meets{" "}
-              <span className="text-sky-100">opportunity.</span>
+              <span className="text-violet-100">opportunity.</span>
             </>
           ) : (
             <>
               野心と機会が
-              <span className="text-sky-100">出会う場所。</span>
+              <span className="text-violet-100">出会う場所。</span>
             </>
           )}
         </motion.h1>
@@ -239,7 +98,7 @@ export function HeroSection() {
           {/* Primary — white on dark */}
           <Link
             href="/auth/signin"
-            className="inline-flex items-center gap-2 rounded-lg bg-white px-6 py-3 text-sm font-medium text-black shadow-[0_18px_45px_rgba(0,0,0,0.32)] transition-colors duration-150 hover:bg-white/90 focus:outline-none focus:ring-2 focus:ring-white/20"
+            className="inline-flex items-center gap-2 rounded-lg bg-violet-50 px-6 py-3 text-sm font-medium text-violet-950 shadow-[0_22px_60px_rgba(139,92,246,0.24)] transition-colors duration-150 hover:bg-white focus:outline-none focus:ring-2 focus:ring-violet-200/30"
           >
             {t("hero.cta.primary")}
             <ArrowRight className="h-4 w-4" />
@@ -248,7 +107,7 @@ export function HeroSection() {
           {/* Secondary — glass */}
           <a
             href="#axis-diagram"
-            className="inline-flex items-center gap-2 rounded-lg border border-white/15 bg-black/18 px-6 py-3 text-sm font-medium text-white/76 backdrop-blur-md transition-all duration-200 hover:border-white/30 hover:text-white"
+            className="inline-flex items-center gap-2 rounded-lg border border-violet-200/15 bg-violet-950/18 px-6 py-3 text-sm font-medium text-violet-50/76 backdrop-blur-md transition-all duration-200 hover:border-violet-200/35 hover:text-white"
           >
             <Layers3 className="h-4 w-4" />
             {t("hero.cta.secondary")}

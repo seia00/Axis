@@ -8,8 +8,14 @@ export const metadata = { title: "Network Portal" };
 export default async function NetworkLayout({ children }: { children: React.ReactNode }) {
   const session = await getServerSession(authOptions);
 
+  // Only block anonymous users at the layout level. Per-page role/org gating
+  // happens inside each child page (dashboard, profile, merge, onboarding all
+  // run their own `if (!org) redirect("/network/join")`).
+  //
+  // Previously this layout also redirected STUDENT users to /network/join —
+  // but /network/join itself is wrapped by this same layout, so STUDENT
+  // visitors got an infinite redirect loop and Next.js rendered a blank page.
   if (!session) redirect("/auth/signin?callbackUrl=/network/dashboard");
-  if (session.user.role === "STUDENT") redirect("/network/join");
 
   return (
     <div className="min-h-screen">

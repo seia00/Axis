@@ -1,4 +1,5 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,300;0,14..32,400;0,14..32,500;0,14..32,600;0,14..32,700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&display=swap');
 
 @tailwind base;
 @tailwind components;
@@ -6,31 +7,34 @@
 
 @layer base {
   :root {
-    /* ── Near-black backgrounds (zinc scale) ─────────────────────────── */
-    --background:         #09090b;   /* zinc-950 */
-    --bg-secondary:       #18181b;   /* zinc-900 */
-    --bg-tertiary:        #27272a;   /* zinc-800 */
+    /* ── Backgrounds — near-black engineering palette ─────────────────── */
+    --background:         #05020b;   /* deep space black */
+    --bg-secondary:       #0d0b14;
+    --bg-tertiary:        #13111c;
 
-    /* Legacy surface vars (used by inner-page components) */
-    --surface:            #18181b;
-    --surface-raised:     #1c1c1f;
-    --surface-overlay:    #222226;
-    --muted:              #1a1a1e;
-    --muted-foreground:   #71717a;   /* zinc-500 */
+    /* Surfaces — elevated layers */
+    --surface:            #0d0b14;
+    --surface-raised:     #111018;
+    --surface-overlay:    #161423;
+    --muted:              #0f0d18;
+    --muted-foreground:   #52505e;   /* purple-tinted grey */
 
-    /* ── Text ─────────────────────────────────────────────────────────── */
+    /* ── Text hierarchy ───────────────────────────────────────────────── */
     --foreground:         rgba(255, 255, 255, 0.95);
-    --text-secondary:     rgba(255, 255, 255, 0.60);
-    --text-tertiary:      rgba(255, 255, 255, 0.40);
+    --text-secondary:     rgba(220, 215, 240, 0.55);  /* purple-tinted */
+    --text-tertiary:      rgba(200, 195, 225, 0.35);
 
-    /* ── Borders ──────────────────────────────────────────────────────── */
-    --border:             rgba(255, 255, 255, 0.06);
+    /* ── Borders — 1px precision lines ───────────────────────────────── */
+    --border:             rgba(255, 255, 255, 0.07);
     --border-subtle:      rgba(255, 255, 255, 0.04);
-    --border-hover:       rgba(255, 255, 255, 0.10);
+    --border-strong:      rgba(255, 255, 255, 0.12);
+    --border-hover:       rgba(139, 92, 246, 0.30);   /* purple on hover */
 
-    /* ── Single accent: violet ────────────────────────────────────────── */
+    /* ── Accent: violet as data color ────────────────────────────────── */
     --accent:             #8b5cf6;   /* violet-500 */
-    --accent-glow:        rgba(139, 92, 246, 0.12);
+    --accent-dim:         #6d28d9;   /* violet-700 */
+    --accent-glow:        rgba(139, 92, 246, 0.15);
+    --accent-line:        rgba(139, 92, 246, 0.60);   /* progress / active bars */
     --primary:            #8b5cf6;
     --primary-foreground: #ffffff;
     --accent-foreground:  #ffffff;
@@ -52,7 +56,7 @@
     background: var(--background);
     color: var(--foreground);
     font-family: "Inter", system-ui, sans-serif;
-    font-feature-settings: "cv11", "ss01";
+    font-feature-settings: "cv11", "ss01", "tnum";
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
     letter-spacing: -0.01em;
@@ -60,148 +64,234 @@
     overflow-x: hidden;
   }
 
-  /* Noise texture overlay — barely visible, adds tactile depth */
+  /* Noise texture — tactile depth */
   body::before {
     content: '';
     position: fixed;
     inset: 0;
     z-index: 1;
     pointer-events: none;
-    opacity: 0.03;
+    opacity: 0.025;
     background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='1'/%3E%3C/svg%3E");
   }
 
-  /* Tight letter-spacing on headings */
+  /* Engineering grid overlay — subtle architectural depth */
+  body::after {
+    content: '';
+    position: fixed;
+    inset: 0;
+    z-index: 0;
+    pointer-events: none;
+    background-image:
+      linear-gradient(rgba(139, 92, 246, 0.018) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(139, 92, 246, 0.018) 1px, transparent 1px);
+    background-size: 48px 48px;
+  }
+
+  /* Tight tracking on all headings — engineering precision */
   h1, h2, h3, h4, h5, h6 {
-    letter-spacing: -0.03em;
+    letter-spacing: -0.04em;
     font-weight: 600;
+    color: rgba(255, 255, 255, 0.95);
   }
 
   ::selection {
-    background: rgba(139, 92, 246, 0.25);
-    color: var(--foreground);
+    background: rgba(139, 92, 246, 0.28);
+    color: #ffffff;
   }
 
-  ::-webkit-scrollbar {
-    width: 6px;
-    height: 6px;
-  }
-
-  ::-webkit-scrollbar-track {
-    background: var(--background);
-  }
-
+  ::-webkit-scrollbar { width: 4px; height: 4px; }
+  ::-webkit-scrollbar-track { background: transparent; }
   ::-webkit-scrollbar-thumb {
-    background: rgba(255, 255, 255, 0.08);
-    border-radius: 3px;
+    background: rgba(139, 92, 246, 0.18);
+    border-radius: 2px;
   }
-
   ::-webkit-scrollbar-thumb:hover {
-    background: rgba(255, 255, 255, 0.14);
+    background: rgba(139, 92, 246, 0.35);
   }
 }
 
 @layer utilities {
-  .text-balance {
-    text-wrap: balance;
-  }
+  .text-balance { text-wrap: balance; }
 
-  /* Single accent gradient — violet only */
+  /* White-to-purple gradient — high-impact CTAs only */
   .gradient-text {
-    background: linear-gradient(to right, #8b5cf6, #a78bfa, #c4b5fd);
+    background: linear-gradient(135deg, #ffffff 0%, #c4b5fd 50%, #8b5cf6 100%);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
   }
 
-  /* Minimal glass — almost invisible */
+  /* Engineering glass — near-invisible, precise border */
   .glass {
-    background: rgba(255, 255, 255, 0.02);
-    backdrop-filter: blur(12px);
-    border: 1px solid rgba(255, 255, 255, 0.06);
+    background: rgba(13, 11, 20, 0.85);
+    backdrop-filter: blur(16px);
+    border: 1px solid rgba(255, 255, 255, 0.07);
   }
 
-  /* Glow utilities (violet only) */
+  /* Violet glow — sparingly for active/focus states */
   .glow-violet {
-    box-shadow: 0 0 40px rgba(139, 92, 246, 0.12);
+    box-shadow: 0 0 0 1px rgba(139, 92, 246, 0.25), 0 0 20px rgba(139, 92, 246, 0.10);
   }
 
-  /* Subtle grid background */
+  .glow-violet-strong {
+    box-shadow: 0 0 0 1px rgba(139, 92, 246, 0.40), 0 0 32px rgba(139, 92, 246, 0.18);
+  }
+
+  /* Architectural grid background */
   .grid-bg {
     background-image:
-      linear-gradient(rgba(255, 255, 255, 0.015) 1px, transparent 1px),
-      linear-gradient(90deg, rgba(255, 255, 255, 0.015) 1px, transparent 1px);
-    background-size: 64px 64px;
+      linear-gradient(rgba(139, 92, 246, 0.025) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(139, 92, 246, 0.025) 1px, transparent 1px);
+    background-size: 48px 48px;
+  }
+
+  /* Monospace — stats, scores, code, IDs */
+  .mono {
+    font-family: 'JetBrains Mono', 'Fira Code', 'Cascadia Code', monospace;
+    font-feature-settings: "tnum", "ss01";
+    letter-spacing: 0;
+  }
+
+  /* IDE-style active indicator — purple left border */
+  .ide-active {
+    position: relative;
+  }
+  .ide-active::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 4px;
+    bottom: 4px;
+    width: 2px;
+    background: var(--accent);
+    border-radius: 0 1px 1px 0;
+  }
+
+  /* Data label — IDE section header style */
+  .data-label {
+    font-size: 0.65rem;
+    font-weight: 600;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--muted-foreground);
+    font-family: 'JetBrains Mono', monospace;
+  }
+
+  /* Bento panel — thin-bordered data container */
+  .panel {
+    border: 1px solid var(--border);
+    background: var(--surface);
+  }
+
+  /* Horizontal rule with purple tint */
+  .rule {
+    border: none;
+    border-top: 1px solid var(--border);
   }
 
   .animate-pulse-slow {
-    animation: pulse 3s ease-in-out infinite;
+    animation: pulse-slow 3s ease-in-out infinite;
   }
 
-  /* Monospace for stats/code */
-  .mono {
-    font-family: 'JetBrains Mono', 'Fira Code', monospace;
-    font-size: 0.875em;
-    letter-spacing: 0;
+  /* Score bar fill animation */
+  .score-bar {
+    transition: width 0.6s cubic-bezier(0.4, 0, 0.2, 1);
   }
 }
 
-@keyframes pulse {
+@keyframes pulse-slow {
   0%, 100% { opacity: 1; }
-  50%       { opacity: 0.5; }
+  50%       { opacity: 0.4; }
+}
+
+@keyframes glow-pulse {
+  0%, 100% { box-shadow: 0 0 0 1px rgba(139, 92, 246, 0.20); }
+  50%       { box-shadow: 0 0 0 1px rgba(139, 92, 246, 0.45), 0 0 16px rgba(139, 92, 246, 0.12); }
 }
 
 @layer components {
-  /* Primary: white button on dark background (Linear/Vercel signature) */
+
+  /* ── Buttons ─────────────────────────────────────────────────────────── */
+
+  /* Primary: white-to-purple gradient for high-impact CTAs */
   .btn-primary {
-    @apply inline-flex items-center justify-center gap-2 px-4 py-2 text-sm font-medium rounded-lg bg-white text-black hover:bg-white/90 transition-colors duration-150 focus:outline-none focus:ring-2 focus:ring-white/20 focus:ring-offset-2 focus:ring-offset-[var(--background)] disabled:opacity-40 disabled:cursor-not-allowed;
+    @apply inline-flex items-center justify-center gap-2 px-4 py-2 text-sm font-medium
+           bg-gradient-to-r from-white to-violet-100 text-black
+           hover:from-violet-50 hover:to-violet-200
+           transition-all duration-150
+           focus:outline-none focus:ring-1 focus:ring-violet-400/40
+           disabled:opacity-40 disabled:cursor-not-allowed;
+    border-radius: 3px;
   }
 
-  /* Secondary: ghost with faint border */
+  /* Secondary: 1px border, no fill */
   .btn-secondary {
-    @apply inline-flex items-center justify-center gap-2 px-4 py-2 text-sm font-medium rounded-lg border border-white/[0.1] text-white/60 hover:text-white hover:border-white/[0.2] bg-transparent transition-all duration-150 focus:outline-none focus:ring-2 focus:ring-white/10 focus:ring-offset-2 focus:ring-offset-[var(--background)] disabled:opacity-40 disabled:cursor-not-allowed;
+    @apply inline-flex items-center justify-center gap-2 px-4 py-2 text-sm font-medium
+           border border-white/[0.10] text-white/55
+           hover:text-white hover:border-violet-500/40 hover:bg-violet-950/20
+           bg-transparent transition-all duration-150
+           focus:outline-none focus:ring-1 focus:ring-violet-500/20
+           disabled:opacity-40 disabled:cursor-not-allowed;
+    border-radius: 3px;
   }
 
-  /* Ghost: no border */
+  /* Ghost: no border, text-only */
   .btn-ghost {
-    @apply inline-flex items-center justify-center gap-2 px-3 py-2 text-sm font-medium rounded-lg hover:bg-white/[0.04] text-white/40 hover:text-white/80 transition-all duration-150 focus:outline-none;
+    @apply inline-flex items-center justify-center gap-2 px-3 py-2 text-sm font-medium
+           hover:bg-white/[0.04] text-white/35 hover:text-white/75
+           transition-all duration-150 focus:outline-none;
+    border-radius: 3px;
   }
 
+  /* ── Input — IDE text field ───────────────────────────────────────────── */
   .input {
-    @apply w-full px-3 py-2 text-sm rounded-lg border border-[var(--border)] bg-[var(--surface)] text-[var(--foreground)] placeholder:text-white/30 focus:outline-none focus:ring-1 focus:ring-violet-500/50 focus:border-violet-500/50 transition-all;
+    @apply w-full px-3 py-2 text-sm
+           border border-white/[0.08] bg-[var(--surface)]
+           text-[var(--foreground)] placeholder:text-white/20
+           focus:outline-none focus:ring-1 focus:ring-violet-500/40 focus:border-violet-500/35
+           transition-all;
+    border-radius: 3px;
+    font-feature-settings: "ss01";
   }
 
-  /* Card: near-invisible, just enough to define boundary */
+  /* ── Card — precise 1px border, minimal fill ─────────────────────────── */
   .card {
-    @apply rounded-xl border border-white/[0.06] bg-white/[0.02] p-6;
+    @apply border border-white/[0.07] bg-[var(--surface)] p-4;
+    border-radius: 4px;
   }
 
+  /* ── Badge — sharp-cornered data pills ───────────────────────────────── */
   .badge {
-    @apply inline-flex items-center gap-1 px-2 py-0.5 text-xs font-medium rounded-full;
+    @apply inline-flex items-center gap-1 px-1.5 py-0.5 text-[11px] font-medium;
+    border-radius: 2px;
+    font-feature-settings: "tnum";
   }
 
-  /* Monochrome badges — no bright colors */
   .badge-member {
-    @apply badge bg-white/[0.05] text-white/60 border border-white/[0.08];
+    @apply badge bg-white/[0.05] text-white/50 border border-white/[0.07];
   }
 
   .badge-verified {
-    @apply badge bg-violet-500/10 text-violet-300 border border-violet-500/20;
+    @apply badge bg-violet-500/10 text-violet-300 border border-violet-500/25;
   }
 
   .badge-partner {
-    @apply badge bg-white/[0.05] text-white/60 border border-white/[0.08];
+    @apply badge bg-white/[0.04] text-white/45 border border-white/[0.06];
   }
 
+  /* ── Typography ──────────────────────────────────────────────────────── */
   .section-heading {
-    @apply text-2xl font-semibold tracking-tight text-white;
+    @apply text-xl font-semibold text-white;
+    letter-spacing: -0.04em;
   }
 
   .section-subheading {
-    @apply text-sm text-white/40 mt-1;
+    @apply text-xs text-white/35 mt-1;
+    letter-spacing: 0.01em;
   }
 
   .divider {
-    @apply border-t border-white/[0.06] my-6;
+    @apply border-t border-white/[0.06] my-4;
   }
 }

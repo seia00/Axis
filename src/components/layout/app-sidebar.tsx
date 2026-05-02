@@ -53,7 +53,7 @@ function NavList({
   return (
     <>
       {/* Main nav */}
-      <nav className="flex-1 px-2 py-4 space-y-0.5 overflow-y-auto">
+      <nav className="flex-1 px-1.5 py-3 space-y-px overflow-y-auto">
         {navItems.map(({ href, labelKey, icon: Icon }) => {
           const label = t(labelKey);
           const active = pathname?.startsWith(href);
@@ -64,22 +64,36 @@ function NavList({
               onClick={onLinkClick}
               title={collapsed ? label : undefined}
               className={cn(
-                "flex items-center gap-3 px-3 py-2 text-sm rounded-lg transition-all duration-150",
+                "relative flex items-center gap-2.5 px-2.5 py-1.5 text-[13px] transition-colors duration-100",
                 active
-                  ? "text-white bg-white/[0.06]"
-                  : "text-white/40 hover:text-white/80 hover:bg-white/[0.04]",
-                collapsed && "justify-center"
+                  ? "text-white bg-violet-500/[0.08]"
+                  : "text-white/35 hover:text-white/65 hover:bg-white/[0.03]",
+                collapsed && "justify-center px-0"
               )}
+              style={{ borderRadius: "3px" }}
             >
-              <Icon className="w-[18px] h-[18px] flex-shrink-0" />
-              {!collapsed && <span className="truncate">{label}</span>}
+              {/* Active left-rail indicator */}
+              {active && (
+                <span
+                  className="absolute left-0 top-1 bottom-1 w-[2px] bg-violet-500"
+                  style={{ borderRadius: "0 1px 1px 0" }}
+                />
+              )}
+              <Icon className={cn("flex-shrink-0", active ? "text-violet-400" : "text-current")}
+                    style={{ width: 15, height: 15 }} />
+              {!collapsed && (
+                <span className="truncate font-medium">{label}</span>
+              )}
             </Link>
           );
         })}
       </nav>
 
       {/* Bottom: user actions */}
-      <div className="px-2 py-3 border-t border-white/[0.04] space-y-0.5 flex-shrink-0">
+      <div
+        className="px-1.5 py-2 flex-shrink-0 space-y-px"
+        style={{ borderTop: "1px solid rgba(255,255,255,0.05)" }}
+      >
         {session ? (
           <>
             <Link
@@ -87,48 +101,55 @@ function NavList({
               onClick={onLinkClick}
               title={collapsed ? t("nav.portfolio") : undefined}
               className={cn(
-                "flex items-center gap-3 px-3 py-2 text-sm rounded-lg text-white/40 hover:text-white/80 hover:bg-white/[0.04] transition-all duration-150",
-                collapsed && "justify-center"
+                "flex items-center gap-2.5 px-2.5 py-1.5 text-[13px] text-white/35 hover:text-white/65 hover:bg-white/[0.03] transition-colors duration-100",
+                collapsed && "justify-center px-0"
               )}
+              style={{ borderRadius: "3px" }}
             >
-              <User className="w-[18px] h-[18px] flex-shrink-0" />
+              <User style={{ width: 15, height: 15 }} className="flex-shrink-0" />
               {!collapsed && <span>{t("nav.portfolio")}</span>}
             </Link>
+
             {(session.user as { role?: string }).role === "ADMIN" && (
               <Link
                 href="/admin"
                 onClick={onLinkClick}
                 title={collapsed ? t("nav.admin") : undefined}
                 className={cn(
-                  "flex items-center gap-3 px-3 py-2 text-sm rounded-lg text-white/40 hover:text-white/80 hover:bg-white/[0.04] transition-all duration-150",
-                  collapsed && "justify-center"
+                  "flex items-center gap-2.5 px-2.5 py-1.5 text-[13px] text-white/35 hover:text-white/65 hover:bg-white/[0.03] transition-colors duration-100",
+                  collapsed && "justify-center px-0"
                 )}
+                style={{ borderRadius: "3px" }}
               >
-                <Shield className="w-[18px] h-[18px] flex-shrink-0" />
+                <Shield style={{ width: 15, height: 15 }} className="flex-shrink-0" />
                 {!collapsed && <span>{t("nav.admin")}</span>}
               </Link>
             )}
+
             <Link
               href="/settings"
               onClick={onLinkClick}
               title={collapsed ? t("nav.settings") : undefined}
               className={cn(
-                "flex items-center gap-3 px-3 py-2 text-sm rounded-lg text-white/40 hover:text-white/80 hover:bg-white/[0.04] transition-all duration-150",
-                collapsed && "justify-center"
+                "flex items-center gap-2.5 px-2.5 py-1.5 text-[13px] text-white/35 hover:text-white/65 hover:bg-white/[0.03] transition-colors duration-100",
+                collapsed && "justify-center px-0"
               )}
+              style={{ borderRadius: "3px" }}
             >
-              <Settings className="w-[18px] h-[18px] flex-shrink-0" />
+              <Settings style={{ width: 15, height: 15 }} className="flex-shrink-0" />
               {!collapsed && <span>{t("nav.settings")}</span>}
             </Link>
+
             <button
               onClick={() => { onLinkClick?.(); signOut(); }}
               title={collapsed ? t("nav.signout") : undefined}
               className={cn(
-                "w-full flex items-center gap-3 px-3 py-2 text-sm rounded-lg text-white/40 hover:text-red-400/80 hover:bg-white/[0.04] transition-all duration-150",
-                collapsed && "justify-center"
+                "w-full flex items-center gap-2.5 px-2.5 py-1.5 text-[13px] text-white/35 hover:text-red-400/70 hover:bg-white/[0.03] transition-colors duration-100",
+                collapsed && "justify-center px-0"
               )}
+              style={{ borderRadius: "3px" }}
             >
-              <LogOut className="w-[18px] h-[18px] flex-shrink-0" />
+              <LogOut style={{ width: 15, height: 15 }} className="flex-shrink-0" />
               {!collapsed && <span>{t("nav.signout")}</span>}
             </button>
           </>
@@ -138,11 +159,12 @@ function NavList({
             onClick={onLinkClick}
             title={collapsed ? t("nav.signin") : undefined}
             className={cn(
-              "flex items-center gap-3 px-3 py-2 text-sm rounded-lg text-white/40 hover:text-white/80 hover:bg-white/[0.04] transition-all duration-150",
-              collapsed && "justify-center"
+              "flex items-center gap-2.5 px-2.5 py-1.5 text-[13px] text-white/35 hover:text-white/65 hover:bg-white/[0.03] transition-colors duration-100",
+              collapsed && "justify-center px-0"
             )}
+            style={{ borderRadius: "3px" }}
           >
-            <User className="w-[18px] h-[18px] flex-shrink-0" />
+            <User style={{ width: 15, height: 15 }} className="flex-shrink-0" />
             {!collapsed && <span>{t("nav.signin")}</span>}
           </Link>
         )}
@@ -152,12 +174,13 @@ function NavList({
           onClick={toggle}
           title={collapsed ? (lang === "en" ? "日本語" : "English") : undefined}
           className={cn(
-            "w-full flex items-center gap-3 px-3 py-2 mt-1 text-xs rounded-lg text-white/30 hover:text-white/60 hover:bg-white/[0.04] transition-all duration-150",
-            collapsed && "justify-center"
+            "w-full flex items-center gap-2.5 px-2.5 py-1.5 text-[11px] text-white/25 hover:text-white/50 hover:bg-white/[0.03] transition-colors duration-100 mt-0.5",
+            collapsed && "justify-center px-0"
           )}
+          style={{ borderRadius: "3px" }}
         >
-          <span className="text-[13px] flex-shrink-0">{lang === "en" ? "🇯🇵" : "🇬🇧"}</span>
-          {!collapsed && <span>{lang === "en" ? "日本語" : "English"}</span>}
+          <span className="text-[12px] flex-shrink-0 leading-none">{lang === "en" ? "🇯🇵" : "🇬🇧"}</span>
+          {!collapsed && <span className="font-mono">{lang === "en" ? "日本語" : "English"}</span>}
         </button>
       </div>
     </>
@@ -172,40 +195,41 @@ export function AppSidebar() {
 
   const isLanding = pathname === "/";
 
-  // ── Landing page: icon-strip that expands on demand ───────────────────────
+  const sidebarBase = "fixed left-0 top-0 h-screen z-50 hidden md:flex flex-col transition-[width] duration-200 ease-out overflow-hidden";
+  const sidebarBorder = "border-r border-white/[0.06]";
+
+  // ── Landing page: icon-only strip that expands on demand ─────────────────
   if (isLanding) {
     return (
       <div
         className={cn(
-          "fixed left-0 top-0 h-screen z-50 bg-[#09090b]/80 backdrop-blur-md border-r border-white/[0.04] hidden md:flex flex-col transition-[width] duration-200 ease-out overflow-hidden",
-          collapsed ? "w-60" : "w-16"
+          sidebarBase, sidebarBorder,
+          "bg-[#05020b]/85 backdrop-blur-md",
+          collapsed ? "w-56" : "w-14"
         )}
       >
-        <div className={cn(
-          "flex items-center border-b border-white/[0.04] h-14 px-3 flex-shrink-0",
-          collapsed ? "justify-between" : "justify-center"
-        )}>
+        <div
+          className={cn(
+            "flex items-center h-12 px-2 flex-shrink-0",
+            collapsed ? "justify-between" : "justify-center"
+          )}
+          style={{ borderBottom: "1px solid rgba(255,255,255,0.05)" }}
+        >
           {collapsed && (
             <Link href="/">
               <Image
-                src="/AXISLOGO.png"
-                alt="AXIS"
-                width={64}
-                height={32}
-                className="h-5 w-auto object-contain opacity-70"
+                src="/AXISLOGO.png" alt="AXIS" width={60} height={30}
+                className="h-4 w-auto object-contain opacity-60"
               />
             </Link>
           )}
           <button
             onClick={() => setCollapsed(!collapsed)}
-            className="p-2 rounded-lg text-white/20 hover:text-white/60 hover:bg-white/[0.04] transition-all duration-150"
-            aria-label={collapsed ? "Collapse sidebar" : "Open navigation"}
+            className="p-1.5 text-white/20 hover:text-white/55 hover:bg-white/[0.04] transition-all"
+            aria-label={collapsed ? "Collapse" : "Open navigation"}
+            style={{ borderRadius: "3px" }}
           >
-            {collapsed ? (
-              <ChevronLeft className="w-4 h-4" />
-            ) : (
-              <Menu className="w-4 h-4" />
-            )}
+            {collapsed ? <ChevronLeft style={{ width: 14, height: 14 }} /> : <Menu style={{ width: 14, height: 14 }} />}
           </button>
         </div>
 
@@ -223,46 +247,41 @@ export function AppSidebar() {
   return (
     <div
       className={cn(
-        "fixed left-0 top-0 h-screen z-40 bg-[#09090b] border-r border-white/[0.06] hidden md:flex flex-col transition-[width] duration-200 ease-out overflow-hidden",
-        collapsed ? "w-16" : "w-60"
+        sidebarBase, sidebarBorder,
+        "bg-[#05020b]",
+        collapsed ? "w-14" : "w-56"
       )}
     >
-      {/* Logo + collapse toggle */}
+      {/* Logo row */}
       <div
         className={cn(
-          "flex items-center border-b border-white/[0.04] h-14 px-3 flex-shrink-0",
-          collapsed ? "justify-center" : "justify-between px-4"
+          "flex items-center h-12 px-2 flex-shrink-0",
+          collapsed ? "justify-center" : "justify-between px-3"
         )}
+        style={{ borderBottom: "1px solid rgba(255,255,255,0.05)" }}
       >
         {!collapsed && (
           <Link href="/">
             <Image
-              src="/AXISLOGO.png"
-              alt="AXIS"
-              width={72}
-              height={36}
-              className="h-5 w-auto object-contain opacity-80 hover:opacity-100 transition-opacity"
+              src="/AXISLOGO.png" alt="AXIS" width={64} height={32}
+              className="h-4 w-auto object-contain opacity-75 hover:opacity-100 transition-opacity"
             />
           </Link>
         )}
         <button
           onClick={() => setCollapsed(!collapsed)}
-          title={collapsed ? "Expand sidebar" : "Collapse sidebar"}
-          className="p-2 rounded-lg text-white/20 hover:text-white/50 hover:bg-white/[0.04] transition-all duration-150 flex-shrink-0"
+          title={collapsed ? "Expand" : "Collapse"}
+          className="p-1.5 text-white/20 hover:text-white/50 hover:bg-white/[0.04] transition-all flex-shrink-0"
+          style={{ borderRadius: "3px" }}
         >
-          {collapsed ? (
-            <ChevronRight className="w-4 h-4" />
-          ) : (
-            <ChevronLeft className="w-4 h-4" />
-          )}
+          {collapsed
+            ? <ChevronRight style={{ width: 14, height: 14 }} />
+            : <ChevronLeft  style={{ width: 14, height: 14 }} />
+          }
         </button>
       </div>
 
-      <NavList
-        pathname={pathname}
-        session={session}
-        collapsed={collapsed}
-      />
+      <NavList pathname={pathname} session={session} collapsed={collapsed} />
     </div>
   );
 }

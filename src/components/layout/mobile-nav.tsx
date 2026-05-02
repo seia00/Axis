@@ -45,24 +45,32 @@ export function MobileNav() {
 
   return (
     <>
-      {/* ── Fixed top bar — mobile only ─────────────────────────────────── */}
-      <header className="md:hidden fixed top-0 left-0 right-0 z-50 h-14 bg-[#09090b]/95 backdrop-blur-md border-b border-white/[0.06] flex items-center justify-between px-4">
+      {/* ── Fixed top bar ───────────────────────────────────────────────── */}
+      <header
+        className="md:hidden fixed top-0 left-0 right-0 z-50 h-12 flex items-center justify-between px-4"
+        style={{
+          background: "rgba(5,2,11,0.95)",
+          backdropFilter: "blur(16px)",
+          borderBottom: "1px solid rgba(255,255,255,0.06)",
+        }}
+      >
         <Link href="/" onClick={close}>
           <Image
-            src="/AXISLOGO.png"
-            alt="AXIS"
-            width={72}
-            height={36}
-            className="h-5 w-auto object-contain opacity-80"
+            src="/AXISLOGO.png" alt="AXIS" width={64} height={32}
+            className="h-4 w-auto object-contain opacity-75"
             priority
           />
         </Link>
         <button
           onClick={() => setOpen(!open)}
           aria-label="Toggle navigation"
-          className="p-2 rounded-lg text-white/50 hover:text-white hover:bg-white/[0.06] transition-all duration-150"
+          className="p-1.5 text-white/40 hover:text-white hover:bg-white/[0.06] transition-all"
+          style={{ borderRadius: "3px" }}
         >
-          {open ? <X className="w-5 h-5" /> : <ChevronDown className="w-5 h-5" />}
+          {open
+            ? <X style={{ width: 16, height: 16 }} />
+            : <ChevronDown style={{ width: 16, height: 16 }} />
+          }
         </button>
       </header>
 
@@ -71,15 +79,22 @@ export function MobileNav() {
         <>
           {/* Backdrop */}
           <div
-            className="md:hidden fixed inset-0 z-40 bg-black/50 backdrop-blur-sm"
+            className="md:hidden fixed inset-0 z-40 bg-black/60"
             onClick={close}
+            style={{ backdropFilter: "blur(4px)" }}
           />
 
           {/* Panel */}
-          <div className="md:hidden fixed top-14 left-0 right-0 z-40 bg-[#09090b] border-b border-white/[0.06] shadow-2xl overflow-y-auto max-h-[calc(100vh-3.5rem)]">
-
-            {/* Main nav — 2-column grid */}
-            <nav className="px-3 pt-3 pb-2 grid grid-cols-2 gap-1">
+          <div
+            className="md:hidden fixed top-12 left-0 right-0 z-40 overflow-y-auto"
+            style={{
+              background: "#05020b",
+              borderBottom: "1px solid rgba(255,255,255,0.07)",
+              maxHeight: "calc(100vh - 3rem)",
+            }}
+          >
+            {/* Nav grid — 2 columns */}
+            <nav className="px-2 pt-2 pb-1 grid grid-cols-2 gap-px">
               {navItems.map(({ href, labelKey, icon: Icon }) => {
                 const active = pathname?.startsWith(href);
                 return (
@@ -88,13 +103,23 @@ export function MobileNav() {
                     href={href}
                     onClick={close}
                     className={cn(
-                      "flex items-center gap-2.5 px-3 py-2.5 text-sm rounded-lg transition-all duration-150",
+                      "relative flex items-center gap-2 px-3 py-2 text-[13px] font-medium transition-colors duration-100",
                       active
-                        ? "text-white bg-white/[0.08]"
-                        : "text-white/50 hover:text-white hover:bg-white/[0.04]"
+                        ? "text-white bg-violet-500/[0.08]"
+                        : "text-white/40 hover:text-white/70 hover:bg-white/[0.03]"
                     )}
+                    style={{ borderRadius: "3px" }}
                   >
-                    <Icon className="w-4 h-4 flex-shrink-0" />
+                    {active && (
+                      <span
+                        className="absolute left-0 top-1.5 bottom-1.5 w-[2px] bg-violet-500"
+                        style={{ borderRadius: "0 1px 1px 0" }}
+                      />
+                    )}
+                    <Icon
+                      className={active ? "text-violet-400" : "text-current"}
+                      style={{ width: 14, height: 14, flexShrink: 0 }}
+                    />
                     <span className="truncate">{t(labelKey)}</span>
                   </Link>
                 );
@@ -102,53 +127,48 @@ export function MobileNav() {
             </nav>
 
             {/* Account + language */}
-            <div className="border-t border-white/[0.05] px-3 py-3 space-y-0.5">
+            <div
+              className="px-2 py-2 space-y-px"
+              style={{ borderTop: "1px solid rgba(255,255,255,0.05)" }}
+            >
               {session ? (
                 <>
-                  <Link
-                    href="/portfolio"
-                    onClick={close}
-                    className="flex items-center gap-2.5 px-3 py-2 text-sm rounded-lg text-white/50 hover:text-white hover:bg-white/[0.04] transition-all duration-150"
-                  >
-                    <User className="w-4 h-4 flex-shrink-0" />
+                  <Link href="/portfolio" onClick={close}
+                    className="flex items-center gap-2 px-3 py-2 text-[13px] text-white/40 hover:text-white/70 hover:bg-white/[0.03] transition-colors"
+                    style={{ borderRadius: "3px" }}>
+                    <User style={{ width: 14, height: 14 }} className="flex-shrink-0" />
                     <span>{t("nav.portfolio")}</span>
                   </Link>
 
                   {(session.user as { role?: string }).role === "ADMIN" && (
-                    <Link
-                      href="/admin"
-                      onClick={close}
-                      className="flex items-center gap-2.5 px-3 py-2 text-sm rounded-lg text-white/50 hover:text-white hover:bg-white/[0.04] transition-all duration-150"
-                    >
-                      <Shield className="w-4 h-4 flex-shrink-0" />
+                    <Link href="/admin" onClick={close}
+                      className="flex items-center gap-2 px-3 py-2 text-[13px] text-white/40 hover:text-white/70 hover:bg-white/[0.03] transition-colors"
+                      style={{ borderRadius: "3px" }}>
+                      <Shield style={{ width: 14, height: 14 }} className="flex-shrink-0" />
                       <span>{t("nav.admin")}</span>
                     </Link>
                   )}
 
-                  <Link
-                    href="/settings"
-                    onClick={close}
-                    className="flex items-center gap-2.5 px-3 py-2 text-sm rounded-lg text-white/50 hover:text-white hover:bg-white/[0.04] transition-all duration-150"
-                  >
-                    <Settings className="w-4 h-4 flex-shrink-0" />
+                  <Link href="/settings" onClick={close}
+                    className="flex items-center gap-2 px-3 py-2 text-[13px] text-white/40 hover:text-white/70 hover:bg-white/[0.03] transition-colors"
+                    style={{ borderRadius: "3px" }}>
+                    <Settings style={{ width: 14, height: 14 }} className="flex-shrink-0" />
                     <span>{t("nav.settings")}</span>
                   </Link>
 
                   <button
                     onClick={() => { close(); signOut(); }}
-                    className="w-full flex items-center gap-2.5 px-3 py-2 text-sm rounded-lg text-white/50 hover:text-red-400 hover:bg-white/[0.04] transition-all duration-150"
-                  >
-                    <LogOut className="w-4 h-4 flex-shrink-0" />
+                    className="w-full flex items-center gap-2 px-3 py-2 text-[13px] text-white/40 hover:text-red-400/70 hover:bg-white/[0.03] transition-colors"
+                    style={{ borderRadius: "3px" }}>
+                    <LogOut style={{ width: 14, height: 14 }} className="flex-shrink-0" />
                     <span>{t("nav.signout")}</span>
                   </button>
                 </>
               ) : (
-                <Link
-                  href="/auth/signin"
-                  onClick={close}
-                  className="flex items-center gap-2.5 px-3 py-2 text-sm rounded-lg text-white/50 hover:text-white hover:bg-white/[0.04] transition-all duration-150"
-                >
-                  <User className="w-4 h-4 flex-shrink-0" />
+                <Link href="/auth/signin" onClick={close}
+                  className="flex items-center gap-2 px-3 py-2 text-[13px] text-white/40 hover:text-white/70 hover:bg-white/[0.03] transition-colors"
+                  style={{ borderRadius: "3px" }}>
+                  <User style={{ width: 14, height: 14 }} className="flex-shrink-0" />
                   <span>{t("nav.signin")}</span>
                 </Link>
               )}
@@ -156,13 +176,13 @@ export function MobileNav() {
               {/* Language toggle */}
               <button
                 onClick={toggle}
-                className="w-full flex items-center gap-2.5 px-3 py-2 text-xs rounded-lg text-white/30 hover:text-white/60 hover:bg-white/[0.04] transition-all duration-150 mt-1"
+                className="w-full flex items-center gap-2 px-3 py-2 text-[11px] text-white/25 hover:text-white/50 hover:bg-white/[0.03] transition-colors font-mono"
+                style={{ borderRadius: "3px" }}
               >
-                <span className="text-base leading-none">{lang === "en" ? "🇯🇵" : "🇬🇧"}</span>
+                <span className="text-[13px] leading-none">{lang === "en" ? "🇯🇵" : "🇬🇧"}</span>
                 <span>{lang === "en" ? "日本語" : "English"}</span>
               </button>
             </div>
-
           </div>
         </>
       )}

@@ -23,7 +23,9 @@ const ContentSecurityPolicy = [
   // cdn.jsdelivr.net is the fallback CDN drei uses for some assets.
   // vercel.live is the preview-deploy feedback widget — needs both
   // script-src and connect-src to function.
-  "connect-src 'self' https://*.supabase.co wss://*.supabase.co https://accounts.google.com https://api.resend.com https://va.vercel-scripts.com https://raw.githubusercontent.com https://raw.githack.com https://cdn.jsdelivr.net https://vercel.live wss://ws-us3.pusher.com https://prod.spline.design",
+  // fonts.gstatic.com: Spline runtime fetches Roboto via fetch() (not just CSS)
+  // unpkg.com: Spline loads its UI WebAssembly module (@splinetool/ui-wasm) at runtime
+  "connect-src 'self' https://*.supabase.co wss://*.supabase.co https://accounts.google.com https://api.resend.com https://va.vercel-scripts.com https://raw.githubusercontent.com https://raw.githack.com https://cdn.jsdelivr.net https://vercel.live wss://ws-us3.pusher.com https://prod.spline.design https://fonts.gstatic.com https://unpkg.com",
   "frame-src 'self' https://accounts.google.com https://vercel.live",
   "frame-ancestors 'none'",
   "form-action 'self' https://accounts.google.com",

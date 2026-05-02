@@ -41,6 +41,7 @@
     "@react-three/drei": "^9.122.0",
     "@react-three/fiber": "^8.18.0",
     "@splinetool/react-spline": "^4.1.0",
+    "@splinetool/runtime": "^1.12.90",
     "@supabase/supabase-js": "^2.104.0",
     "@types/pg": "^8.20.0",
     "class-variance-authority": "^0.7.1",

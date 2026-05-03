@@ -1,10 +1,56 @@
 import type { Metadata } from "next";
+import {
+  Inter,
+  JetBrains_Mono,
+  Space_Grotesk,
+  Instrument_Serif,
+  IBM_Plex_Mono,
+} from "next/font/google";
 import "./globals.css";
 import { Providers } from "./providers";
 import { PageTransition, Animated3DStackBackground } from "@/components/animation";
 import { AppSidebar } from "@/components/layout/app-sidebar";
 import { MobileNav } from "@/components/layout/mobile-nav";
 import { SidebarLayout } from "@/components/layout/sidebar-layout";
+
+// ── Bespoke fonts loaded as CSS variables ──────────────────────────────────
+// Each axis diagram node uses one of these to feel like a different brand —
+// see src/components/landing/axis-diagram.tsx for the pairings.
+
+const inter = Inter({
+  subsets: ["latin"],
+  display: "swap",
+  variable: "--font-inter",
+});
+
+const jetbrainsMono = JetBrains_Mono({
+  subsets: ["latin"],
+  display: "swap",
+  variable: "--font-jetbrains-mono",
+  weight: ["400", "500", "600", "700"],
+});
+
+const spaceGrotesk = Space_Grotesk({
+  subsets: ["latin"],
+  display: "swap",
+  variable: "--font-space-grotesk",
+  weight: ["400", "500", "600", "700"],
+});
+
+const instrumentSerif = Instrument_Serif({
+  subsets: ["latin"],
+  display: "swap",
+  variable: "--font-instrument",
+  weight: ["400"],
+  style: ["normal", "italic"],
+});
+
+const ibmPlexMono = IBM_Plex_Mono({
+  subsets: ["latin"],
+  display: "swap",
+  variable: "--font-plex-mono",
+  weight: ["400", "500", "600"],
+});
 
 export const metadata: Metadata = {
   title: { default: "AXIS — Japan's Student Organization Platform", template: "%s | AXIS" },
@@ -19,8 +65,17 @@ export const metadata: Metadata = {
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
+  // Compose all font CSS variable classes onto <html>
+  const fontClasses = [
+    inter.variable,
+    jetbrainsMono.variable,
+    spaceGrotesk.variable,
+    instrumentSerif.variable,
+    ibmPlexMono.variable,
+  ].join(" ");
+
   return (
-    <html lang="en" className="dark">
+    <html lang="en" className={`dark ${fontClasses}`}>
       <body className="antialiased min-h-screen text-[var(--foreground)]">
         <Animated3DStackBackground />
         <Providers>

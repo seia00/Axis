@@ -195,18 +195,19 @@ export function AppSidebar() {
 
   const isLanding = pathname === "/";
 
-  const sidebarBase = "fixed left-0 top-0 h-screen z-50 hidden md:flex flex-col transition-[width] duration-200 ease-out overflow-hidden";
-  const sidebarBorder = "border-r border-white/[0.06]";
+  // Liquid glass sidebar — full Apple-style backdrop blur + saturate, with
+  // the SpaceBackground starfield visibly diffused through the glass surface.
+  const sidebarBase = "liquid-glass fixed left-0 top-0 h-screen z-50 hidden md:flex flex-col transition-[width] duration-200 ease-out overflow-hidden";
 
   // ── Landing page: icon-only strip that expands on demand ─────────────────
   if (isLanding) {
     return (
       <div
         className={cn(
-          sidebarBase, sidebarBorder,
-          "bg-[#05020b]/85 backdrop-blur-md",
+          sidebarBase,
           collapsed ? "w-56" : "w-14"
         )}
+        style={{ borderRadius: 0, borderLeft: "none", borderTop: "none", borderBottom: "none" }}
       >
         <div
           className={cn(
@@ -247,10 +248,10 @@ export function AppSidebar() {
   return (
     <div
       className={cn(
-        sidebarBase, sidebarBorder,
-        "bg-[#05020b]",
+        sidebarBase,
         collapsed ? "w-14" : "w-56"
       )}
+      style={{ borderRadius: 0, borderLeft: "none", borderTop: "none", borderBottom: "none" }}
     >
       {/* Logo row */}
       <div

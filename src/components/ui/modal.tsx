@@ -38,25 +38,27 @@ export function Modal({ open, onClose, title, description, children, size = "md"
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
       <div
-        className="absolute inset-0 bg-black/60 backdrop-blur-sm"
+        className="absolute inset-0 bg-black/40"
+        style={{ backdropFilter: "blur(8px)", WebkitBackdropFilter: "blur(8px)" }}
         onClick={onClose}
       />
       <div
         className={cn(
-          "relative w-full rounded-xl border border-[var(--border)] bg-[var(--surface)] shadow-2xl animate-slide-up",
+          "liquid-glass-strong relative w-full animate-slide-up",
           sizeClass,
           className
         )}
+        style={{ borderRadius: 8 }}
       >
         {(title || description) && (
-          <div className="flex items-start justify-between p-6 pb-4 border-b border-[var(--border)]">
+          <div className="flex items-start justify-between p-6 pb-4" style={{ borderBottom: "1px solid rgba(255,255,255,0.08)" }}>
             <div>
               {title && <h2 className="text-base font-semibold text-[var(--foreground)]">{title}</h2>}
               {description && <p className="text-sm text-[var(--muted-foreground)] mt-1">{description}</p>}
             </div>
             <button
               onClick={onClose}
-              className="p-1.5 rounded-lg hover:bg-[var(--surface-raised)] text-[var(--muted-foreground)] hover:text-[var(--foreground)] transition-colors ml-4"
+              className="btn-ghost p-1.5 ml-4"
             >
               <X className="w-4 h-4" />
             </button>

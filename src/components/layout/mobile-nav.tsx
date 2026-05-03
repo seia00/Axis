@@ -45,14 +45,10 @@ export function MobileNav() {
 
   return (
     <>
-      {/* ── Fixed top bar ───────────────────────────────────────────────── */}
+      {/* ── Fixed top bar — liquid glass ────────────────────────────────── */}
       <header
-        className="md:hidden fixed top-0 left-0 right-0 z-50 h-12 flex items-center justify-between px-4"
-        style={{
-          background: "rgba(5,2,11,0.95)",
-          backdropFilter: "blur(16px)",
-          borderBottom: "1px solid rgba(255,255,255,0.06)",
-        }}
+        className="liquid-glass md:hidden fixed top-0 left-0 right-0 z-50 h-12 flex items-center justify-between px-4"
+        style={{ borderRadius: 0, borderLeft: "none", borderTop: "none", borderRight: "none" }}
       >
         <Link href="/" onClick={close}>
           <Image
@@ -84,12 +80,14 @@ export function MobileNav() {
             style={{ backdropFilter: "blur(4px)" }}
           />
 
-          {/* Panel */}
+          {/* Dropdown panel — liquid glass strong */}
           <div
-            className="md:hidden fixed top-12 left-0 right-0 z-40 overflow-y-auto"
+            className="liquid-glass-strong md:hidden fixed top-12 left-0 right-0 z-40 overflow-y-auto"
             style={{
-              background: "#05020b",
-              borderBottom: "1px solid rgba(255,255,255,0.07)",
+              borderRadius: 0,
+              borderLeft: "none",
+              borderTop: "none",
+              borderRight: "none",
               maxHeight: "calc(100vh - 3rem)",
             }}
           >

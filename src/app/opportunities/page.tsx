@@ -280,18 +280,11 @@ export default function OpportunitiesPage() {
         </div>
       </div>
 
-      {/* ── Submit modal ─────────────────────────────────────────────────── */}
+      {/* ── Submit modal ─ liquid glass strong ─────────────────────────── */}
       {showSubmitForm && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-          <div className="fixed inset-0 bg-black/70" style={{ backdropFilter: "blur(8px)" }} onClick={() => setShowSubmitForm(false)} />
-          <div
-            className="relative w-full max-w-lg p-5"
-            style={{
-              background: "var(--surface-raised)",
-              border: "1px solid rgba(255,255,255,0.10)",
-              borderRadius: "4px",
-            }}
-          >
+          <div className="fixed inset-0 bg-black/50" style={{ backdropFilter: "blur(8px)", WebkitBackdropFilter: "blur(8px)" }} onClick={() => setShowSubmitForm(false)} />
+          <div className="liquid-glass-strong relative w-full max-w-lg p-5" style={{ borderRadius: 6 }}>
             <div className="flex items-center justify-between mb-4">
               <div>
                 <span className="data-label">SUBMIT OPPORTUNITY</span>

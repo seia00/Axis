@@ -125,11 +125,103 @@
     background-clip: text;
   }
 
-  /* Engineering glass — near-invisible, precise border */
+  /* ─── LIQUID GLASS — Apple visionOS / iOS 26 style ────────────────────
+   *
+   * Single reusable utility set that delivers the full Apple Liquid Glass
+   * aesthetic:
+   *   - backdrop-filter: blur(40px) saturate(180%) base
+   *   - 8-12% white background tint, 20-30% white inner border
+   *   - Subtle SVG noise grain blended into the surface for depth
+   *   - Hover: blur intensifies, border brightens
+   *   - Focus (inputs): soft white glow ring
+   *   - Active: scale(0.98) compression
+   *
+   * Usage: just add the class, e.g. <div className="liquid-glass p-4">
+   * Variants: .liquid-glass-strong (modals), .liquid-glass-dark (over light bg)
+   *
+   * Existing component classes (.card, .btn-secondary, .btn-ghost, .input,
+   * .glass) all compose with this same effect below — change once, change
+   * everywhere.  */
+
+  .liquid-glass {
+    background-color: rgba(255, 255, 255, 0.06);
+    background-image:
+      url("data:image/svg+xml;utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 1  0 0 0 0 1  0 0 0 0 1  0 0 0 0.4 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+    background-blend-mode: overlay;
+    backdrop-filter: blur(40px) saturate(180%);
+    -webkit-backdrop-filter: blur(40px) saturate(180%);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    box-shadow:
+      inset 0 1px 0 rgba(255, 255, 255, 0.18),
+      inset 0 -1px 0 rgba(255, 255, 255, 0.04),
+      0 8px 32px rgba(0, 0, 0, 0.20);
+    transition: backdrop-filter 0.18s ease,
+                -webkit-backdrop-filter 0.18s ease,
+                border-color 0.18s ease,
+                background-color 0.18s ease,
+                transform 0.10s ease,
+                box-shadow 0.18s ease;
+  }
+  .liquid-glass:hover {
+    backdrop-filter: blur(48px) saturate(200%);
+    -webkit-backdrop-filter: blur(48px) saturate(200%);
+    border-color: rgba(255, 255, 255, 0.22);
+    background-color: rgba(255, 255, 255, 0.08);
+  }
+  .liquid-glass:active {
+    transform: scale(0.98);
+  }
+
+  /* Stronger variant for modals / sheets — heavier blur, deeper tint */
+  .liquid-glass-strong {
+    background-color: rgba(13, 11, 20, 0.55);
+    background-image:
+      url("data:image/svg+xml;utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 1  0 0 0 0 1  0 0 0 0 1  0 0 0 0.45 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+    background-blend-mode: overlay;
+    backdrop-filter: blur(60px) saturate(200%);
+    -webkit-backdrop-filter: blur(60px) saturate(200%);
+    border: 1px solid rgba(255, 255, 255, 0.14);
+    box-shadow:
+      inset 0 1px 0 rgba(255, 255, 255, 0.18),
+      0 24px 60px rgba(0, 0, 0, 0.45);
+    transition: backdrop-filter 0.18s ease,
+                border-color 0.18s ease,
+                transform 0.10s ease;
+  }
+
+  /* Dark variant — for use over light backgrounds (rare in our app) */
+  .liquid-glass-dark {
+    background-color: rgba(0, 0, 0, 0.18);
+    background-image:
+      url("data:image/svg+xml;utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 0.5 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+    background-blend-mode: overlay;
+    backdrop-filter: blur(40px) saturate(180%);
+    -webkit-backdrop-filter: blur(40px) saturate(180%);
+    border: 1px solid rgba(255, 255, 255, 0.10);
+    box-shadow:
+      inset 0 1px 0 rgba(255, 255, 255, 0.10),
+      0 8px 32px rgba(0, 0, 0, 0.30);
+  }
+
+  /* Input-specific focus state — soft white glow */
+  .liquid-glass:focus,
+  .liquid-glass:focus-within,
+  .liquid-glass-input:focus {
+    outline: none;
+    border-color: rgba(255, 255, 255, 0.32);
+    box-shadow:
+      0 0 0 3px rgba(255, 255, 255, 0.10),
+      inset 0 1px 0 rgba(255, 255, 255, 0.22);
+  }
+
+  /* Legacy alias — .glass now points at the liquid-glass effect for
+     backwards compat. Anywhere using <div className="glass"> upgrades. */
   .glass {
-    background: rgba(13, 11, 20, 0.85);
-    backdrop-filter: blur(16px);
-    border: 1px solid rgba(255, 255, 255, 0.07);
+    background-color: rgba(255, 255, 255, 0.06);
+    backdrop-filter: blur(40px) saturate(180%);
+    -webkit-backdrop-filter: blur(40px) saturate(180%);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.18);
   }
 
   /* Violet glow — sparingly for active/focus states */
@@ -217,7 +309,7 @@
 
   /* ── Buttons ─────────────────────────────────────────────────────────── */
 
-  /* Primary: white-to-purple gradient for high-impact CTAs */
+  /* Primary: white-to-purple gradient for high-impact CTAs (NOT glass) */
   .btn-primary {
     @apply inline-flex items-center justify-center gap-2 px-4 py-2 text-sm font-medium
            bg-gradient-to-r from-white to-violet-100 text-black
@@ -228,40 +320,102 @@
     border-radius: 3px;
   }
 
-  /* Secondary: 1px border, no fill */
+  /* Secondary: full liquid glass + violet hover tint */
   .btn-secondary {
     @apply inline-flex items-center justify-center gap-2 px-4 py-2 text-sm font-medium
-           border border-white/[0.10] text-white/55
-           hover:text-white hover:border-violet-500/40 hover:bg-violet-950/20
-           bg-transparent transition-all duration-150
-           focus:outline-none focus:ring-1 focus:ring-violet-500/20
+           text-white/70 hover:text-white
+           transition-all duration-150
+           focus:outline-none focus:ring-1 focus:ring-violet-500/30
            disabled:opacity-40 disabled:cursor-not-allowed;
     border-radius: 3px;
+    background-color: rgba(255, 255, 255, 0.06);
+    backdrop-filter: blur(40px) saturate(180%);
+    -webkit-backdrop-filter: blur(40px) saturate(180%);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    box-shadow:
+      inset 0 1px 0 rgba(255, 255, 255, 0.16),
+      inset 0 -1px 0 rgba(255, 255, 255, 0.04);
+  }
+  .btn-secondary:hover {
+    background-color: rgba(167, 139, 250, 0.12);
+    backdrop-filter: blur(48px) saturate(200%);
+    -webkit-backdrop-filter: blur(48px) saturate(200%);
+    border-color: rgba(167, 139, 250, 0.28);
+  }
+  .btn-secondary:active {
+    transform: scale(0.98);
   }
 
-  /* Ghost: no border, text-only */
+  /* Ghost: very subtle glass, no border by default */
   .btn-ghost {
     @apply inline-flex items-center justify-center gap-2 px-3 py-2 text-sm font-medium
-           hover:bg-white/[0.04] text-white/35 hover:text-white/75
+           text-white/45 hover:text-white/85
            transition-all duration-150 focus:outline-none;
     border-radius: 3px;
+    background-color: transparent;
+    border: 1px solid transparent;
+  }
+  .btn-ghost:hover {
+    background-color: rgba(255, 255, 255, 0.06);
+    backdrop-filter: blur(24px) saturate(150%);
+    -webkit-backdrop-filter: blur(24px) saturate(150%);
+    border-color: rgba(255, 255, 255, 0.08);
+  }
+  .btn-ghost:active {
+    transform: scale(0.98);
   }
 
-  /* ── Input — IDE text field ───────────────────────────────────────────── */
+  /* ── Input — liquid glass with focus glow ───────────────────────────── */
   .input {
     @apply w-full px-3 py-2 text-sm
-           border border-white/[0.08] bg-[var(--surface)]
-           text-[var(--foreground)] placeholder:text-white/20
-           focus:outline-none focus:ring-1 focus:ring-violet-500/40 focus:border-violet-500/35
+           text-[var(--foreground)] placeholder:text-white/25
            transition-all;
     border-radius: 3px;
     font-feature-settings: "ss01";
+    background-color: rgba(255, 255, 255, 0.05);
+    background-image:
+      url("data:image/svg+xml;utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 1  0 0 0 0 1  0 0 0 0 1  0 0 0 0.3 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+    background-blend-mode: overlay;
+    backdrop-filter: blur(32px) saturate(170%);
+    -webkit-backdrop-filter: blur(32px) saturate(170%);
+    border: 1px solid rgba(255, 255, 255, 0.10);
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.12);
+  }
+  .input:hover {
+    border-color: rgba(255, 255, 255, 0.16);
+  }
+  .input:focus {
+    outline: none;
+    border-color: rgba(255, 255, 255, 0.32);
+    box-shadow:
+      0 0 0 3px rgba(255, 255, 255, 0.10),
+      0 0 0 1px rgba(167, 139, 250, 0.30),
+      inset 0 1px 0 rgba(255, 255, 255, 0.18);
   }
 
-  /* ── Card — precise 1px border, minimal fill ─────────────────────────── */
+  /* ── Card — full liquid glass treatment ─────────────────────────────── */
   .card {
-    @apply border border-white/[0.07] bg-[var(--surface)] p-4;
+    @apply p-4;
     border-radius: 4px;
+    background-color: rgba(255, 255, 255, 0.05);
+    background-image:
+      url("data:image/svg+xml;utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 1  0 0 0 0 1  0 0 0 0 1  0 0 0 0.4 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+    background-blend-mode: overlay;
+    backdrop-filter: blur(40px) saturate(180%);
+    -webkit-backdrop-filter: blur(40px) saturate(180%);
+    border: 1px solid rgba(255, 255, 255, 0.10);
+    box-shadow:
+      inset 0 1px 0 rgba(255, 255, 255, 0.14),
+      0 8px 32px rgba(0, 0, 0, 0.18);
+    transition: backdrop-filter 0.18s ease,
+                -webkit-backdrop-filter 0.18s ease,
+                border-color 0.18s ease,
+                background-color 0.18s ease;
+  }
+  .card:hover {
+    backdrop-filter: blur(48px) saturate(200%);
+    -webkit-backdrop-filter: blur(48px) saturate(200%);
+    border-color: rgba(167, 139, 250, 0.22);
   }
 
   /* ── Badge — sharp-cornered data pills ───────────────────────────────── */

@@ -784,16 +784,7 @@ export function AxisDiagram() {
 
             return (
               <div style={cardStyle} className="hidden md:block">
-                <div
-                  className="relative p-4"
-                  style={{
-                    background: "rgba(13,11,20,0.92)",
-                    backdropFilter: "blur(20px) saturate(140%)",
-                    border: "1px solid rgba(167,139,250,0.30)",
-                    boxShadow: "0 24px 60px rgba(76,29,149,0.35), inset 0 0 0 1px rgba(255,255,255,0.04)",
-                    borderRadius: "4px",
-                  }}
-                >
+                <div className="liquid-glass-strong relative p-4" style={{ borderRadius: 4 }}>
                   <span style={{ position: "absolute", top: -1, left: -1, width: 10, height: 1, background: "linear-gradient(90deg, #c4b5fd, transparent)" }} />
                   <span style={{ position: "absolute", top: -1, left: -1, width: 1, height: 10, background: "linear-gradient(180deg, #c4b5fd, transparent)" }} />
                   <span style={{ position: "absolute", bottom: -1, right: -1, width: 10, height: 1, background: "linear-gradient(270deg, #c4b5fd, transparent)" }} />
@@ -843,16 +834,7 @@ export function AxisDiagram() {
           const product = PRODUCTS[idx];
           return (
             <div className="md:hidden fixed bottom-4 left-4 right-4 z-30">
-              <div
-                className="relative p-4"
-                style={{
-                  background: "rgba(13,11,20,0.95)",
-                  backdropFilter: "blur(20px)",
-                  border: "1px solid rgba(167,139,250,0.30)",
-                  boxShadow: "0 24px 60px rgba(76,29,149,0.40)",
-                  borderRadius: "4px",
-                }}
-              >
+              <div className="liquid-glass-strong relative p-4" style={{ borderRadius: 4 }}>
                 <div
                   className="mb-1.5"
                   style={{

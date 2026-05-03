@@ -3,20 +3,23 @@
 /**
  * Supernova Axis Diagram
  *
- * Cinematic title-card animation that fires once when the section enters view:
- *   T+0.0s   Section enters viewport
- *   T+0.2s   Meteor enters from top-right, streaks toward origin
- *   T+0.7s   IMPACT — explosion at origin, X-axis ignites left→right
- *   T+1.1s   Solar flare surges upward, Y-axis ignites bottom→top
- *   T+1.6s   Constellation lines draw between connected nodes
- *   T+1.7s   Nodes spawn one by one, each with bespoke typography
- *   T+2.6s   Interactive mode unlocked
+ * Cinematic ignition that fires once on view (autoplay):
+ *   T+0.15s  Meteor enters from top-right, streaks toward origin
+ *   T+0.45s  IMPACT — explosion at origin, X-axis ignites left→right
+ *   T+0.75s  Solar flare surges up Y-axis, line ignites bottom→top
+ *   T+1.05s  Constellation lines draw between connected nodes
+ *   T+1.15s  Nodes spawn one-by-one with bespoke typography
+ *   T+1.7s   Interactive mode unlocked
  *
  * Hover/tap a node: scale → 1.8 supernova, 6 sparks shoot to X/Y axes
- *  highlighting the node's coordinates, and an anchored description card
- *  materializes showing name/description/Launch CTA.
+ * highlighting the node's coordinates, anchored description card materializes.
  *
- * Click Launch: viewport flashes white-violet, route changes.
+ * Click Launch: viewport flashes white-violet, route changes via warp.
+ *
+ * NOTE: labels use SVG <text> (not foreignObject) so they scale proportionally
+ * with the viewBox — a foreignObject's HTML content gets multiplied by the
+ * SVG viewBox-to-pixel ratio, which makes rem-sized text look enormous on
+ * wide screens.
  */
 
 import { useEffect, useRef, useState, useCallback } from "react";
@@ -26,40 +29,29 @@ import { useLanguage } from "@/contexts/language-context";
 import { triggerWarp } from "@/components/animation/warp-transition";
 
 // ─── Product nodes ────────────────────────────────────────────────────────────
-//
-// Position is in viewBox units (0-100 horizontal, 0-80 vertical, origin at 8,76).
-// `font` controls the bespoke typography — we use CSS variables wired in
-// layout.tsx via next/font/google so each node feels like a different brand.
 
 interface NodeDef {
   id: string;
   route: string;
   cx: number;
   cy: number;
-  /** CSS variable name set by next/font/google in layout.tsx */
   fontVar: string;
-  /** Font weight + transform for extra personality */
   fontWeight: number;
   italic?: boolean;
   letterSpacing?: string;
+  /** Text size in viewBox units (so it scales with the diagram) */
+  fontSize: number;
 }
 
 const NODES: NodeDef[] = [
-  // Directory — technical, alphabetical lookup feel
-  { id: "directory",     route: "/directory",     cx: 20, cy: 75, fontVar: "var(--font-plex-mono)",       fontWeight: 500, letterSpacing: "0.02em" },
-  // Network — editorial, human-feeling serif
-  { id: "network",       route: "/network",       cx: 38, cy: 58, fontVar: "var(--font-instrument)",      fontWeight: 400, italic: true, letterSpacing: "-0.01em" },
-  // Opportunities — italic momentum
-  { id: "opportunities", route: "/opportunities", cx: 52, cy: 48, fontVar: "var(--font-inter)",           fontWeight: 600, italic: true, letterSpacing: "-0.02em" },
-  // Match — AI/data product, monospace
-  { id: "match",         route: "/match",         cx: 58, cy: 28, fontVar: "var(--font-jetbrains-mono)",  fontWeight: 600, letterSpacing: "0.04em" },
-  // Launchpad — heavy display
-  { id: "launchpad",     route: "/launchpad",     cx: 68, cy: 35, fontVar: "var(--font-inter)",           fontWeight: 800, letterSpacing: "-0.04em" },
-  // Ventures — futuristic display
-  { id: "ventures",      route: "/ventures",      cx: 82, cy: 22, fontVar: "var(--font-space-grotesk)",   fontWeight: 700, letterSpacing: "-0.03em" },
+  { id: "directory",     route: "/directory",     cx: 22, cy: 70, fontVar: "var(--font-plex-mono)",       fontWeight: 500, letterSpacing: "0.04em", fontSize: 2.4 },
+  { id: "network",       route: "/network",       cx: 38, cy: 56, fontVar: "var(--font-instrument)",      fontWeight: 400, italic: true, letterSpacing: "-0.01em", fontSize: 3.2 },
+  { id: "opportunities", route: "/opportunities", cx: 52, cy: 46, fontVar: "var(--font-inter)",           fontWeight: 600, italic: true, letterSpacing: "-0.02em", fontSize: 2.6 },
+  { id: "match",         route: "/match",         cx: 56, cy: 28, fontVar: "var(--font-jetbrains-mono)",  fontWeight: 600, letterSpacing: "0.06em", fontSize: 2.4 },
+  { id: "launchpad",     route: "/launchpad",     cx: 70, cy: 36, fontVar: "var(--font-inter)",           fontWeight: 800, letterSpacing: "-0.04em", fontSize: 2.8 },
+  { id: "ventures",      route: "/ventures",      cx: 84, cy: 22, fontVar: "var(--font-space-grotesk)",   fontWeight: 700, letterSpacing: "-0.03em", fontSize: 2.7 },
 ];
 
-// Constellation connections — index pairs
 const CONNECTIONS: [number, number][] = [
   [0, 1], [1, 2], [2, 3], [2, 4], [3, 4], [4, 5],
 ];
@@ -73,7 +65,7 @@ export function AxisDiagram() {
   const sectionRef = useRef<HTMLDivElement>(null);
   const svgRef = useRef<SVGSVGElement>(null);
   const router = useRouter();
-  const { t } = useLanguage();
+  const { t, lang } = useLanguage();
 
   const [interactive, setInteractive] = useState(false);
   const [hovered, setHovered] = useState<string | null>(null);
@@ -86,125 +78,119 @@ export function AxisDiagram() {
     description: t(`product.${node.id}.desc`),
   }));
 
-  // ── Master ignition timeline ────────────────────────────────────────────
+  // ── Master ignition timeline (faster: total ~1.7s instead of 2.6s) ──────
   const ignite = useCallback(() => {
     if (ignitedRef.current) return;
     ignitedRef.current = true;
 
     const tl = gsap.timeline();
 
-    // ── Phase 1: Meteor (T+0.2 → T+0.7) ────────────────────────────────
+    // ── Phase 1: Meteor (T+0.15 → T+0.45) ──────────────────────────────
     tl.to(".meteor-path", {
       strokeDashoffset: 0,
-      duration: 0.5,
+      duration: 0.30,
       ease: "power2.in",
-      delay: 0.2,
+      delay: 0.15,
     });
 
-    // ── Phase 2: IMPACT — explosion + X-axis ignition (T+0.7) ───────────
+    // ── Phase 2: IMPACT — explosion + X-axis ignition (T+0.45) ──────────
     tl.to(".impact-flash", {
-      opacity: 0.55,
-      duration: 0.08,
+      opacity: 0.7,
+      duration: 0.06,
       ease: "power2.out",
     });
     tl.to(".impact-flash", {
       opacity: 0,
-      duration: 0.45,
+      duration: 0.30,
       ease: "power2.in",
     });
 
-    // Spawn 12 explosion shards
     tl.to(".impact-shard", {
       attr: { r: 2.5 },
       opacity: 0,
-      stagger: 0.005,
-      duration: 0.7,
+      stagger: 0.004,
+      duration: 0.45,
       ease: "power3.out",
     }, "<");
 
-    // X-axis ignites left→right
+    // X-axis ignites left→right — stays bright
     tl.to(".x-axis-line", {
       strokeDashoffset: 0,
-      duration: 0.5,
+      duration: 0.32,
       ease: "power2.out",
-    }, "<+0.05");
+    }, "<+0.03");
     tl.to(".x-axis-arrow, .x-axis-label", {
       opacity: 1,
-      duration: 0.3,
-    }, "-=0.15");
+      duration: 0.22,
+    }, "-=0.10");
 
-    // ── Phase 3: Solar flare (Y-axis) (T+1.1) ───────────────────────────
+    // ── Phase 3: Solar flare + Y-axis (T+0.75) ──────────────────────────
     tl.to(".flare-column", {
       attr: { height: 72 },
-      duration: 0.45,
+      duration: 0.30,
       ease: "power3.out",
-    }, "+=0.05");
+    }, "+=0.03");
     tl.to(".flare-column", {
-      opacity: 0.45,
-      duration: 0.5,
+      opacity: 0.42,
+      duration: 0.35,
       ease: "power2.in",
-    }, "+=0.1");
+    }, "+=0.08");
 
-    // Y-axis line catches fire after the flare
     tl.to(".y-axis-line", {
       strokeDashoffset: 0,
-      duration: 0.45,
+      duration: 0.30,
       ease: "power2.out",
-    }, "-=0.6");
+    }, "-=0.40");
     tl.to(".y-axis-arrow, .y-axis-label", {
       opacity: 1,
-      duration: 0.3,
-    }, "-=0.15");
+      duration: 0.22,
+    }, "-=0.10");
 
-    // Flare streamers — three rising particles
     tl.fromTo(".flare-streamer",
       { attr: { cy: ORIGIN_Y - 1 }, opacity: 0.9 },
       {
         attr: { cy: 5 },
         opacity: 0,
-        duration: 1.3,
-        stagger: 0.12,
+        duration: 0.95,
+        stagger: 0.10,
         ease: "power2.out",
       },
-      "-=0.8");
+      "-=0.55");
 
-    // ── Phase 4: Constellation lines (T+1.6) ────────────────────────────
+    // ── Phase 4: Constellation (T+1.05) ─────────────────────────────────
     tl.to(".constellation-line", {
       strokeDashoffset: 0,
-      opacity: 0.18,
-      duration: 0.5,
-      stagger: 0.06,
+      opacity: 0.20,
+      duration: 0.35,
+      stagger: 0.04,
       ease: "none",
-    }, "+=0.05");
+    }, "+=0.03");
 
-    // ── Phase 5: Node spawn (T+1.7) ─────────────────────────────────────
+    // ── Phase 5: Nodes spawn (T+1.15) ───────────────────────────────────
     NODES.forEach((_, i) => {
       tl.to(`.node-group-${i}`, {
         scale: 1,
         opacity: 1,
-        duration: 0.45,
-        ease: "back.out(2.4)",
-      }, i === 0 ? "+=0" : "<+0.12");
+        duration: 0.32,
+        ease: "back.out(2.6)",
+      }, i === 0 ? "+=0" : "<+0.075");
       tl.to(`.node-label-${i}`, {
         opacity: 1,
         y: 0,
-        duration: 0.35,
+        duration: 0.25,
         ease: "power2.out",
-      }, "<+0.1");
+      }, "<+0.06");
     });
 
-    // ── Phase 6: Fade axes back to idle, unlock interactive (T+2.6) ─────
-    tl.to(".x-axis-line, .y-axis-line", {
-      opacity: 0.35,
-      duration: 0.5,
-    }, "+=0.2");
-    tl.call(() => setInteractive(true));
+    // ── Phase 6: Idle state (axes stay bright!) — unlock interactive ────
+    // Previous version faded axes to 0.10 — too faint per user feedback.
+    // Now keep them at full opacity (0.85 stroke-grad already controls visual weight).
+    tl.call(() => setInteractive(true), [], "+=0.05");
   }, []);
 
   // ── Set initial state + intersection observer ───────────────────────────
   useEffect(() => {
     const ctx = gsap.context(() => {
-      // Hide everything initially
       gsap.set(".meteor-path", { strokeDasharray: 200, strokeDashoffset: 200 });
       gsap.set(".impact-flash", { opacity: 0 });
       gsap.set(".impact-shard", { attr: { r: 0.3 }, opacity: 1 });
@@ -216,16 +202,14 @@ export function AxisDiagram() {
       gsap.set(".constellation-line", { strokeDasharray: 100, strokeDashoffset: 100, opacity: 0 });
       NODES.forEach((_, i) => {
         gsap.set(`.node-group-${i}`, { scale: 0, opacity: 0, transformOrigin: "center center" });
-        gsap.set(`.node-label-${i}`, { opacity: 0, y: 6 });
+        gsap.set(`.node-label-${i}`, { opacity: 0, y: 4 });
       });
     }, sectionRef);
 
-    // Trigger ignition once when 40% of section is in view
+    // Trigger earlier (25% in view) so it ignites before user scrolls past
     const observer = new IntersectionObserver(
-      (entries) => {
-        if (entries[0]?.isIntersecting) ignite();
-      },
-      { threshold: 0.4 }
+      (entries) => { if (entries[0]?.isIntersecting) ignite(); },
+      { threshold: 0.25 }
     );
     if (sectionRef.current) observer.observe(sectionRef.current);
 
@@ -235,7 +219,7 @@ export function AxisDiagram() {
     };
   }, [ignite]);
 
-  // ── Hover supernova: spark particles + glow ─────────────────────────────
+  // ── Hover supernova ─────────────────────────────────────────────────────
   const handleNodeHover = useCallback((nodeId: string, idx: number, isEnter: boolean) => {
     if (!interactive) return;
     setHovered(isEnter ? nodeId : null);
@@ -243,76 +227,56 @@ export function AxisDiagram() {
     if (!node) return;
 
     if (isEnter) {
-      // Scale up
       gsap.to(`.node-group-${idx} .node-core`, {
         attr: { r: 1.8 },
-        duration: 0.22,
+        duration: 0.20,
         ease: "back.out(2)",
       });
       gsap.to(`.node-group-${idx} .node-halo`, {
         attr: { r: 8 },
         opacity: 0.55,
-        duration: 0.32,
+        duration: 0.28,
         ease: "power2.out",
       });
 
-      // Spark particles → 3 to X-axis (vertical drop), 3 to Y-axis (horizontal slide)
       const sparks = svgRef.current?.querySelectorAll(`.spark-${idx}`);
       if (sparks) {
         sparks.forEach((spark, i) => {
-          const goY = i < 3;          // first 3 → drop to X-axis
+          const goY = i < 3;
           const targetX = goY ? node.cx : ORIGIN_X;
           const targetY = goY ? ORIGIN_Y : node.cy;
           gsap.fromTo(spark,
-            {
-              attr: { cx: node.cx, cy: node.cy, r: 0.6 },
-              opacity: 1,
-            },
-            {
-              attr: { cx: targetX, cy: targetY, r: 0.4 },
-              opacity: 0,
-              duration: 0.55 + i * 0.05,
-              ease: "power2.in",
-              delay: i * 0.02,
-            }
+            { attr: { cx: node.cx, cy: node.cy, r: 0.6 }, opacity: 1 },
+            { attr: { cx: targetX, cy: targetY, r: 0.4 }, opacity: 0,
+              duration: 0.50 + i * 0.04, ease: "power2.in", delay: i * 0.02 }
           );
         });
       }
 
-      // Coordinate ticks light up briefly
       gsap.fromTo(`.tick-x-${idx}`,
         { opacity: 0, attr: { r: 0 } },
-        { opacity: 1, attr: { r: 0.9 }, duration: 0.5, delay: 0.5, ease: "power2.out" }
+        { opacity: 1, attr: { r: 0.95 }, duration: 0.40, delay: 0.45, ease: "power2.out" }
       );
       gsap.fromTo(`.tick-y-${idx}`,
         { opacity: 0, attr: { r: 0 } },
-        { opacity: 1, attr: { r: 0.9 }, duration: 0.5, delay: 0.5, ease: "power2.out" }
+        { opacity: 1, attr: { r: 0.95 }, duration: 0.40, delay: 0.45, ease: "power2.out" }
       );
       gsap.to(`.tick-x-${idx}, .tick-y-${idx}`, {
-        opacity: 0,
-        duration: 0.4,
-        delay: 1.4,
-        ease: "power2.in",
+        opacity: 0, duration: 0.35, delay: 1.3, ease: "power2.in",
       });
     } else {
-      // Restore
       gsap.to(`.node-group-${idx} .node-core`, {
-        attr: { r: 1.2 },
-        duration: 0.25,
-        ease: "power2.out",
+        attr: { r: 1.2 }, duration: 0.22, ease: "power2.out",
       });
       gsap.to(`.node-group-${idx} .node-halo`, {
-        attr: { r: 3.5 },
-        opacity: 0.25,
-        duration: 0.25,
+        attr: { r: 3.5 }, opacity: 0.25, duration: 0.22,
       });
     }
   }, [interactive]);
 
-  // ── Launch: warp + flash + route ────────────────────────────────────────
+  // ── Launch ──────────────────────────────────────────────────────────────
   const handleLaunch = useCallback((route: string, originX?: number, originY?: number) => {
     if (!interactive) return;
-    // Fire warp event so SpaceBackground stars accelerate radially outward
     triggerWarp(originX, originY);
     setFlashing(true);
     setTimeout(() => router.push(route), 280);
@@ -327,16 +291,14 @@ export function AxisDiagram() {
         attr: { r: 4.5 },
         opacity: 0.32,
         duration: 2 + i * 0.15,
-        repeat: -1,
-        yoyo: true,
-        ease: "sine.inOut",
+        repeat: -1, yoyo: true, ease: "sine.inOut",
       });
       pulses.push(tween);
     });
     return () => { pulses.forEach(p => p.kill()); };
   }, [interactive]);
 
-  // ── Card position: choose quadrant that avoids viewport edge ────────────
+  // ── Card position helper ────────────────────────────────────────────────
   const cardPositionFor = (node: NodeDef) => {
     const side = node.cx > 50 ? "left" : "right";
     const vert = node.cy > 60 ? "above" : "below";
@@ -348,7 +310,6 @@ export function AxisDiagram() {
       id="axis-diagram"
       ref={sectionRef}
       className="relative z-10 w-full overflow-hidden"
-      style={{ minHeight: "min(100vh, 880px)" }}
     >
       {/* Full-screen flash overlay (white→violet) for route launch */}
       {flashing && (
@@ -361,26 +322,49 @@ export function AxisDiagram() {
         />
       )}
 
-      <div className="relative w-full h-screen flex items-center justify-center px-4">
+      {/* ── Heading row ────────────────────────────────────────────────── */}
+      <div className="relative pt-16 pb-2 px-4 text-center">
+        <h2
+          className="text-4xl sm:text-5xl lg:text-6xl font-bold text-white"
+          style={{ letterSpacing: "-0.04em", lineHeight: 1.05 }}
+        >
+          {t("diagram.heading")}{" "}
+          <span className="gradient-text">{t("diagram.heading.accent")}</span>
+        </h2>
+        <p
+          className="mt-3 text-sm sm:text-base mx-auto max-w-xl"
+          style={{ color: "var(--text-secondary)" }}
+        >
+          {t("diagram.subtext")}
+        </p>
+      </div>
 
-        {/* SVG diagram — bleeds off into the void via overflow:visible */}
-        <div className="relative w-full max-w-5xl mx-auto" style={{ aspectRatio: "1 / 0.75" }}>
+      {/* ── Diagram container — centered, balanced sizing ──────────────── */}
+      <div className="relative w-full flex items-center justify-center px-4 pb-16">
+        <div
+          className="relative w-full mx-auto"
+          style={{
+            maxWidth: "min(900px, 92vw)",
+            aspectRatio: "1 / 0.7",
+          }}
+        >
           <svg
             ref={svgRef}
             viewBox="0 0 100 80"
-            className="w-full h-full"
+            className="w-full h-full block"
+            preserveAspectRatio="xMidYMid meet"
             style={{ overflow: "visible" }}
           >
             <defs>
-              {/* Meteor gradient — white core fading to violet then transparent */}
+              {/* Meteor — bright white head fading to violet then transparent */}
               <linearGradient id="meteor-grad" x1="0%" y1="0%" x2="100%" y2="100%">
                 <stop offset="0%"  stopColor="rgba(255,255,255,0)" />
-                <stop offset="60%" stopColor="rgba(192,132,252,0.4)" />
+                <stop offset="60%" stopColor="rgba(192,132,252,0.5)" />
                 <stop offset="92%" stopColor="rgba(255,255,255,1)" />
                 <stop offset="100%" stopColor="rgba(255,255,255,1)" />
               </linearGradient>
 
-              {/* Solar flare gradient — bright violet bottom fading up */}
+              {/* Solar flare — bright violet→white fading up */}
               <linearGradient id="flare-grad" x1="0%" y1="100%" x2="0%" y2="0%">
                 <stop offset="0%"  stopColor="rgba(255,255,255,0.95)" />
                 <stop offset="15%" stopColor="rgba(167,139,250,0.85)" />
@@ -388,14 +372,20 @@ export function AxisDiagram() {
                 <stop offset="100%" stopColor="rgba(76,29,149,0)" />
               </linearGradient>
 
-              {/* Axis gradient — white→violet ignited line */}
-              <linearGradient id="axis-grad" x1="0%" y1="0%" x2="100%" y2="0%">
-                <stop offset="0%"  stopColor="rgba(255,255,255,0.85)" />
-                <stop offset="40%" stopColor="rgba(167,139,250,0.65)" />
-                <stop offset="100%" stopColor="rgba(139,92,246,0.20)" />
+              {/* X-axis gradient — bright white→violet, much more visible */}
+              <linearGradient id="axis-x-grad" x1="0%" y1="0%" x2="100%" y2="0%">
+                <stop offset="0%"  stopColor="rgba(255,255,255,0.95)" />
+                <stop offset="40%" stopColor="rgba(192,132,252,0.85)" />
+                <stop offset="100%" stopColor="rgba(139,92,246,0.45)" />
               </linearGradient>
 
-              {/* Glow filter for nodes/halos */}
+              {/* Y-axis gradient — bright bottom (origin) fading up */}
+              <linearGradient id="axis-y-grad" x1="0%" y1="100%" x2="0%" y2="0%">
+                <stop offset="0%"  stopColor="rgba(255,255,255,0.95)" />
+                <stop offset="40%" stopColor="rgba(192,132,252,0.85)" />
+                <stop offset="100%" stopColor="rgba(139,92,246,0.45)" />
+              </linearGradient>
+
               <filter id="node-glow" x="-50%" y="-50%" width="200%" height="200%">
                 <feGaussianBlur stdDeviation="0.8" result="blur" />
                 <feMerge>
@@ -404,17 +394,24 @@ export function AxisDiagram() {
                 </feMerge>
               </filter>
 
-              {/* Heavy bloom for flare/meteor */}
               <filter id="flare-bloom" x="-50%" y="-50%" width="200%" height="200%">
                 <feGaussianBlur stdDeviation="1.4" />
               </filter>
+
+              <filter id="text-glow" x="-50%" y="-50%" width="200%" height="200%">
+                <feGaussianBlur stdDeviation="0.5" result="blur" />
+                <feMerge>
+                  <feMergeNode in="blur" />
+                  <feMergeNode in="SourceGraphic" />
+                </feMerge>
+              </filter>
             </defs>
 
-            {/* ── Architectural grid (very faint) ────────────────────────── */}
+            {/* Architectural grid — barely visible scaffolding */}
             {[20, 40, 60, 80].map(v => (
               <g key={v}>
-                <line x1={v} y1="4" x2={v} y2="76" stroke="rgba(255,255,255,0.018)" strokeWidth="0.15" />
-                <line x1="8" y1={v} x2="96" y2={v} stroke="rgba(255,255,255,0.018)" strokeWidth="0.15" />
+                <line x1={v} y1="4" x2={v} y2="76" stroke="rgba(255,255,255,0.022)" strokeWidth="0.15" />
+                <line x1="8" y1={v} x2="96" y2={v} stroke="rgba(255,255,255,0.022)" strokeWidth="0.15" />
               </g>
             ))}
 
@@ -422,22 +419,22 @@ export function AxisDiagram() {
             <line
               className="x-axis-line"
               x1={ORIGIN_X} y1={ORIGIN_Y} x2="98" y2={ORIGIN_Y}
-              stroke="url(#axis-grad)"
-              strokeWidth="0.45"
+              stroke="url(#axis-x-grad)"
+              strokeWidth="0.55"
               strokeLinecap="round"
             />
             <polygon
               className="x-axis-arrow"
-              points="98,74.8 100.5,76 98,77.2"
-              fill="rgba(167,139,250,0.55)"
+              points="98,74.6 100.8,76 98,77.4"
+              fill="rgba(192,132,252,0.85)"
             />
             <text
-              x="100" y="79.5"
+              x="98" y="79.6"
               textAnchor="end"
-              fontSize="2.4"
-              fill="rgba(167,139,250,0.55)"
+              fontSize="2.2"
+              fill="rgba(192,132,252,0.85)"
               className="x-axis-label"
-              style={{ fontFamily: "var(--font-jetbrains-mono), monospace", letterSpacing: "0.18em", fontWeight: 600 }}
+              style={{ fontFamily: "var(--font-jetbrains-mono), monospace", letterSpacing: "0.20em", fontWeight: 600 }}
             >
               {t("diagram.xaxis")}
             </text>
@@ -446,27 +443,23 @@ export function AxisDiagram() {
             <line
               className="y-axis-line"
               x1={ORIGIN_X} y1={ORIGIN_Y} x2={ORIGIN_X} y2="2"
-              stroke="url(#axis-grad)"
-              strokeWidth="0.45"
+              stroke="url(#axis-y-grad)"
+              strokeWidth="0.55"
               strokeLinecap="round"
             />
             <polygon
               className="y-axis-arrow"
-              points="6.8,2 8,-0.5 9.2,2"
-              fill="rgba(167,139,250,0.55)"
+              points="6.6,2 8,-0.8 9.4,2"
+              fill="rgba(192,132,252,0.85)"
             />
             <text
-              x={ORIGIN_X - 2} y="4"
+              x={ORIGIN_X - 1.8} y="3"
               textAnchor="end"
-              fontSize="2.4"
-              fill="rgba(167,139,250,0.55)"
+              fontSize="2.2"
+              fill="rgba(192,132,252,0.85)"
               className="y-axis-label"
-              style={{
-                fontFamily: "var(--font-jetbrains-mono), monospace",
-                letterSpacing: "0.18em",
-                fontWeight: 600,
-              }}
-              transform={`rotate(-90, ${ORIGIN_X - 2}, 4)`}
+              style={{ fontFamily: "var(--font-jetbrains-mono), monospace", letterSpacing: "0.20em", fontWeight: 600 }}
+              transform={`rotate(-90, ${ORIGIN_X - 1.8}, 3)`}
             >
               {t("diagram.yaxis")}
             </text>
@@ -482,7 +475,6 @@ export function AxisDiagram() {
               filter="url(#flare-bloom)"
             />
 
-            {/* Flare ascending streamers */}
             {[0, 1, 2].map(i => (
               <circle
                 key={`flare-streamer-${i}`}
@@ -515,7 +507,7 @@ export function AxisDiagram() {
               filter="url(#flare-bloom)"
             />
 
-            {/* Impact shards radiating out */}
+            {/* Impact shards */}
             {Array.from({ length: 12 }).map((_, i) => {
               const angle = (i / 12) * Math.PI * 2;
               const r = 4;
@@ -541,22 +533,22 @@ export function AxisDiagram() {
                   key={`con-${i}`}
                   className="constellation-line"
                   x1={a.cx} y1={a.cy} x2={b.cx} y2={b.cy}
-                  stroke="rgba(167,139,250,0.30)"
-                  strokeWidth="0.18"
+                  stroke="rgba(167,139,250,0.40)"
+                  strokeWidth="0.20"
                   strokeDasharray={len}
                   strokeDashoffset={len}
                 />
               );
             })}
 
-            {/* ── Coordinate ticks (visible during hover supernova) ──────── */}
+            {/* ── Coordinate ticks (visible during hover) ────────────────── */}
             {NODES.map((node, i) => (
               <g key={`ticks-${i}`}>
                 <circle
                   className={`tick-x-${i}`}
                   cx={node.cx} cy={ORIGIN_Y}
                   r="0"
-                  fill="rgba(167,139,250,0.95)"
+                  fill="rgba(192,132,252,0.95)"
                   opacity="0"
                   filter="url(#node-glow)"
                 />
@@ -564,14 +556,14 @@ export function AxisDiagram() {
                   className={`tick-y-${i}`}
                   cx={ORIGIN_X} cy={node.cy}
                   r="0"
-                  fill="rgba(167,139,250,0.95)"
+                  fill="rgba(192,132,252,0.95)"
                   opacity="0"
                   filter="url(#node-glow)"
                 />
               </g>
             ))}
 
-            {/* ── Spark particles (one set per node) ────────────────────── */}
+            {/* ── Spark particles ───────────────────────────────────────── */}
             {NODES.map((_, i) => (
               <g key={`sparks-${i}`}>
                 {Array.from({ length: 6 }).map((_, j) => (
@@ -598,7 +590,6 @@ export function AxisDiagram() {
                 onMouseLeave={() => handleNodeHover(node.id, i, false)}
                 onClick={() => interactive && handleLaunch(node.route)}
               >
-                {/* Halo */}
                 <circle
                   className="node-halo"
                   cx={node.cx} cy={node.cy}
@@ -607,15 +598,13 @@ export function AxisDiagram() {
                   opacity="0.25"
                   filter="url(#node-glow)"
                 />
-                {/* Ring */}
                 <circle
                   cx={node.cx} cy={node.cy}
                   r="2"
                   fill="none"
-                  stroke="rgba(167,139,250,0.50)"
-                  strokeWidth="0.18"
+                  stroke="rgba(167,139,250,0.55)"
+                  strokeWidth="0.20"
                 />
-                {/* Core */}
                 <circle
                   className="node-core"
                   cx={node.cx} cy={node.cy}
@@ -623,8 +612,7 @@ export function AxisDiagram() {
                   fill="white"
                   filter="url(#node-glow)"
                 />
-
-                {/* Hit area — invisible larger circle for easier targeting */}
+                {/* Hit area */}
                 <circle
                   cx={node.cx} cy={node.cy}
                   r="5"
@@ -633,44 +621,38 @@ export function AxisDiagram() {
               </g>
             ))}
 
-            {/* ── Bespoke font labels (foreignObject for real CSS fonts) ─ */}
+            {/* ── Bespoke font labels (SVG text — scales with viewBox) ── */}
             {NODES.map((node, i) => {
-              const labelRight = node.cx > 50;
-              const fx = labelRight ? node.cx - 18 : node.cx + 2.5;
-              const fy = node.cy - 5.5;
+              const labelRight = node.cx > 55;
+              const labelX = labelRight ? node.cx - 2.8 : node.cx + 2.8;
+              const labelY = node.cy - 2.6;
+              const isHov = hovered === node.id;
               return (
-                <foreignObject
+                <text
                   key={`label-${node.id}`}
                   className={`node-label node-label-${i}`}
-                  x={fx} y={fy}
-                  width="18" height="4"
-                  style={{ overflow: "visible", pointerEvents: "none" }}
+                  x={labelX}
+                  y={labelY}
+                  textAnchor={labelRight ? "end" : "start"}
+                  fontSize={node.fontSize}
+                  fill={isHov ? "rgba(255,255,255,0.98)" : "rgba(255,255,255,0.85)"}
+                  filter="url(#text-glow)"
+                  style={{
+                    fontFamily: node.fontVar,
+                    fontWeight: node.fontWeight,
+                    fontStyle: node.italic ? "italic" : "normal",
+                    letterSpacing: node.letterSpacing,
+                    pointerEvents: "none",
+                    transition: "fill 0.18s",
+                  }}
                 >
-                  <div
-                    style={{
-                      fontFamily: node.fontVar,
-                      fontWeight: node.fontWeight,
-                      fontStyle: node.italic ? "italic" : "normal",
-                      letterSpacing: node.letterSpacing ?? "normal",
-                      fontSize: "clamp(0.55rem, 1.6vw, 0.85rem)",
-                      color: hovered === node.id ? "rgba(255,255,255,0.98)" : "rgba(255,255,255,0.78)",
-                      textAlign: labelRight ? "right" : "left",
-                      lineHeight: 1.0,
-                      whiteSpace: "nowrap",
-                      textShadow: "0 0 12px rgba(139,92,246,0.35)",
-                      transition: "color 0.18s",
-                    }}
-                  >
-                    {t(`product.${node.id}.name`)}
-                  </div>
-                </foreignObject>
+                  {t(`product.${node.id}.name`)}
+                </text>
               );
             })}
           </svg>
 
-          {/* ── Description card overlay (desktop) ────────────────────────
-                Anchored to hovered node, uses the bespoke font for the name
-                and offers a Launch CTA. */}
+          {/* ── Description card overlay (desktop) ──────────────────────── */}
           {interactive && hovered && (() => {
             const idx = NODES.findIndex(n => n.id === hovered);
             if (idx < 0) return null;
@@ -696,14 +678,13 @@ export function AxisDiagram() {
                 <div
                   className="relative p-4"
                   style={{
-                    background: "rgba(13,11,20,0.88)",
+                    background: "rgba(13,11,20,0.92)",
                     backdropFilter: "blur(20px) saturate(140%)",
                     border: "1px solid rgba(167,139,250,0.30)",
                     boxShadow: "0 24px 60px rgba(76,29,149,0.35), inset 0 0 0 1px rgba(255,255,255,0.04)",
                     borderRadius: "4px",
                   }}
                 >
-                  {/* Chromatic edge accents */}
                   <span style={{ position: "absolute", top: -1, left: -1, width: 10, height: 1, background: "linear-gradient(90deg, #c4b5fd, transparent)" }} />
                   <span style={{ position: "absolute", top: -1, left: -1, width: 1, height: 10, background: "linear-gradient(180deg, #c4b5fd, transparent)" }} />
                   <span style={{ position: "absolute", bottom: -1, right: -1, width: 10, height: 1, background: "linear-gradient(270deg, #c4b5fd, transparent)" }} />
@@ -723,14 +704,7 @@ export function AxisDiagram() {
                   >
                     {product.name}
                   </div>
-                  <p
-                    className="mb-3"
-                    style={{
-                      fontSize: "11px",
-                      color: "rgba(220,215,240,0.65)",
-                      lineHeight: 1.5,
-                    }}
-                  >
+                  <p style={{ fontSize: "11px", color: "rgba(220,215,240,0.70)", lineHeight: 1.5, marginBottom: 12 }}>
                     {product.description}
                   </p>
                   <button
@@ -743,7 +717,7 @@ export function AxisDiagram() {
                       background: "linear-gradient(135deg, rgba(255,255,255,0.95), rgba(192,132,252,0.85))",
                     }}
                   >
-                    <span style={{ fontWeight: 600 }}>Launch</span>
+                    <span style={{ fontWeight: 600 }}>{lang === "ja" ? "開く" : "Launch"}</span>
                     <span>→</span>
                   </button>
                 </div>
@@ -752,7 +726,7 @@ export function AxisDiagram() {
           })()}
         </div>
 
-        {/* ── Mobile description sheet — bottom anchored ─────────────── */}
+        {/* ── Mobile description sheet ───────────────────────────────── */}
         {interactive && hovered && (() => {
           const idx = NODES.findIndex(n => n.id === hovered);
           if (idx < 0) return null;
@@ -784,7 +758,7 @@ export function AxisDiagram() {
                 >
                   {product.name}
                 </div>
-                <p style={{ fontSize: "12px", color: "rgba(220,215,240,0.65)", lineHeight: 1.5, marginBottom: 12 }}>
+                <p style={{ fontSize: "12px", color: "rgba(220,215,240,0.70)", lineHeight: 1.5, marginBottom: 12 }}>
                   {product.description}
                 </p>
                 <button
@@ -797,7 +771,7 @@ export function AxisDiagram() {
                     background: "linear-gradient(135deg, rgba(255,255,255,0.95), rgba(192,132,252,0.85))",
                   }}
                 >
-                  <span style={{ fontWeight: 600 }}>Launch</span>
+                  <span style={{ fontWeight: 600 }}>{lang === "ja" ? "開く" : "Launch"}</span>
                   <span>→</span>
                 </button>
               </div>
@@ -805,12 +779,12 @@ export function AxisDiagram() {
           );
         })()}
 
-        {/* Hint text — fades out once interactive */}
+        {/* Hint */}
         <div
-          className="absolute bottom-6 left-1/2 -translate-x-1/2 text-[10px] uppercase"
+          className="absolute bottom-4 left-1/2 -translate-x-1/2 text-[10px] uppercase pointer-events-none"
           style={{
-            color: interactive ? "rgba(167,139,250,0.40)" : "rgba(255,255,255,0.20)",
-            letterSpacing: "0.22em",
+            color: interactive ? "rgba(167,139,250,0.55)" : "rgba(255,255,255,0.25)",
+            letterSpacing: "0.24em",
             transition: "color 0.5s",
             fontFamily: "var(--font-jetbrains-mono), monospace",
           }}

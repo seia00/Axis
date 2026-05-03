@@ -112,6 +112,9 @@ export const translations: Record<Lang, Record<string, string>> = {
     "diagram.scroll":       "scroll to explore",
     "diagram.click":        "click any node to enter",
     "diagram.enter":        "Enter",
+    "diagram.heading":      "Six products.",
+    "diagram.heading.accent":"One platform.",
+    "diagram.subtext":      "Everything a student founder needs — from discovery to launch.",
 
     // ── Stats ─────────────────────────────────────────────────────────────────
     "stats.headline":  "Built for Japan's next generation of founders.",
@@ -242,6 +245,9 @@ export const translations: Record<Lang, Record<string, string>> = {
     "diagram.scroll":       "スクロールして探索",
     "diagram.click":        "ノードをクリックして進む",
     "diagram.enter":        "開く",
+    "diagram.heading":      "6つのプロダクト。",
+    "diagram.heading.accent":"ひとつのプラットフォーム。",
+    "diagram.subtext":      "学生起業家に必要なすべてが揃っています — 発見から立ち上げまで。",
 
     // ── Stats ─────────────────────────────────────────────────────────────────
     "stats.headline":  "日本の次世代起業家のために作られた。",

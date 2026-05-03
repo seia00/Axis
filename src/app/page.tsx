@@ -1,6 +1,5 @@
 import { Footer } from "@/components/layout/footer";
 import { AxisDiagram } from "@/components/landing/axis-diagram";
-import { ProductCards } from "@/components/landing/product-cards";
 import { StatsSection } from "@/components/landing/stats-section";
 import { HeroSection } from "@/components/landing/hero-section";
 import { CTASection } from "@/components/landing/cta-section";
@@ -27,11 +26,8 @@ export default async function LandingPage() {
       {/* HERO */}
       <HeroSection />
 
-      {/* AXIS DIAGRAM — signature scroll section */}
+      {/* AXIS DIAGRAM — Supernova animation, holds heading + 6 product nodes */}
       <AxisDiagram />
-
-      {/* PRODUCT CARDS */}
-      <ProductCards />
 
       {/* STATS */}
       <StatsSection stats={stats} />

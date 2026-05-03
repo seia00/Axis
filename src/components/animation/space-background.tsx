@@ -211,12 +211,12 @@ export function SpaceBackground() {
       // Decay velocity smoothly
       m.velocity *= 0.85;
 
-      // ── Background — uniform purplish-black to match Spline scene ──────
-      // Previously had two radial violet nebulae creating regional brightness
-      // variance — removed because the bright spots made this canvas look
-      // visibly different from the Spline scene's uniform dark backdrop.
-      // Now: single flat color matching Spline's "purplish black" tone.
-      ctx.fillStyle = "#0a0716";
+      // ── Background — uniform near-black to match Spline scene ──────────
+      // Significantly darker than the original #05020b. The Spline scene
+      // renders on a near-black backdrop with just a hint of violet, so the
+      // SpaceBackground needs to be that dark too — otherwise there's a
+      // visible color seam at the section boundary.
+      ctx.fillStyle = "#020108";
       ctx.fillRect(0, 0, W, H);
 
       // ── Stars (with cursor displacement field) ────────────────────────
@@ -390,7 +390,7 @@ export function SpaceBackground() {
       ref={canvasRef}
       className="fixed inset-0 z-[-1]"
       aria-hidden="true"
-      style={{ display: "block", background: "#0a0716" }}
+      style={{ display: "block", background: "#020108" }}
     />
   );
 }

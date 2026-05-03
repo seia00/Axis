@@ -34,13 +34,13 @@ export function HeroSection() {
       <SplineHero />
 
       {/* Subtle vignette so edges don't feel cut-off */}
-      <div className="absolute inset-0 z-[1] bg-[radial-gradient(ellipse_120%_80%_at_50%_50%,transparent_45%,rgba(10,7,22,0.55)_100%)]" />
+      <div className="absolute inset-0 z-[1] bg-[radial-gradient(ellipse_120%_80%_at_50%_50%,transparent_45%,rgba(2,1,8,0.55)_100%)]" />
       {/* Top + bottom fade — text legibility. Bottom stop is fully transparent
           so the SpaceBackground starfield continues unbroken into the next
           section. No more visible color seam at the hero → axis boundary. */}
-      <div className="absolute inset-0 z-[1] bg-[linear-gradient(180deg,rgba(10,7,22,0.78)_0%,rgba(10,7,22,0.22)_28%,rgba(10,7,22,0.18)_68%,rgba(10,7,22,0)_100%)]" />
+      <div className="absolute inset-0 z-[1] bg-[linear-gradient(180deg,rgba(2,1,8,0.78)_0%,rgba(2,1,8,0.22)_28%,rgba(2,1,8,0.18)_68%,rgba(2,1,8,0)_100%)]" />
       {/* Side fade — keeps content centred visually */}
-      <div className="absolute inset-0 z-[1] bg-[linear-gradient(90deg,rgba(10,7,22,0.62)_0%,transparent_28%,transparent_72%,rgba(10,7,22,0.62)_100%)]" />
+      <div className="absolute inset-0 z-[1] bg-[linear-gradient(90deg,rgba(2,1,8,0.62)_0%,transparent_28%,transparent_72%,rgba(2,1,8,0.62)_100%)]" />
 
       {/* Language toggle — top right */}
       <motion.button

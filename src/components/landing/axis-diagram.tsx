@@ -124,6 +124,31 @@ export function AxisDiagram() {
       duration: 0.22,
     }, "-=0.10");
 
+    // ── X-axis BEAM — horizontal plasma flare surges right after impact ──
+    // Mirrors the vertical solar flare on Y-axis. Width 0 → 90 (origin to arrow).
+    tl.to(".beam-x", {
+      attr: { width: 90 },
+      duration: 0.32,
+      ease: "power3.out",
+    }, "-=0.32");
+    tl.to(".beam-x", {
+      opacity: 0.42,
+      duration: 0.45,
+      ease: "power2.in",
+    }, "-=0.10");
+
+    // Horizontal beam streamers — three particles racing right
+    tl.fromTo(".beam-streamer",
+      { attr: { cx: ORIGIN_X + 1 }, opacity: 0.9 },
+      {
+        attr: { cx: 95 },
+        opacity: 0,
+        duration: 0.95,
+        stagger: 0.10,
+        ease: "power2.out",
+      },
+      "-=0.55");
+
     // ── Phase 3: Solar flare + Y-axis (T+0.75) ──────────────────────────
     tl.to(".flare-column", {
       attr: { height: 72 },
@@ -196,6 +221,8 @@ export function AxisDiagram() {
       gsap.set(".impact-shard", { attr: { r: 0.3 }, opacity: 1 });
       gsap.set(".flare-column", { attr: { height: 0 }, opacity: 1 });
       gsap.set(".flare-streamer", { opacity: 0 });
+      gsap.set(".beam-x", { attr: { width: 0 }, opacity: 1 });
+      gsap.set(".beam-streamer", { opacity: 0 });
       gsap.set(".x-axis-line", { strokeDasharray: 100, strokeDashoffset: 100, opacity: 1 });
       gsap.set(".y-axis-line", { strokeDasharray: 100, strokeDashoffset: 100, opacity: 1 });
       gsap.set(".x-axis-arrow, .y-axis-arrow, .x-axis-label, .y-axis-label", { opacity: 0 });
@@ -323,7 +350,7 @@ export function AxisDiagram() {
       )}
 
       {/* ── Tension gap ─ empty space between hero and heading for breathing room */}
-      <div className="h-[18vh] sm:h-[22vh] min-h-[120px] max-h-[260px]" aria-hidden="true" />
+      <div className="h-[34vh] sm:h-[42vh] min-h-[240px] max-h-[480px]" aria-hidden="true" />
 
       {/* ── Heading row ────────────────────────────────────────────────── */}
       <div className="relative pb-4 px-4 text-center">
@@ -367,8 +394,16 @@ export function AxisDiagram() {
                 <stop offset="100%" stopColor="rgba(255,255,255,1)" />
               </linearGradient>
 
-              {/* Solar flare — bright violet→white fading up */}
+              {/* Solar flare (vertical) — bright violet→white fading up */}
               <linearGradient id="flare-grad" x1="0%" y1="100%" x2="0%" y2="0%">
+                <stop offset="0%"  stopColor="rgba(255,255,255,0.95)" />
+                <stop offset="15%" stopColor="rgba(167,139,250,0.85)" />
+                <stop offset="55%" stopColor="rgba(139,92,246,0.45)" />
+                <stop offset="100%" stopColor="rgba(76,29,149,0)" />
+              </linearGradient>
+
+              {/* IMPACT beam (horizontal) — bright white at origin, streaks right */}
+              <linearGradient id="beam-x-grad" x1="0%" y1="0%" x2="100%" y2="0%">
                 <stop offset="0%"  stopColor="rgba(255,255,255,0.95)" />
                 <stop offset="15%" stopColor="rgba(167,139,250,0.85)" />
                 <stop offset="55%" stopColor="rgba(139,92,246,0.45)" />
@@ -514,7 +549,7 @@ export function AxisDiagram() {
               {t("diagram.yaxis")}
             </text>
 
-            {/* ── Solar flare column ─────────────────────────────────────── */}
+            {/* ── Solar flare column (Y-axis, vertical) ──────────────────── */}
             <rect
               className="flare-column"
               x={ORIGIN_X - 0.75}
@@ -531,6 +566,30 @@ export function AxisDiagram() {
                 className="flare-streamer"
                 cx={ORIGIN_X + (i - 1) * 0.4}
                 cy={ORIGIN_Y - 1}
+                r={0.5 + i * 0.2}
+                fill="rgba(255,255,255,0.9)"
+                filter="url(#flare-bloom)"
+              />
+            ))}
+
+            {/* ── IMPACT beam (X-axis, horizontal) — surges right after impact */}
+            <rect
+              className="beam-x"
+              x={ORIGIN_X}
+              y={ORIGIN_Y - 0.75}
+              width="0"
+              height="1.5"
+              fill="url(#beam-x-grad)"
+              filter="url(#flare-bloom)"
+            />
+
+            {/* Horizontal beam streamers — particles racing right */}
+            {[0, 1, 2].map(i => (
+              <circle
+                key={`beam-streamer-${i}`}
+                className="beam-streamer"
+                cx={ORIGIN_X + 1}
+                cy={ORIGIN_Y + (i - 1) * 0.4}
                 r={0.5 + i * 0.2}
                 fill="rgba(255,255,255,0.9)"
                 filter="url(#flare-bloom)"

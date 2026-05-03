@@ -21,20 +21,24 @@ const fadeIn = (delay = 0) => ({
   transition: { duration: 0.7, delay, ease: EASE } satisfies Transition,
 });
 
+// Hero section — bg-transparent so the global SpaceBackground canvas
+// (#05020b + violet nebula + stars) shows through both this section AND
+// the axis-diagram section below for a seamless visual continuum.
+// The Spline scene + gradients render on top.
 export function HeroSection() {
   const { t, toggle, lang } = useLanguage();
 
   return (
-    <section className="relative z-10 flex min-h-[100svh] items-center overflow-hidden bg-[#05020b] px-4 pt-20 pb-24 text-center">
+    <section className="relative z-10 flex min-h-[100svh] items-center overflow-hidden px-4 pt-20 pb-24 text-center">
       {/* Spline particle planet — fills the full hero */}
       <SplineHero />
 
       {/* Subtle vignette so edges don't feel cut-off */}
       <div className="absolute inset-0 z-[1] bg-[radial-gradient(ellipse_120%_80%_at_50%_50%,transparent_45%,rgba(5,2,11,0.55)_100%)]" />
-      {/* Top + bottom fade — text legibility. Bottom stop matches the
-          SpaceBackground (#05020b) exactly so there's no visible seam
-          at the hero → axis-diagram boundary. */}
-      <div className="absolute inset-0 z-[1] bg-[linear-gradient(180deg,rgba(5,2,11,0.72)_0%,rgba(5,2,11,0.18)_28%,rgba(5,2,11,0.18)_68%,rgba(5,2,11,1)_100%)]" />
+      {/* Top + bottom fade — text legibility. Bottom stop is fully transparent
+          so the SpaceBackground starfield continues unbroken into the next
+          section. No more visible color seam at the hero → axis boundary. */}
+      <div className="absolute inset-0 z-[1] bg-[linear-gradient(180deg,rgba(5,2,11,0.78)_0%,rgba(5,2,11,0.22)_28%,rgba(5,2,11,0.18)_68%,rgba(5,2,11,0)_100%)]" />
       {/* Side fade — keeps content centred visually */}
       <div className="absolute inset-0 z-[1] bg-[linear-gradient(90deg,rgba(5,2,11,0.62)_0%,transparent_28%,transparent_72%,rgba(5,2,11,0.62)_100%)]" />
 

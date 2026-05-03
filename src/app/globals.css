@@ -8,7 +8,10 @@
 @layer base {
   :root {
     /* ── Backgrounds — near-black engineering palette ─────────────────── */
-    --background:         #05020b;   /* deep space black */
+    /* #0a0716 matches the Spline particle planet scene's dark backdrop —
+       the SpaceBackground canvas paints this same color so hero + axis
+       sections + any other transparent surface stay perfectly seamless. */
+    --background:         #0a0716;
     --bg-secondary:       #0d0b14;
     --bg-tertiary:        #13111c;
 

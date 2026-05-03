@@ -211,23 +211,12 @@ export function SpaceBackground() {
       // Decay velocity smoothly
       m.velocity *= 0.85;
 
-      // ── Background ────────────────────────────────────────────────────
-      ctx.fillStyle = "#05020b";
-      ctx.fillRect(0, 0, W, H);
-
-      // Primary nebula
-      const nebula = ctx.createRadialGradient(W * 0.62, H * 0.38, 0, W * 0.62, H * 0.38, W * 0.45);
-      nebula.addColorStop(0, "rgba(109,40,217,0.055)");
-      nebula.addColorStop(0.5, "rgba(76,29,149,0.028)");
-      nebula.addColorStop(1, "transparent");
-      ctx.fillStyle = nebula;
-      ctx.fillRect(0, 0, W, H);
-
-      // Secondary nebula
-      const nebula2 = ctx.createRadialGradient(W * 0.18, H * 0.22, 0, W * 0.18, H * 0.22, W * 0.32);
-      nebula2.addColorStop(0, "rgba(139,92,246,0.035)");
-      nebula2.addColorStop(1, "transparent");
-      ctx.fillStyle = nebula2;
+      // ── Background — uniform purplish-black to match Spline scene ──────
+      // Previously had two radial violet nebulae creating regional brightness
+      // variance — removed because the bright spots made this canvas look
+      // visibly different from the Spline scene's uniform dark backdrop.
+      // Now: single flat color matching Spline's "purplish black" tone.
+      ctx.fillStyle = "#0a0716";
       ctx.fillRect(0, 0, W, H);
 
       // ── Stars (with cursor displacement field) ────────────────────────
@@ -401,7 +390,7 @@ export function SpaceBackground() {
       ref={canvasRef}
       className="fixed inset-0 z-[-1]"
       aria-hidden="true"
-      style={{ display: "block", background: "#05020b" }}
+      style={{ display: "block", background: "#0a0716" }}
     />
   );
 }

@@ -31,8 +31,10 @@ export function HeroSection() {
 
       {/* Subtle vignette so edges don't feel cut-off */}
       <div className="absolute inset-0 z-[1] bg-[radial-gradient(ellipse_120%_80%_at_50%_50%,transparent_45%,rgba(5,2,11,0.55)_100%)]" />
-      {/* Top + bottom fade — text legibility */}
-      <div className="absolute inset-0 z-[1] bg-[linear-gradient(180deg,rgba(5,2,11,0.72)_0%,rgba(5,2,11,0.18)_28%,rgba(5,2,11,0.18)_68%,rgba(9,9,11,0.97)_100%)]" />
+      {/* Top + bottom fade — text legibility. Bottom stop matches the
+          SpaceBackground (#05020b) exactly so there's no visible seam
+          at the hero → axis-diagram boundary. */}
+      <div className="absolute inset-0 z-[1] bg-[linear-gradient(180deg,rgba(5,2,11,0.72)_0%,rgba(5,2,11,0.18)_28%,rgba(5,2,11,0.18)_68%,rgba(5,2,11,1)_100%)]" />
       {/* Side fade — keeps content centred visually */}
       <div className="absolute inset-0 z-[1] bg-[linear-gradient(90deg,rgba(5,2,11,0.62)_0%,transparent_28%,transparent_72%,rgba(5,2,11,0.62)_100%)]" />
 

@@ -322,8 +322,11 @@ export function AxisDiagram() {
         />
       )}
 
+      {/* ── Tension gap ─ empty space between hero and heading for breathing room */}
+      <div className="h-[18vh] sm:h-[22vh] min-h-[120px] max-h-[260px]" aria-hidden="true" />
+
       {/* ── Heading row ────────────────────────────────────────────────── */}
-      <div className="relative pt-16 pb-2 px-4 text-center">
+      <div className="relative pb-4 px-4 text-center">
         <h2
           className="text-4xl sm:text-5xl lg:text-6xl font-bold text-white"
           style={{ letterSpacing: "-0.04em", lineHeight: 1.05 }}
@@ -415,7 +418,17 @@ export function AxisDiagram() {
               </g>
             ))}
 
-            {/* ── X axis ─────────────────────────────────────────────────── */}
+            {/* ── X axis: STATIC SKELETON (always visible, dim) ──────────
+                Renders even if GSAP ignition fails for any reason — first
+                paint, tab unfocus, observer race. The animated overlay below
+                paints a brighter ignited line on top. */}
+            <line
+              x1={ORIGIN_X} y1={ORIGIN_Y} x2="98" y2={ORIGIN_Y}
+              stroke="rgba(167,139,250,0.40)"
+              strokeWidth="0.45"
+              strokeLinecap="round"
+            />
+            {/* X axis: animated ignited overlay — bright */}
             <line
               className="x-axis-line"
               x1={ORIGIN_X} y1={ORIGIN_Y} x2="98" y2={ORIGIN_Y}
@@ -423,23 +436,45 @@ export function AxisDiagram() {
               strokeWidth="0.55"
               strokeLinecap="round"
             />
+            {/* X axis arrow — always visible, animated only brightens */}
+            <polygon
+              points="98,74.6 100.8,76 98,77.4"
+              fill="rgba(167,139,250,0.55)"
+            />
             <polygon
               className="x-axis-arrow"
               points="98,74.6 100.8,76 98,77.4"
-              fill="rgba(192,132,252,0.85)"
+              fill="rgba(192,132,252,0.95)"
             />
             <text
               x="98" y="79.6"
               textAnchor="end"
-              fontSize="2.2"
-              fill="rgba(192,132,252,0.85)"
+              fontSize="2.4"
+              fill="rgba(192,132,252,0.95)"
               className="x-axis-label"
-              style={{ fontFamily: "var(--font-jetbrains-mono), monospace", letterSpacing: "0.20em", fontWeight: 600 }}
+              style={{ fontFamily: "var(--font-jetbrains-mono), monospace", letterSpacing: "0.22em", fontWeight: 700 }}
+            >
+              {t("diagram.xaxis")}
+            </text>
+            {/* Static x-axis label fallback (always visible, dim) */}
+            <text
+              x="98" y="79.6"
+              textAnchor="end"
+              fontSize="2.4"
+              fill="rgba(167,139,250,0.45)"
+              style={{ fontFamily: "var(--font-jetbrains-mono), monospace", letterSpacing: "0.22em", fontWeight: 700 }}
             >
               {t("diagram.xaxis")}
             </text>
 
-            {/* ── Y axis ─────────────────────────────────────────────────── */}
+            {/* ── Y axis: STATIC SKELETON (always visible, dim) ─────────── */}
+            <line
+              x1={ORIGIN_X} y1={ORIGIN_Y} x2={ORIGIN_X} y2="2"
+              stroke="rgba(167,139,250,0.40)"
+              strokeWidth="0.45"
+              strokeLinecap="round"
+            />
+            {/* Y axis: animated ignited overlay */}
             <line
               className="y-axis-line"
               x1={ORIGIN_X} y1={ORIGIN_Y} x2={ORIGIN_X} y2="2"
@@ -448,17 +483,32 @@ export function AxisDiagram() {
               strokeLinecap="round"
             />
             <polygon
+              points="6.6,2 8,-0.8 9.4,2"
+              fill="rgba(167,139,250,0.55)"
+            />
+            <polygon
               className="y-axis-arrow"
               points="6.6,2 8,-0.8 9.4,2"
-              fill="rgba(192,132,252,0.85)"
+              fill="rgba(192,132,252,0.95)"
             />
             <text
               x={ORIGIN_X - 1.8} y="3"
               textAnchor="end"
-              fontSize="2.2"
-              fill="rgba(192,132,252,0.85)"
+              fontSize="2.4"
+              fill="rgba(192,132,252,0.95)"
               className="y-axis-label"
-              style={{ fontFamily: "var(--font-jetbrains-mono), monospace", letterSpacing: "0.20em", fontWeight: 600 }}
+              style={{ fontFamily: "var(--font-jetbrains-mono), monospace", letterSpacing: "0.22em", fontWeight: 700 }}
+              transform={`rotate(-90, ${ORIGIN_X - 1.8}, 3)`}
+            >
+              {t("diagram.yaxis")}
+            </text>
+            {/* Static y-axis label fallback */}
+            <text
+              x={ORIGIN_X - 1.8} y="3"
+              textAnchor="end"
+              fontSize="2.4"
+              fill="rgba(167,139,250,0.45)"
+              style={{ fontFamily: "var(--font-jetbrains-mono), monospace", letterSpacing: "0.22em", fontWeight: 700 }}
               transform={`rotate(-90, ${ORIGIN_X - 1.8}, 3)`}
             >
               {t("diagram.yaxis")}

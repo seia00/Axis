@@ -1,6 +1,11 @@
 import { prisma } from "@/lib/prisma";
+import { authOptions } from "@/lib/auth";
+import { hasActiveSubscription } from "@/lib/billing";
 import { ResourceCategory } from "@prisma/client";
-import { Download, FileText, DollarSign, Palette, Mail, Users, Package } from "lucide-react";
+import { getServerSession } from "next-auth";
+import Link from "next/link";
+import { redirect } from "next/navigation";
+import { Download, FileText, DollarSign, Palette, Mail, Users, Package, Lock } from "lucide-react";
 
 export const metadata = { title: "Resource Library" };
 
@@ -14,6 +19,15 @@ const categoryMeta: Record<ResourceCategory, { label: string; icon: typeof FileT
 };
 
 export default async function ResourceLibraryPage() {
+  const session = await getServerSession(authOptions);
+  if (!session) redirect("/auth/signin?callbackUrl=/network/resources");
+
+  const user = await prisma.user.findUnique({
+    where: { id: session.user.id },
+    select: { subscriptionStatus: true },
+  });
+  const canAccessResources = hasActiveSubscription(user?.subscriptionStatus);
+
   const resources = await prisma.resource.findMany({
     orderBy: { uploadedAt: "desc" },
   });
@@ -31,9 +45,26 @@ export default async function ResourceLibraryPage() {
       <div className="mb-6">
         <h1 className="text-2xl font-bold tracking-tight mb-1">Resource Library</h1>
         <p className="text-sm text-[var(--muted-foreground)]">
-          Free templates, toolkits, and playbooks for every AXIS member organization.
+          Premium templates, toolkits, and playbooks for AXIS member organizations.
         </p>
       </div>
+
+      {!canAccessResources && (
+        <div className="rounded-lg border border-cyan-500/20 bg-cyan-950/20 p-5 mb-8 flex items-start justify-between gap-4">
+          <div className="flex items-start gap-3">
+            <Lock className="w-5 h-5 text-cyan-400 mt-0.5 flex-shrink-0" />
+            <div>
+              <h2 className="font-semibold text-sm">Resource downloads require an active subscription</h2>
+              <p className="text-sm text-[var(--muted-foreground)] mt-1">
+                Subscribe from Settings to unlock downloads. Your access is checked on the server before every download.
+              </p>
+            </div>
+          </div>
+          <Link href="/settings" className="btn-primary text-sm whitespace-nowrap">
+            Upgrade / Subscribe
+          </Link>
+        </div>
+      )}
 
       <div className="space-y-8">
         {allCategories.map((category) => {
@@ -72,13 +103,20 @@ export default async function ResourceLibraryPage() {
                         <span className="text-xs text-[var(--muted-foreground)]">
                           {resource.downloadCount} downloads
                         </span>
-                        <a
-                          href={`/api/resources/${resource.id}/download`}
-                          className="flex items-center gap-1 text-xs text-indigo-400 hover:text-indigo-300 transition-colors"
-                        >
-                          <Download className="w-3 h-3" />
-                          Download
-                        </a>
+                        {canAccessResources ? (
+                          <a
+                            href={`/api/resources/${resource.id}/download`}
+                            className="flex items-center gap-1 text-xs text-indigo-400 hover:text-indigo-300 transition-colors"
+                          >
+                            <Download className="w-3 h-3" />
+                            Download
+                          </a>
+                        ) : (
+                          <span className="flex items-center gap-1 text-xs text-[var(--muted-foreground)]">
+                            <Lock className="w-3 h-3" />
+                            Locked
+                          </span>
+                        )}
                       </div>
                     </div>
                   ))}

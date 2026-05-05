@@ -111,6 +111,11 @@ model User {
   instagramHandle String?
   linkedinUrl     String?
   websiteUrl      String?
+  stripeCustomerId     String?   @unique
+  stripeSubscriptionId String?   @unique
+  subscriptionStatus   String    @default("inactive")
+  priceId              String?
+  currentPeriodEnd     DateTime?
 
   accounts           Account[]
   sessions           Session[]

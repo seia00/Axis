@@ -26,6 +26,7 @@ export async function GET() {
       select: {
         name: true, bio: true, headline: true, location: true, school: true, username: true,
         twitterHandle: true, instagramHandle: true, linkedinUrl: true, websiteUrl: true,
+        subscriptionStatus: true, priceId: true, currentPeriodEnd: true,
       },
     });
 

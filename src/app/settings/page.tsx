@@ -7,7 +7,7 @@ import { Footer } from "@/components/layout/footer";
 import { Button } from "@/components/ui/button";
 import {
   User, Shield, Bell, Palette, CheckCircle, Loader2,
-  Globe, AtSign,
+  Globe, AtSign, CreditCard,
 } from "lucide-react";
 import { XIcon, InstagramIcon, LinkedInIcon } from "@/components/ui/brand-icons";
 
@@ -35,6 +35,12 @@ export default function SettingsPage() {
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
   const [error, setError] = useState("");
+  const [billing, setBilling] = useState({
+    subscriptionStatus: "inactive",
+    priceId: null as string | null,
+    currentPeriodEnd: null as string | null,
+  });
+  const [billingLoading, setBillingLoading] = useState<"checkout" | "portal" | null>(null);
 
   useEffect(() => {
     if (status === "unauthenticated") router.push("/auth/signin?callbackUrl=/settings");
@@ -54,6 +60,11 @@ export default function SettingsPage() {
         instagramHandle: data.instagramHandle ?? "",
         linkedinUrl: data.linkedinUrl ?? "",
         websiteUrl: data.websiteUrl ?? "",
+      });
+      setBilling({
+        subscriptionStatus: data.subscriptionStatus ?? "inactive",
+        priceId: data.priceId ?? null,
+        currentPeriodEnd: data.currentPeriodEnd ?? null,
       });
     }
   }, []);
@@ -84,6 +95,21 @@ export default function SettingsPage() {
     }
   };
 
+  const openBilling = async (kind: "checkout" | "portal") => {
+    setBillingLoading(kind);
+    setError("");
+    try {
+      const res = await fetch(`/api/billing/${kind}`, { method: "POST" });
+      const data = await res.json();
+      if (!res.ok || !data.url) throw new Error(data.error ?? "Unable to open billing");
+      window.location.href = data.url;
+    } catch (e: unknown) {
+      setError(e instanceof Error ? e.message : "Unable to open billing");
+    } finally {
+      setBillingLoading(null);
+    }
+  };
+
   if (status === "loading") {
     return (
       <div className="min-h-screen">
@@ -96,6 +122,7 @@ export default function SettingsPage() {
 
   const set = (key: keyof ProfileForm) => (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) =>
     setForm(f => ({ ...f, [key]: e.target.value }));
+  const isPaid = billing.subscriptionStatus === "active" || billing.subscriptionStatus === "trialing";
 
   return (
     <div className="min-h-screen">
@@ -133,6 +160,42 @@ export default function SettingsPage() {
                 {(session?.user as { role?: string })?.role?.toLowerCase().replace("_", " ") ?? "—"}
               </div>
             </div>
+          </div>
+        </section>
+
+        {/* Billing */}
+        <section className="card p-6">
+          <div className="flex items-start justify-between gap-4">
+            <div className="flex items-start gap-3">
+              <div className="w-9 h-9 rounded-lg bg-cyan-600/10 border border-cyan-600/20 flex items-center justify-center">
+                <CreditCard className="w-4 h-4 text-cyan-400" />
+              </div>
+              <div>
+                <h2 className="font-semibold">Billing</h2>
+                <p className="text-sm text-[var(--muted-foreground)] mt-1">
+                  Status: <span className="capitalize text-[var(--foreground)]">{billing.subscriptionStatus.replace("_", " ")}</span>
+                  {billing.currentPeriodEnd && (
+                    <> · Renews {new Date(billing.currentPeriodEnd).toLocaleDateString()}</>
+                  )}
+                </p>
+              </div>
+            </div>
+            {isPaid ? (
+              <Button
+                variant="secondary"
+                onClick={() => openBilling("portal")}
+                loading={billingLoading === "portal"}
+              >
+                Manage subscription
+              </Button>
+            ) : (
+              <Button
+                onClick={() => openBilling("checkout")}
+                loading={billingLoading === "checkout"}
+              >
+                Upgrade / Subscribe
+              </Button>
+            )}
           </div>
         </section>
 

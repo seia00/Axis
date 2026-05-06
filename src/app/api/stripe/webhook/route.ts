@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import Stripe from "stripe";
 import { prisma } from "@/lib/prisma";
 import { safeError } from "@/lib/security";
-import { stripe } from "@/lib/stripe";
+import { getStripe } from "@/lib/stripe";
 
 export const runtime = "nodejs";
 
@@ -72,7 +72,7 @@ async function handleCheckoutCompleted(session: Stripe.Checkout.Session) {
     return;
   }
 
-  const subscription = await stripe.subscriptions.retrieve(subscriptionId);
+  const subscription = await getStripe().subscriptions.retrieve(subscriptionId);
   await updateUserSubscription({
     ...snapshotSubscription(subscription),
     customerId,
@@ -102,6 +102,9 @@ export async function POST(req: NextRequest) {
   if (!webhookSecret) {
     return NextResponse.json({ error: "Stripe webhook secret is not configured" }, { status: 500 });
   }
+  if (!process.env.STRIPE_SECRET_KEY) {
+    return NextResponse.json({ error: "Stripe secret key is not configured" }, { status: 500 });
+  }
 
   const signature = req.headers.get("stripe-signature");
   if (!signature) {
@@ -109,6 +112,7 @@ export async function POST(req: NextRequest) {
   }
 
   let event: Stripe.Event;
+  const stripe = getStripe();
   try {
     event = stripe.webhooks.constructEvent(await req.text(), signature, webhookSecret);
   } catch {

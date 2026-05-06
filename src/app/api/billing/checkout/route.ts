@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { rateLimit, requireSession, safeError } from "@/lib/security";
-import { getAppUrl, stripe } from "@/lib/stripe";
+import { getAppUrl, getStripe } from "@/lib/stripe";
 
 export const runtime = "nodejs";
 
@@ -17,6 +17,7 @@ export async function POST(req: NextRequest) {
     if (!process.env.STRIPE_SECRET_KEY || !priceId) {
       return NextResponse.json({ error: "Stripe billing is not configured" }, { status: 500 });
     }
+    const stripe = getStripe();
 
     const user = await prisma.user.findUnique({
       where: { id: session.user.id },

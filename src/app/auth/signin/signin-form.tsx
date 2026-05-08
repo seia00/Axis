@@ -4,13 +4,28 @@ import { signIn } from "next-auth/react";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { CheckCircle } from "lucide-react";
+import { CheckCircle, AlertCircle } from "lucide-react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 
+const AUTH_ERROR_MESSAGES: Record<string, string> = {
+  OAuthCallback:    "Google sign-in failed — check that the redirect URI is registered in Google Cloud Console.",
+  OAuthSignin:      "Could not start Google sign-in. Try again.",
+  OAuthAccountNotLinked: "This email is already registered with a different sign-in method.",
+  Configuration:    "Server configuration error. Contact support.",
+  AccessDenied:     "Your account has been suspended.",
+  Signin:           "Sign-in failed. Please try again.",
+  Default:          "An unexpected error occurred. Please try again.",
+};
+
 export function SignInForm() {
   const searchParams = useSearchParams();
-  const callbackUrl = searchParams.get("callbackUrl") ?? "/";
+  const callbackUrl = searchParams.get("callbackUrl") ?? "/dashboard";
+  const errorParam  = searchParams.get("error");
+  const authError   = errorParam
+    ? (AUTH_ERROR_MESSAGES[errorParam] ?? AUTH_ERROR_MESSAGES.Default)
+    : null;
+
   const [email, setEmail] = useState("");
   const [loadingEmail, setLoadingEmail] = useState(false);
   const [loadingGoogle, setLoadingGoogle] = useState(false);
@@ -54,6 +69,13 @@ export function SignInForm() {
               <p className="text-xs text-[var(--muted-foreground)] text-center mb-6">
                 Free for all students. Always.
               </p>
+
+              {authError && (
+                <div className="flex items-start gap-2 rounded-lg border border-red-500/30 bg-red-500/10 px-3 py-2.5 mb-4 text-sm text-red-300">
+                  <AlertCircle className="w-4 h-4 mt-0.5 shrink-0" />
+                  <span>{authError}</span>
+                </div>
+              )}
 
               <Button
                 variant="secondary"

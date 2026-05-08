@@ -50,7 +50,7 @@ const securityHeaders = [
   { key: "Referrer-Policy", value: "strict-origin-when-cross-origin" },
   // Disable browser features we don't use. If we ever add geolocation/camera
   // for some feature, expand the list.
-  { key: "Permissions-Policy", value: "camera=(), microphone=(), geolocation=(), interest-cohort=(), browsing-topics=()" },
+  { key: "Permissions-Policy", value: "camera=(), microphone=(), geolocation=()" },
   // Modern XSS protection — most browsers honor CSP instead, but this adds
   // belt-and-suspenders for older Edge/IE.
   { key: "X-XSS-Protection", value: "1; mode=block" },

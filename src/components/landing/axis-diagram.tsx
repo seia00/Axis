@@ -25,8 +25,11 @@
 import { useEffect, useRef, useState, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { gsap } from "gsap";
+import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { useLanguage } from "@/contexts/language-context";
 import { triggerWarp } from "@/components/animation/warp-transition";
+
+gsap.registerPlugin(ScrollTrigger);
 
 // ─── Product nodes ────────────────────────────────────────────────────────────
 
@@ -70,7 +73,6 @@ export function AxisDiagram() {
   const [interactive, setInteractive] = useState(false);
   const [hovered, setHovered] = useState<string | null>(null);
   const [flashing, setFlashing] = useState(false);
-  const ignitedRef = useRef(false);
 
   const PRODUCTS = NODES.map(node => ({
     ...node,
@@ -78,144 +80,16 @@ export function AxisDiagram() {
     description: t(`product.${node.id}.desc`),
   }));
 
-  // ── Master ignition timeline (faster: total ~1.7s instead of 2.6s) ──────
-  const ignite = useCallback(() => {
-    if (ignitedRef.current) return;
-    ignitedRef.current = true;
-
-    const tl = gsap.timeline();
-
-    // ── Phase 1: Meteor (T+0.15 → T+0.45) ──────────────────────────────
-    tl.to(".meteor-path", {
-      strokeDashoffset: 0,
-      duration: 0.30,
-      ease: "power2.in",
-      delay: 0.15,
-    });
-
-    // ── Phase 2: IMPACT — explosion + X-axis ignition (T+0.45) ──────────
-    tl.to(".impact-flash", {
-      opacity: 0.7,
-      duration: 0.06,
-      ease: "power2.out",
-    });
-    tl.to(".impact-flash", {
-      opacity: 0,
-      duration: 0.30,
-      ease: "power2.in",
-    });
-
-    tl.to(".impact-shard", {
-      attr: { r: 2.5 },
-      opacity: 0,
-      stagger: 0.004,
-      duration: 0.45,
-      ease: "power3.out",
-    }, "<");
-
-    // X-axis ignites left→right — stays bright
-    tl.to(".x-axis-line", {
-      strokeDashoffset: 0,
-      duration: 0.32,
-      ease: "power2.out",
-    }, "<+0.03");
-    tl.to(".x-axis-arrow, .x-axis-label", {
-      opacity: 1,
-      duration: 0.22,
-    }, "-=0.10");
-
-    // ── X-axis BEAM — horizontal plasma flare surges right after impact ──
-    // Mirrors the vertical solar flare on Y-axis. Width 0 → 90 (origin to arrow).
-    tl.to(".beam-x", {
-      attr: { width: 90 },
-      duration: 0.32,
-      ease: "power3.out",
-    }, "-=0.32");
-    tl.to(".beam-x", {
-      opacity: 0.42,
-      duration: 0.45,
-      ease: "power2.in",
-    }, "-=0.10");
-
-    // Horizontal beam streamers — three particles racing right
-    tl.fromTo(".beam-streamer",
-      { attr: { cx: ORIGIN_X + 1 }, opacity: 0.9 },
-      {
-        attr: { cx: 95 },
-        opacity: 0,
-        duration: 0.95,
-        stagger: 0.10,
-        ease: "power2.out",
-      },
-      "-=0.55");
-
-    // ── Phase 3: Solar flare + Y-axis (T+0.75) ──────────────────────────
-    tl.to(".flare-column", {
-      attr: { height: 72 },
-      duration: 0.30,
-      ease: "power3.out",
-    }, "+=0.03");
-    tl.to(".flare-column", {
-      opacity: 0.42,
-      duration: 0.35,
-      ease: "power2.in",
-    }, "+=0.08");
-
-    tl.to(".y-axis-line", {
-      strokeDashoffset: 0,
-      duration: 0.30,
-      ease: "power2.out",
-    }, "-=0.40");
-    tl.to(".y-axis-arrow, .y-axis-label", {
-      opacity: 1,
-      duration: 0.22,
-    }, "-=0.10");
-
-    tl.fromTo(".flare-streamer",
-      { attr: { cy: ORIGIN_Y - 1 }, opacity: 0.9 },
-      {
-        attr: { cy: 5 },
-        opacity: 0,
-        duration: 0.95,
-        stagger: 0.10,
-        ease: "power2.out",
-      },
-      "-=0.55");
-
-    // ── Phase 4: Constellation (T+1.05) ─────────────────────────────────
-    tl.to(".constellation-line", {
-      strokeDashoffset: 0,
-      opacity: 0.20,
-      duration: 0.35,
-      stagger: 0.04,
-      ease: "none",
-    }, "+=0.03");
-
-    // ── Phase 5: Nodes spawn (T+1.15) ───────────────────────────────────
-    NODES.forEach((_, i) => {
-      tl.to(`.node-group-${i}`, {
-        scale: 1,
-        opacity: 1,
-        duration: 0.32,
-        ease: "back.out(2.6)",
-      }, i === 0 ? "+=0" : "<+0.075");
-      tl.to(`.node-label-${i}`, {
-        opacity: 1,
-        y: 0,
-        duration: 0.25,
-        ease: "power2.out",
-      }, "<+0.06");
-    });
-
-    // ── Phase 6: Idle state (axes stay bright!) — unlock interactive ────
-    // Previous version faded axes to 0.10 — too faint per user feedback.
-    // Now keep them at full opacity (0.85 stroke-grad already controls visual weight).
-    tl.call(() => setInteractive(true), [], "+=0.05");
-  }, []);
-
-  // ── Set initial state + intersection observer ───────────────────────────
+  // ── Scroll-driven timeline ─────────────────────────────────────────────
+  // Section pins as user scrolls in. The timeline scrubs with scroll position
+  // (1:1 with `scrub: 1`), so the user controls the pace.
+  //
+  // KEY CHANGE FROM AUTOPLAY VERSION: X-axis line + Y-axis line + all
+  // constellation lines + X-beam + Y-flare all extend SIMULTANEOUSLY during
+  // the main 6-75% scroll segment. No more sequential ignition.
   useEffect(() => {
     const ctx = gsap.context(() => {
+      // Initial state — everything hidden / collapsed
       gsap.set(".meteor-path", { strokeDasharray: 200, strokeDashoffset: 200 });
       gsap.set(".impact-flash", { opacity: 0 });
       gsap.set(".impact-shard", { attr: { r: 0.3 }, opacity: 1 });
@@ -231,20 +105,153 @@ export function AxisDiagram() {
         gsap.set(`.node-group-${i}`, { scale: 0, opacity: 0, transformOrigin: "center center" });
         gsap.set(`.node-label-${i}`, { opacity: 0, y: 4 });
       });
+
+      // Master scroll-scrubbed timeline. End "+=1400" gives the user about
+      // 1.4× viewport height of scroll to play through the full sequence.
+      const tl = gsap.timeline({
+        scrollTrigger: {
+          trigger: sectionRef.current,
+          start: "top top",
+          end: "+=1400",
+          pin: true,
+          scrub: 1,
+          anticipatePin: 1,
+        },
+      });
+
+      // ── 0–6%: Meteor + IMPACT flash ─────────────────────────────────
+      tl.to(".meteor-path", {
+        strokeDashoffset: 0,
+        duration: 0.6,
+        ease: "power2.in",
+      }, 0);
+      tl.to(".impact-flash", {
+        opacity: 0.7,
+        duration: 0.08,
+        ease: "power2.out",
+      }, 0.6);
+      tl.to(".impact-flash", {
+        opacity: 0,
+        duration: 0.32,
+        ease: "power2.in",
+      }, 0.68);
+      tl.to(".impact-shard", {
+        attr: { r: 2.5 },
+        opacity: 0,
+        stagger: 0.004,
+        duration: 0.45,
+        ease: "power3.out",
+      }, 0.6);
+
+      // ── 6–75%: SIMULTANEOUS extension ─ all axes + lines + beams ─────
+      // All of these animate over the SAME timeline window so they extend
+      // together as the user scrolls. Position 0.6, duration spanning to
+      // ~7.5 timeline units (the visible scroll budget after the meteor).
+      const EXT_START = 0.7;
+      const EXT_DUR = 6.8;
+
+      // X-axis line
+      tl.to(".x-axis-line", {
+        strokeDashoffset: 0,
+        duration: EXT_DUR,
+        ease: "power2.out",
+      }, EXT_START);
+      tl.to(".x-axis-arrow, .x-axis-label", {
+        opacity: 1,
+        duration: EXT_DUR * 0.4,
+      }, EXT_START + EXT_DUR * 0.6);
+
+      // Y-axis line — runs in parallel
+      tl.to(".y-axis-line", {
+        strokeDashoffset: 0,
+        duration: EXT_DUR,
+        ease: "power2.out",
+      }, EXT_START);
+      tl.to(".y-axis-arrow, .y-axis-label", {
+        opacity: 1,
+        duration: EXT_DUR * 0.4,
+      }, EXT_START + EXT_DUR * 0.6);
+
+      // X-axis horizontal beam — extends right alongside the line
+      tl.to(".beam-x", {
+        attr: { width: 90 },
+        duration: EXT_DUR,
+        ease: "power3.out",
+      }, EXT_START);
+      tl.to(".beam-x", {
+        opacity: 0.42,
+        duration: EXT_DUR * 0.4,
+      }, EXT_START + EXT_DUR * 0.6);
+
+      // X-beam streamers race right
+      tl.fromTo(".beam-streamer",
+        { attr: { cx: ORIGIN_X + 1 }, opacity: 0.9 },
+        {
+          attr: { cx: 95 },
+          opacity: 0,
+          duration: EXT_DUR,
+          stagger: 0.20,
+          ease: "power2.out",
+        },
+        EXT_START);
+
+      // Y-axis solar flare column — extends up alongside the line
+      tl.to(".flare-column", {
+        attr: { height: 72 },
+        duration: EXT_DUR,
+        ease: "power3.out",
+      }, EXT_START);
+      tl.to(".flare-column", {
+        opacity: 0.42,
+        duration: EXT_DUR * 0.4,
+      }, EXT_START + EXT_DUR * 0.6);
+
+      // Y-flare streamers ascend
+      tl.fromTo(".flare-streamer",
+        { attr: { cy: ORIGIN_Y - 1 }, opacity: 0.9 },
+        {
+          attr: { cy: 5 },
+          opacity: 0,
+          duration: EXT_DUR,
+          stagger: 0.20,
+          ease: "power2.out",
+        },
+        EXT_START);
+
+      // Constellation function lines — all draw together with the axes
+      tl.to(".constellation-line", {
+        strokeDashoffset: 0,
+        opacity: 0.20,
+        duration: EXT_DUR,
+        ease: "none",
+        stagger: 0,  // strictly simultaneous — no stagger
+      }, EXT_START);
+
+      // ── 60–95%: nodes scale in (slight stagger, organic feel) ────────
+      const NODES_START = EXT_START + EXT_DUR * 0.5;
+      const NODES_DUR = 3.5;
+      NODES.forEach((_, i) => {
+        const t0 = NODES_START + (i / (NODES.length - 1)) * NODES_DUR;
+        tl.to(`.node-group-${i}`, {
+          scale: 1,
+          opacity: 1,
+          duration: 0.6,
+          ease: "back.out(2.4)",
+        }, t0);
+        tl.to(`.node-label-${i}`, {
+          opacity: 1,
+          y: 0,
+          duration: 0.4,
+          ease: "power2.out",
+        }, t0 + 0.15);
+      });
+
+      // ── End: unlock interactive once the user finishes scrolling through
+      tl.call(() => setInteractive(true), [], NODES_START + NODES_DUR);
     }, sectionRef);
 
-    // Trigger earlier (25% in view) so it ignites before user scrolls past
-    const observer = new IntersectionObserver(
-      (entries) => { if (entries[0]?.isIntersecting) ignite(); },
-      { threshold: 0.25 }
-    );
-    if (sectionRef.current) observer.observe(sectionRef.current);
-
-    return () => {
-      ctx.revert();
-      observer.disconnect();
-    };
-  }, [ignite]);
+    return () => ctx.revert();
+  }, []);
 
   // ── Hover supernova ─────────────────────────────────────────────────────
   const handleNodeHover = useCallback((nodeId: string, idx: number, isEnter: boolean) => {

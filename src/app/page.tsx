@@ -4,6 +4,9 @@ import { StatsSection } from "@/components/landing/stats-section";
 import { HeroSection } from "@/components/landing/hero-section";
 import { CTASection } from "@/components/landing/cta-section";
 import { prisma } from "@/lib/prisma";
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/lib/auth";
+import { redirect } from "next/navigation";
 
 async function getStats() {
   try {
@@ -19,6 +22,13 @@ async function getStats() {
 }
 
 export default async function LandingPage() {
+  // Authenticated users go straight to the dashboard. Anonymous users see the
+  // public landing experience (Spline hero, supernova diagram, stats, CTA).
+  // Server-side redirect happens before any HTML is sent so there's no flash
+  // of the landing page for logged-in users.
+  const session = await getServerSession(authOptions);
+  if (session) redirect("/dashboard");
+
   const stats = await getStats();
 
   return (

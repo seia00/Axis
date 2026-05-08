@@ -19,8 +19,13 @@ export function SplineHero({ className = "" }: SplineHeroProps) {
       style={{ pointerEvents: "none" }}
     >
       <Suspense fallback={null}>
+        {/* Self-hosted scene — copied from prod.spline.design/M2hWmqaN2chgfdUG/...
+            into public/spline/ for faster initial paint and one less external
+            origin to wait on. The Spline runtime itself still pulls its WASM
+            module + Roboto font from unpkg.com / fonts.gstatic.com, those
+            stay whitelisted in next.config.mjs CSP. */}
         <Spline
-          scene="https://prod.spline.design/M2hWmqaN2chgfdUG/scene.splinecode"
+          scene="/spline/scene.splinecode"
           style={{
             width: "100%",
             height: "100%",

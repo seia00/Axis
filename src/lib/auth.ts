@@ -46,11 +46,20 @@ export const authOptions: NextAuthOptions = {
       return session;
     },
     async signIn({ user }) {
-      const dbUser = await prisma.user.findUnique({
-        where: { email: user.email! },
-      });
-      if (dbUser?.banned) return false;
-      return true;
+      // Guard: Google occasionally omits email on first-time sign-in edge cases
+      if (!user.email) return false;
+      try {
+        const dbUser = await prisma.user.findUnique({
+          where: { email: user.email },
+          select: { banned: true },
+        });
+        if (dbUser?.banned) return false;
+        return true;
+      } catch (err) {
+        // DB unreachable — log and allow sign-in rather than blocking all auth
+        console.error("[NextAuth] signIn callback DB error:", err);
+        return true;
+      }
     },
   },
   events: {

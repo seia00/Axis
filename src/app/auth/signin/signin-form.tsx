@@ -73,7 +73,7 @@ export function SignInForm() {
               {authError && (
                 <div className="flex items-start gap-2 rounded-lg border border-red-500/30 bg-red-500/10 px-3 py-2.5 mb-4 text-sm text-red-300">
                   <AlertCircle className="w-4 h-4 mt-0.5 shrink-0" />
-                  <span>{authError}</span>
+                  <span>{authError}{errorParam ? ` [${errorParam}]` : ""}</span>
                 </div>
               )}
 

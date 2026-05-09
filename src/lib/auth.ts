@@ -1,32 +1,15 @@
 import { NextAuthOptions } from "next-auth";
-import { PrismaAdapter } from "@next-auth/prisma-adapter";
+import { PrismaAdapter } from "@auth/prisma-adapter";
 import GoogleProvider from "next-auth/providers/google";
 import EmailProvider from "next-auth/providers/email";
 import { prisma } from "./prisma";
 import { Role } from "@prisma/client";
 import type { Adapter } from "next-auth/adapters";
 
-// Wrap the adapter so every method logs the real error before NextAuth
-// converts it to the opaque "[Callback]" code.
-function loggingAdapter(adapter: Adapter): Adapter {
-  return new Proxy(adapter, {
-    get(target, prop) {
-      const method = (target as Record<string | symbol, unknown>)[prop];
-      if (typeof method !== "function") return method;
-      return async (...args: unknown[]) => {
-        try {
-          return await (method as (...a: unknown[]) => unknown).apply(target, args);
-        } catch (err) {
-          console.error(`[NextAuth adapter] ${String(prop)} threw:`, err);
-          throw err;
-        }
-      };
-    },
-  });
-}
-
 export const authOptions: NextAuthOptions = {
-  adapter: loggingAdapter(PrismaAdapter(prisma)),
+  // @auth/prisma-adapter v2 supports Prisma v7; @next-auth/prisma-adapter v1
+  // caps at <6.0.0 and breaks with the PrismaPg driver adapter in v7.
+  adapter: PrismaAdapter(prisma) as Adapter,
   // Explicitly pass secret so it's never undefined in production
   secret: process.env.NEXTAUTH_SECRET,
   debug: process.env.NODE_ENV === "development",

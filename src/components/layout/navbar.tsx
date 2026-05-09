@@ -87,6 +87,22 @@ export function Navbar() {
 
           {/* Right side */}
           <div className="flex items-center gap-2">
+            {/* Premium button — only shown to logged-in users */}
+            {session && (
+              <Link
+                href="/pricing"
+                className="hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all"
+                style={{
+                  background: "linear-gradient(135deg, rgba(139,92,246,0.25), rgba(109,40,217,0.15))",
+                  border: "1px solid rgba(139,92,246,0.4)",
+                  color: "rgba(192,132,252,1)",
+                }}
+              >
+                <Sparkles className="w-3 h-3" />
+                Premium
+              </Link>
+            )}
+
             {session ? (
               <div className="relative">
                 <button
@@ -140,6 +156,15 @@ export function Navbar() {
                           Admin Panel
                         </Link>
                       )}
+                      <Link
+                        href="/pricing"
+                        onClick={() => setUserMenuOpen(false)}
+                        className="flex items-center gap-2 px-3 py-2 text-sm transition-colors"
+                        style={{ color: "rgba(192,132,252,0.9)" }}
+                      >
+                        <Sparkles className="w-4 h-4" />
+                        Premium Plans
+                      </Link>
                       <Link
                         href="/settings"
                         onClick={() => setUserMenuOpen(false)}

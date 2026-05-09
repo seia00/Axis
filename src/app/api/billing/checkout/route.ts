@@ -13,7 +13,25 @@ export async function POST(req: NextRequest) {
     const limited = rateLimit(req, "billing-checkout", 5, 60_000, session.user.id);
     if (limited) return limited;
 
-    const priceId = process.env.STRIPE_PRICE_ID;
+    // Accept a specific priceId from the request body, validated against
+    // the known set of allowed price IDs configured in env vars.
+    const body = await req.json().catch(() => ({}));
+    const requestedPriceId = body?.priceId as string | undefined;
+
+    const ALLOWED_PRICE_IDS = [
+      process.env.STRIPE_PRICE_ID,
+      process.env.NEXT_PUBLIC_STRIPE_BASIC_PRICE_ID,
+      process.env.NEXT_PUBLIC_STRIPE_ENTHUSIAST_PRICE_ID,
+      process.env.NEXT_PUBLIC_STRIPE_MAX_PRICE_ID,
+      process.env.NEXT_PUBLIC_STRIPE_ACCEL_BASIC_PRICE_ID,
+      process.env.NEXT_PUBLIC_STRIPE_ACCEL_ENT_PRICE_ID,
+      process.env.NEXT_PUBLIC_STRIPE_ACCEL_MAX_PRICE_ID,
+    ].filter(Boolean) as string[];
+
+    const priceId = requestedPriceId && ALLOWED_PRICE_IDS.includes(requestedPriceId)
+      ? requestedPriceId
+      : process.env.STRIPE_PRICE_ID;   // fall back to default
+
     if (!process.env.STRIPE_SECRET_KEY || !priceId) {
       return NextResponse.json({ error: "Stripe billing is not configured" }, { status: 500 });
     }

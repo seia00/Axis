@@ -6,13 +6,30 @@ import { prisma } from "./prisma";
 import { Role } from "@prisma/client";
 import type { Adapter } from "next-auth/adapters";
 
+// Proxy every adapter method so the real exception is printed to Vercel
+// function logs before NextAuth converts it to the opaque [Callback] code.
+function withLogging(adapter: Adapter): Adapter {
+  return new Proxy(adapter, {
+    get(target, prop) {
+      const val = (target as Record<string | symbol, unknown>)[prop];
+      if (typeof val !== "function") return val;
+      return async (...args: unknown[]) => {
+        try {
+          return await (val as (...a: unknown[]) => unknown).apply(target, args);
+        } catch (err) {
+          console.error(`[AUTH ADAPTER ERROR] ${String(prop)}:`, err);
+          throw err;
+        }
+      };
+    },
+  });
+}
+
 export const authOptions: NextAuthOptions = {
-  // @auth/prisma-adapter v2 supports Prisma v7; @next-auth/prisma-adapter v1
-  // caps at <6.0.0 and breaks with the PrismaPg driver adapter in v7.
-  adapter: PrismaAdapter(prisma) as Adapter,
-  // Explicitly pass secret so it's never undefined in production
+  adapter: withLogging(PrismaAdapter(prisma) as Adapter),
   secret: process.env.NEXTAUTH_SECRET,
-  debug: process.env.NODE_ENV === "development",
+  // Enable debug logs in production temporarily to surface the Callback error
+  debug: true,
   providers: [
     GoogleProvider({
       clientId: process.env.GOOGLE_CLIENT_ID!,

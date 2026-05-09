@@ -1,25 +1,24 @@
 "use client";
 
 /**
- * Supernova Axis Diagram
+ * Supernova Axis Diagram — scroll-driven via GSAP ScrollTrigger
  *
- * Cinematic ignition that fires once on view (autoplay):
- *   T+0.15s  Meteor enters from top-right, streaks toward origin
- *   T+0.45s  IMPACT — explosion at origin, X-axis ignites left→right
- *   T+0.75s  Solar flare surges up Y-axis, line ignites bottom→top
- *   T+1.05s  Constellation lines draw between connected nodes
- *   T+1.15s  Nodes spawn one-by-one with bespoke typography
- *   T+1.7s   Interactive mode unlocked
+ * The section pins to the top of the viewport while the user scrolls through
+ * ~1400px of scroll distance. Every element is driven 1:1 by scroll position
+ * (scrub: 0.4) so the user is always in control.
  *
- * Hover/tap a node: scale → 1.8 supernova, 6 sparks shoot to X/Y axes
- * highlighting the node's coordinates, anchored description card materializes.
+ * Scroll sequence:
+ *   0–6%    Meteor enters from top-right → IMPACT flash at origin
+ *   6–75%   X-axis + Y-axis + all constellation lines extend SIMULTANEOUSLY
+ *   60–95%  Nodes scale in with slight stagger
+ *   95–100% Interactive mode unlocks (hover / click / warp)
  *
- * Click Launch: viewport flashes white-violet, route changes via warp.
+ * Hover a node: supernova scale, 6 sparks race to axes, coordinate ticks appear
+ * Click Launch: viewport flashes white-violet, warp transition fires
  *
- * NOTE: labels use SVG <text> (not foreignObject) so they scale proportionally
- * with the viewBox — a foreignObject's HTML content gets multiplied by the
- * SVG viewBox-to-pixel ratio, which makes rem-sized text look enormous on
- * wide screens.
+ * NOTE: labels use SVG <text> (not foreignObject) so they scale with the
+ * viewBox. foreignObject HTML gets multiplied by the viewBox→pixel ratio,
+ * making rem-sized text enormous on wide screens.
  */
 
 import { useEffect, useRef, useState, useCallback } from "react";
@@ -88,6 +87,8 @@ export function AxisDiagram() {
   // constellation lines + X-beam + Y-flare all extend SIMULTANEOUSLY during
   // the main 6-75% scroll segment. No more sequential ignition.
   useEffect(() => {
+    if (!sectionRef.current) return;
+
     const ctx = gsap.context(() => {
       // Initial state — everything hidden / collapsed
       gsap.set(".meteor-path", { strokeDasharray: 200, strokeDashoffset: 200 });
@@ -112,9 +113,9 @@ export function AxisDiagram() {
         scrollTrigger: {
           trigger: sectionRef.current,
           start: "top top",
-          end: "+=1400",
+          end: "+=1800",      // more scroll distance = slower / more controlled feel
           pin: true,
-          scrub: 1,
+          scrub: 0.4,         // tight scrub — animation tracks scroll almost 1:1
           anticipatePin: 1,
         },
       });

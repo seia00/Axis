@@ -6,7 +6,8 @@ import Link from "next/link";
 import {
   Check, Zap, Star, Crown, Rocket,
   Users, Target, BarChart3, MessageCircle,
-  FileText, Sparkles, Shield, ArrowRight,
+  FileText,
+  Sparkles, Shield, ArrowRight,
 } from "lucide-react";
 
 // ─── Tier definitions ──────────────────────────────────────────────────────────
@@ -38,20 +39,14 @@ const TIERS = [
     id: "basic",
     name: "Basic",
     icon: Zap,
-    monthlyJpy: 480,
-    annualJpy: 3_840,
-    description: "For founders building their network.",
+    monthlyJpy: 399,
+    description: "For members who want unlimited AI matching.",
     priceId: process.env.NEXT_PUBLIC_STRIPE_BASIC_PRICE_ID ?? null,
     badge: null,
     highlighted: false,
     features: [
-      "Everything in Free",
       "Unlimited AI match recommendations",
-      "Save & track opportunities",
-      "Full portfolio builder",
-      "Join organizations & events",
-      "Verified member badge",
-      "Calendar integrations",
+      "Basic verification",
     ],
     cta: "Start Basic",
   },
@@ -59,20 +54,18 @@ const TIERS = [
     id: "enthusiast",
     name: "Enthusiast",
     icon: Star,
-    monthlyJpy: 1_480,
-    annualJpy: 11_840,
-    description: "For founders building something real.",
+    monthlyJpy: 1_000,
+    description: "For members who want profile and messaging perks.",
     priceId: process.env.NEXT_PUBLIC_STRIPE_ENTHUSIAST_PRICE_ID ?? null,
     badge: "Most Popular",
     highlighted: true,
     features: [
-      "Everything in Basic",
-      "Unlimited Launchpad postings",
-      "Co-founder AI matching",
-      "Advanced network filters",
-      "Priority listing in directory",
-      "Portfolio PDF & Common App export",
-      "Application status tracker",
+      "Unlimited AI match recommendations",
+      "Verification",
+      "Profile optimizer",
+      "Exclusive seminars",
+      "Enthusiast verification",
+      "Direct messaging to other users",
     ],
     cta: "Start Enthusiast",
   },
@@ -80,20 +73,20 @@ const TIERS = [
     id: "max",
     name: "Max",
     icon: Crown,
-    monthlyJpy: 2_980,
-    annualJpy: 23_840,
-    description: "For the most ambitious founders.",
+    monthlyJpy: 5_000,
+    description: "For members who want full ecosystem access.",
     priceId: process.env.NEXT_PUBLIC_STRIPE_MAX_PRICE_ID ?? null,
     badge: "Full Access",
     highlighted: false,
     features: [
-      "Everything in Enthusiast",
-      "AXIS Ventures application access",
-      "Direct mentor messaging",
-      "Growth analytics dashboard",
-      "Early access to new features",
-      "Priority support",
-      "Exclusive Max community",
+      "Unlimited AI match recommendations",
+      "Verification",
+      "Profile optimizer",
+      "Exclusive seminars",
+      "Enthusiast verification",
+      "Direct messaging to other users",
+      "Exclusive networking events with food and drinks included",
+      "Exclusive opportunities within the AXIS ecosystem",
     ],
     cta: "Start Max",
   },
@@ -146,7 +139,6 @@ interface Props {
 
 export function PricingContent({ isSignedIn, currentPriceId, subscriptionStatus }: Props) {
   const router = useRouter();
-  const [annual, setAnnual] = useState(false);
   const [loading, setLoading] = useState<string | null>(null);
 
   const isActive = subscriptionStatus === "active" || subscriptionStatus === "trialing";
@@ -201,29 +193,6 @@ export function PricingContent({ isSignedIn, currentPriceId, subscriptionStatus 
           Every tier is built for student founders — from your first org to your first funding round.
         </p>
 
-        {/* Billing toggle */}
-        <div className="flex items-center justify-center gap-3 mt-8">
-          <span className="text-sm" style={{ color: annual ? "var(--text-secondary)" : "white" }}>Monthly</span>
-          <button
-            onClick={() => setAnnual(!annual)}
-            className="relative w-12 h-6 rounded-full transition-colors"
-            style={{ background: annual ? "rgba(139,92,246,0.8)" : "rgba(255,255,255,0.15)" }}
-          >
-            <span
-              className="absolute top-1 left-1 w-4 h-4 rounded-full bg-white transition-transform"
-              style={{ transform: annual ? "translateX(24px)" : "translateX(0)" }}
-            />
-          </button>
-          <span className="text-sm" style={{ color: annual ? "white" : "var(--text-secondary)" }}>
-            Annual
-            <span
-              className="ml-1.5 text-xs px-1.5 py-0.5 rounded-full"
-              style={{ background: "rgba(139,92,246,0.2)", color: "rgba(192,132,252,1)" }}
-            >
-              Save 20%
-            </span>
-          </span>
-        </div>
       </div>
 
       {/* ── Main tier cards ───────────────────────────────────────────────── */}
@@ -231,7 +200,7 @@ export function PricingContent({ isSignedIn, currentPriceId, subscriptionStatus 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
           {TIERS.map((tier) => {
             const Icon = tier.icon;
-            const price = annual ? tier.annualJpy : tier.monthlyJpy;
+            const price = tier.monthlyJpy;
             const isCurrent = isActive && currentPriceId === tier.priceId;
             const isFree = tier.id === "free";
 
@@ -290,15 +259,10 @@ export function PricingContent({ isSignedIn, currentPriceId, subscriptionStatus 
                       <span className="text-3xl font-bold text-white">{formatJpy(price)}</span>
                       {price > 0 && (
                         <span className="text-sm" style={{ color: "var(--text-secondary)" }}>
-                          /{annual ? "year" : "mo"}
+                          /mo
                         </span>
                       )}
                     </div>
-                    {annual && price > 0 && (
-                      <p className="text-xs mt-0.5" style={{ color: "var(--text-secondary)" }}>
-                        {formatJpy(Math.round(price / 12))}/mo billed annually
-                      </p>
-                    )}
                   </div>
 
                   {/* Features */}
@@ -435,7 +399,7 @@ export function PricingContent({ isSignedIn, currentPriceId, subscriptionStatus 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             {ACCELERATOR_TIERS.map((tier) => {
               const Icon = tier.icon;
-              const price = annual ? tier.annualJpy : tier.monthlyJpy;
+              const price = tier.monthlyJpy;
               const isCurrent = isActive && currentPriceId === tier.priceId;
 
               return (
@@ -458,7 +422,7 @@ export function PricingContent({ isSignedIn, currentPriceId, subscriptionStatus 
 
                   <div className="flex items-baseline gap-1 mb-4">
                     <span className="text-2xl font-bold text-white">{formatJpy(price)}</span>
-                    <span className="text-xs" style={{ color: "var(--text-secondary)" }}>/{annual ? "yr" : "mo"}</span>
+                    <span className="text-xs" style={{ color: "var(--text-secondary)" }}>/mo</span>
                   </div>
 
                   <ul className="space-y-2 mb-6">

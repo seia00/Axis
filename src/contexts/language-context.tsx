@@ -172,10 +172,10 @@ export const translations: Record<Lang, Record<string, string>> = {
 
   ja: {
     // ── Hero ──────────────────────────────────────────────────────────────────
-    "hero.badge":          "日本全国で展開中 — 50を超える団体が参加",
+    "hero.badge":          "日本全国展開中。50以上の団体が参加",
     "hero.headline":       "野心が、チャンスと出会う場所。",
-    "hero.subtext":        "日本の学生起業家のためのプラットフォーム — 機会を見つけ、仲間と組み、自分のベンチャーを立ち上げる。",
-    "hero.subtext.free":   "LinkedInも、Instagramも、Y Combinatorも — すべてがひとつに。",
+    "hero.subtext":        "日本の学生起業家のためのプラットフォーム。機会を見つけ、仲間と組み、自分のベンチャーを立ち上げる。",
+    "hero.subtext.free":   "LinkedInも、Instagramも、Y Combinatorも。すべてがひとつに。",
     "hero.cta.primary":    "無料ではじめる",
     "hero.cta.secondary":  "プラットフォームを探索する",
     "hero.scroll":         "スクロール",
@@ -243,15 +243,15 @@ export const translations: Record<Lang, Record<string, string>> = {
     "product.network.desc":
       "学生起業家とつながり、団体に参加し、共同創業者となる関係を築こう。",
     "product.opportunities.desc":
-      "コンテスト・フェローシップ・奨学金・プログラム — 学生起業家向けに厳選・検証済み。",
+      "コンテスト・フェローシップ・奨学金・プログラム。学生起業家向けに厳選・検証済み。",
     "product.launchpad.desc":
       "プロジェクトを投稿し、役割を定め、優秀な共同創業者をリクルートしよう。",
     "product.ventures.desc":
-      "AXIS Ventures — 志の高い学生起業家のためのユースインキュベーター。メンタリング・リソース・コミュニティ。",
+      "志の高い学生起業家のためのユースインキュベーター。メンタリング・リソース・コミュニティを提供。",
     "product.match.desc":
       "AIがパーソナライズされた機会マッチ・共同創業者候補・プログラム推薦を提案。",
     "product.portfolio.desc":
-      "起業家としての物語を構築 — 活動タイムライン・インパクト指標・レーダーチャート・エクスポート。",
+      "起業家としての物語を構築。活動タイムライン・インパクト指標・レーダーチャート・エクスポートまで。",
 
     // ── Product features — Directory ──────────────────────────────────────────
     "product.directory.f1": "日本全国50以上の認定団体",
@@ -263,7 +263,7 @@ export const translations: Record<Lang, Record<string, string>> = {
     "product.opportunities.f1": "コンテスト・フェローシップ・奨学金",
     "product.opportunities.f2": "AIによるカレンダー期限リマインダー",
     "product.opportunities.f3": "応募状況の保存と管理",
-    "product.opportunities.f4": "厳選済み — ダイヤモンドチャレンジからMITローンチまで",
+    "product.opportunities.f4": "厳選済み。ダイヤモンドチャレンジからMITローンチまで",
 
     // ── Product features — Launch Pad ─────────────────────────────────────────
     "product.launchpad.f1": "プロジェクト投稿とチームメンバー募集",

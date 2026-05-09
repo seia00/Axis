@@ -309,11 +309,11 @@ export function AxisDiagram() {
   };
 
   return (
-    <section
-      id="axis-diagram"
-      ref={sectionRef}
-      className="relative z-10 w-full overflow-hidden"
-    >
+    <>
+      {/* ── Gap OUTSIDE the pin — separates hero from the pinned section.
+          This space scrolls normally and is never locked by ScrollTrigger. */}
+      <div className="h-[28vh] min-h-[160px]" aria-hidden="true" />
+
       {/* Full-screen flash overlay (white→violet) for route launch */}
       {flashing && (
         <div
@@ -325,11 +325,22 @@ export function AxisDiagram() {
         />
       )}
 
-      {/* ── Tension gap ─ empty space between hero and heading for breathing room */}
-      <div className="h-[34vh] sm:h-[42vh] min-h-[240px] max-h-[480px]" aria-hidden="true" />
+      {/* ── Pinned section — exactly 100vh tall so when ScrollTrigger locks it
+          the graph is centered in the viewport from the very first frame. */}
+      <section
+        id="axis-diagram"
+        ref={sectionRef}
+        className="relative z-10 w-full"
+        style={{ height: "100vh" }}
+      >
+        {/* Inner flex column — centers heading + diagram vertically */}
+        <div
+          className="w-full h-full flex flex-col items-center justify-center px-4"
+          style={{ gap: "0.75rem" }}
+        >
 
-      {/* ── Heading row ────────────────────────────────────────────────── */}
-      <div className="relative pb-4 px-4 text-center">
+      {/* ── Heading ────────────────────────────────────────────────────── */}
+      <div className="flex-shrink-0 text-center">
         <h2
           className="text-4xl sm:text-5xl lg:text-6xl font-bold text-white"
           style={{ letterSpacing: "-0.04em", lineHeight: 1.05 }}
@@ -338,20 +349,22 @@ export function AxisDiagram() {
           <span className="gradient-text">{t("diagram.heading.accent")}</span>
         </h2>
         <p
-          className="mt-3 text-sm sm:text-base mx-auto max-w-xl"
+          className="mt-2 text-sm sm:text-base mx-auto max-w-xl"
           style={{ color: "var(--text-secondary)" }}
         >
           {t("diagram.subtext")}
         </p>
       </div>
 
-      {/* ── Diagram container — centered, balanced sizing ──────────────── */}
-      <div className="relative w-full flex items-center justify-center px-4 pb-16">
+      {/* ── Diagram — fills the remaining height, never overflows viewport */}
+      <div className="relative flex-1 w-full flex items-center justify-center min-h-0">
         <div
-          className="relative w-full mx-auto"
+          className="relative w-full"
           style={{
-            maxWidth: "min(900px, 92vw)",
-            aspectRatio: "1 / 0.7",
+            maxWidth: "min(860px, 92vw)",
+            /* Keep the SVG within the flex container's remaining height */
+            maxHeight: "calc(100vh - 180px)",
+            aspectRatio: "100 / 80",
           }}
         >
           <svg
@@ -843,9 +856,9 @@ export function AxisDiagram() {
           );
         })()}
 
-        {/* Hint */}
+        {/* Scroll / click hint — sits at the bottom of the diagram area */}
         <div
-          className="absolute bottom-4 left-1/2 -translate-x-1/2 text-[10px] uppercase pointer-events-none"
+          className="absolute bottom-2 left-1/2 -translate-x-1/2 text-[10px] uppercase pointer-events-none"
           style={{
             color: interactive ? "rgba(167,139,250,0.55)" : "rgba(255,255,255,0.25)",
             letterSpacing: "0.24em",
@@ -855,7 +868,9 @@ export function AxisDiagram() {
         >
           {interactive ? t("diagram.click") : t("diagram.scroll")}
         </div>
-      </div>
+      </div>   {/* end diagram flex wrapper */}
+        </div> {/* end inner flex column */}
+      </section>
 
       <style jsx>{`
         @keyframes axisFlashIn {
@@ -863,6 +878,6 @@ export function AxisDiagram() {
           to { opacity: 1; }
         }
       `}</style>
-    </section>
+    </>
   );
 }

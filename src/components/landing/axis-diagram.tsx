@@ -101,154 +101,122 @@ export function AxisDiagram() {
       gsap.set(".x-axis-line", { strokeDasharray: 100, strokeDashoffset: 100, opacity: 1 });
       gsap.set(".y-axis-line", { strokeDasharray: 100, strokeDashoffset: 100, opacity: 1 });
       gsap.set(".x-axis-arrow, .y-axis-arrow, .x-axis-label, .y-axis-label", { opacity: 0 });
-      gsap.set(".constellation-line", { strokeDasharray: 100, strokeDashoffset: 100, opacity: 0 });
+      // Set each constellation line's dasharray to its actual SVG length so the
+      // draw-on-scroll effect spans the full animation duration (not just a pop).
+      CONNECTIONS.forEach(([from, to], i) => {
+        const len = Math.hypot(NODES[to].cx - NODES[from].cx, NODES[to].cy - NODES[from].cy);
+        gsap.set(`.constellation-line-${i}`, { strokeDasharray: len, strokeDashoffset: len, opacity: 0 });
+      });
       NODES.forEach((_, i) => {
         gsap.set(`.node-group-${i}`, { scale: 0, opacity: 0, transformOrigin: "center center" });
         gsap.set(`.node-label-${i}`, { opacity: 0, y: 4 });
       });
 
-      // Master scroll-scrubbed timeline. End "+=1400" gives the user about
-      // 1.4× viewport height of scroll to play through the full sequence.
+      // ── Master scroll-scrubbed timeline ────────────────────────────────
+      // Section pins while user scrolls 2200px. Everything is sequential:
+      //   Phase 1 (0–8%)    : Meteor streaks in + IMPACT at origin
+      //   Phase 2 (8–38%)   : X-axis draws left → right
+      //   Phase 3 (38–65%)  : Y-axis draws bottom → top
+      //   Phase 4 (65–100%) : Nodes pop in one-by-one, each connecting line
+      //                       draws immediately after its two nodes appear
       const tl = gsap.timeline({
         scrollTrigger: {
           trigger: sectionRef.current,
           start: "top top",
-          end: "+=1800",      // more scroll distance = slower / more controlled feel
+          end: "+=2200",
           pin: true,
-          scrub: 0.4,         // tight scrub — animation tracks scroll almost 1:1
+          scrub: 0.4,
           anticipatePin: 1,
         },
       });
 
-      // ── 0–6%: Meteor + IMPACT flash ─────────────────────────────────
+      // ── Phase 1: Meteor + IMPACT (0 → 0.8) ─────────────────────────
       tl.to(".meteor-path", {
         strokeDashoffset: 0,
         duration: 0.6,
         ease: "power2.in",
       }, 0);
-      tl.to(".impact-flash", {
-        opacity: 0.7,
-        duration: 0.08,
-        ease: "power2.out",
-      }, 0.6);
-      tl.to(".impact-flash", {
-        opacity: 0,
-        duration: 0.32,
-        ease: "power2.in",
-      }, 0.68);
+      tl.to(".impact-flash", { opacity: 0.7, duration: 0.08 }, 0.6);
+      tl.to(".impact-flash", { opacity: 0,   duration: 0.32, ease: "power2.in" }, 0.68);
       tl.to(".impact-shard", {
-        attr: { r: 2.5 },
-        opacity: 0,
-        stagger: 0.004,
-        duration: 0.45,
-        ease: "power3.out",
+        attr: { r: 2.5 }, opacity: 0,
+        stagger: 0.004, duration: 0.45, ease: "power3.out",
       }, 0.6);
 
-      // ── 6–75%: SIMULTANEOUS extension ─ all axes + lines + beams ─────
-      // All of these animate over the SAME timeline window so they extend
-      // together as the user scrolls. Position 0.6, duration spanning to
-      // ~7.5 timeline units (the visible scroll budget after the meteor).
-      const EXT_START = 0.7;
-      const EXT_DUR = 6.8;
+      // ── Phase 2: X-axis draws (0.8 → 3.8) ─────────────────────────
+      const X_START = 0.8;
+      const X_DUR   = 3.0;
 
-      // X-axis line
       tl.to(".x-axis-line", {
-        strokeDashoffset: 0,
-        duration: EXT_DUR,
-        ease: "power2.out",
-      }, EXT_START);
-      tl.to(".x-axis-arrow, .x-axis-label", {
-        opacity: 1,
-        duration: EXT_DUR * 0.4,
-      }, EXT_START + EXT_DUR * 0.6);
-
-      // Y-axis line — runs in parallel
-      tl.to(".y-axis-line", {
-        strokeDashoffset: 0,
-        duration: EXT_DUR,
-        ease: "power2.out",
-      }, EXT_START);
-      tl.to(".y-axis-arrow, .y-axis-label", {
-        opacity: 1,
-        duration: EXT_DUR * 0.4,
-      }, EXT_START + EXT_DUR * 0.6);
-
-      // X-axis horizontal beam — extends right alongside the line
+        strokeDashoffset: 0, duration: X_DUR, ease: "none",
+      }, X_START);
+      // Beam races ahead of the line tip like a pulse
       tl.to(".beam-x", {
-        attr: { width: 90 },
-        duration: EXT_DUR,
-        ease: "power3.out",
-      }, EXT_START);
-      tl.to(".beam-x", {
-        opacity: 0.42,
-        duration: EXT_DUR * 0.4,
-      }, EXT_START + EXT_DUR * 0.6);
-
-      // X-beam streamers race right
+        attr: { width: 90 }, duration: X_DUR, ease: "none",
+      }, X_START);
+      tl.to(".beam-x", { opacity: 0.35, duration: X_DUR * 0.5 }, X_START + X_DUR * 0.5);
       tl.fromTo(".beam-streamer",
         { attr: { cx: ORIGIN_X + 1 }, opacity: 0.9 },
-        {
-          attr: { cx: 95 },
-          opacity: 0,
-          duration: EXT_DUR,
-          stagger: 0.20,
-          ease: "power2.out",
-        },
-        EXT_START);
+        { attr: { cx: 95 }, opacity: 0, duration: X_DUR, stagger: 0.18, ease: "power2.out" },
+        X_START);
+      // Arrow + label appear at the very end of the X draw
+      tl.to(".x-axis-arrow, .x-axis-label", { opacity: 1, duration: 0.4 }, X_START + X_DUR - 0.3);
 
-      // Y-axis solar flare column — extends up alongside the line
-      tl.to(".flare-column", {
-        attr: { height: 72 },
-        duration: EXT_DUR,
-        ease: "power3.out",
-      }, EXT_START);
-      tl.to(".flare-column", {
-        opacity: 0.42,
-        duration: EXT_DUR * 0.4,
-      }, EXT_START + EXT_DUR * 0.6);
+      // ── Phase 3: Y-axis draws (3.8 → 6.5) ─────────────────────────
+      const Y_START = X_START + X_DUR + 0.0;
+      const Y_DUR   = 2.7;
 
-      // Y-flare streamers ascend
+      tl.to(".y-axis-line", {
+        strokeDashoffset: 0, duration: Y_DUR, ease: "none",
+      }, Y_START);
+      tl.to(".flare-column", {
+        attr: { height: 72 }, duration: Y_DUR, ease: "none",
+      }, Y_START);
+      tl.to(".flare-column", { opacity: 0.35, duration: Y_DUR * 0.5 }, Y_START + Y_DUR * 0.5);
       tl.fromTo(".flare-streamer",
         { attr: { cy: ORIGIN_Y - 1 }, opacity: 0.9 },
-        {
-          attr: { cy: 5 },
-          opacity: 0,
-          duration: EXT_DUR,
-          stagger: 0.20,
-          ease: "power2.out",
-        },
-        EXT_START);
+        { attr: { cy: 5 }, opacity: 0, duration: Y_DUR, stagger: 0.18, ease: "power2.out" },
+        Y_START);
+      tl.to(".y-axis-arrow, .y-axis-label", { opacity: 1, duration: 0.4 }, Y_START + Y_DUR - 0.3);
 
-      // Constellation function lines — all draw together with the axes
-      tl.to(".constellation-line", {
-        strokeDashoffset: 0,
-        opacity: 0.20,
-        duration: EXT_DUR,
-        ease: "none",
-        stagger: 0,  // strictly simultaneous — no stagger
-      }, EXT_START);
+      // ── Phase 4: nodes one-by-one + connecting lines (6.5 → 10) ───
+      // Each node gets an equal slice of the remaining scroll budget.
+      // The constellation line between node[i] and node[i+1] draws
+      // right after node[i+1] appears.
+      const N_START    = Y_START + Y_DUR + 0.2;
+      const N_BUDGET   = 3.8;
+      const SLOT       = N_BUDGET / NODES.length;   // time per node
 
-      // ── 60–95%: nodes scale in (slight stagger, organic feel) ────────
-      const NODES_START = EXT_START + EXT_DUR * 0.5;
-      const NODES_DUR = 3.5;
       NODES.forEach((_, i) => {
-        const t0 = NODES_START + (i / (NODES.length - 1)) * NODES_DUR;
+        const t0 = N_START + i * SLOT;
+
+        // Node pops in
         tl.to(`.node-group-${i}`, {
-          scale: 1,
-          opacity: 1,
-          duration: 0.6,
-          ease: "back.out(2.4)",
+          scale: 1, opacity: 1,
+          duration: SLOT * 0.55,
+          ease: "back.out(2.2)",
         }, t0);
         tl.to(`.node-label-${i}`, {
-          opacity: 1,
-          y: 0,
-          duration: 0.4,
+          opacity: 1, y: 0,
+          duration: SLOT * 0.4,
           ease: "power2.out",
-        }, t0 + 0.15);
+        }, t0 + SLOT * 0.15);
+
+        // Draw every connection whose SECOND endpoint is node i.
+        // The line is ready once both its endpoints are visible.
+        CONNECTIONS.forEach(([, to], lineIdx) => {
+          if (to !== i) return;
+          tl.to(`.constellation-line-${lineIdx}`, {
+            strokeDashoffset: 0,
+            opacity: 0.22,
+            duration: SLOT * 0.65,
+            ease: "power1.out",
+          }, t0 + SLOT * 0.25);
+        });
       });
 
-      // ── End: unlock interactive once the user finishes scrolling through
-      tl.call(() => setInteractive(true), [], NODES_START + NODES_DUR);
+      // Unlock interactivity after last node
+      tl.call(() => setInteractive(true), [], N_START + N_BUDGET - 0.1);
     }, sectionRef);
 
     return () => ctx.revert();
@@ -644,16 +612,13 @@ export function AxisDiagram() {
             {CONNECTIONS.map(([from, to], i) => {
               const a = NODES[from];
               const b = NODES[to];
-              const len = Math.hypot(b.cx - a.cx, b.cy - a.cy);
               return (
                 <line
                   key={`con-${i}`}
-                  className="constellation-line"
+                  className={`constellation-line constellation-line-${i}`}
                   x1={a.cx} y1={a.cy} x2={b.cx} y2={b.cy}
                   stroke="rgba(167,139,250,0.40)"
-                  strokeWidth="0.20"
-                  strokeDasharray={len}
-                  strokeDashoffset={len}
+                  strokeWidth="0.22"
                 />
               );
             })}

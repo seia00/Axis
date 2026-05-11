@@ -28,8 +28,7 @@ function withLogging(adapter: Adapter): Adapter {
 export const authOptions: NextAuthOptions = {
   adapter: withLogging(PrismaAdapter(prisma) as Adapter),
   secret: process.env.NEXTAUTH_SECRET,
-  // Enable debug logs in production temporarily to surface the Callback error
-  debug: true,
+  debug: process.env.NODE_ENV === "development",
   providers: [
     GoogleProvider({
       clientId: process.env.GOOGLE_CLIENT_ID!,

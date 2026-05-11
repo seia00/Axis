@@ -4,6 +4,72 @@ import { z } from "zod";
 import { slugify } from "@/lib/utils";
 import { requireSession, sanitizeUrl, rateLimit, safeError, safeString } from "@/lib/security";
 
+export async function GET(req: NextRequest) {
+  try {
+    const { searchParams } = new URL(req.url);
+    const q     = searchParams.get("q")?.trim() ?? "";
+    const focus = searchParams.get("focus")?.trim() ?? "";
+    const type  = searchParams.get("type")?.trim() ?? "";
+    const sort  = searchParams.get("sort")?.trim() ?? "newest";
+    const page  = Math.max(1, parseInt(searchParams.get("page") ?? "1", 10));
+    const PAGE_SIZE = 30;
+
+    const where: Record<string, unknown> = {};
+    if (q) {
+      where.OR = [
+        { name:    { contains: q, mode: "insensitive" } },
+        { mission: { contains: q, mode: "insensitive" } },
+      ];
+    }
+    if (focus) where.focusArea  = { has: focus };
+    if (type)  where.activityType = { has: type };
+
+    const orderBy =
+      sort === "alpha"   ? { name: "asc" as const } :
+      sort === "views"   ? { profileViews: "desc" as const } :
+      /* newest default */  { createdAt: "desc" as const };
+
+    const orgs = await prisma.organization.findMany({
+      where,
+      orderBy,
+      skip: (page - 1) * PAGE_SIZE,
+      take: PAGE_SIZE,
+      select: {
+        id: true, name: true, slug: true, mission: true, logoUrl: true,
+        location: true, focusArea: true, tier: true, memberCount: true,
+        profileViews: true,
+        _count: { select: { reviews: true, events: true } },
+        reviews: { select: { rating: true }, where: { removed: false } },
+      },
+    });
+
+    const shaped = orgs.map((o) => {
+      const ratings = o.reviews.map((r) => r.rating);
+      const avgRating = ratings.length
+        ? Math.round((ratings.reduce((a, b) => a + b, 0) / ratings.length) * 10) / 10
+        : null;
+      return {
+        id:          o.id,
+        name:        o.name,
+        slug:        o.slug,
+        mission:     o.mission,
+        logoUrl:     o.logoUrl,
+        location:    o.location,
+        focusArea:   o.focusArea,
+        tier:        o.tier,
+        memberCount: o.memberCount,
+        avgRating,
+        reviewCount: o._count.reviews,
+        eventCount:  o._count.events,
+      };
+    });
+
+    return NextResponse.json(shaped);
+  } catch (err) {
+    return safeError(err);
+  }
+}
+
 const createSchema = z.object({
   name:         z.string().min(2).max(100),
   mission:      z.string().min(20).max(1000),

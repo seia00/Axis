@@ -16,7 +16,12 @@ const activityTypes = [
   "Competitions", "Networking", "Advocacy", "Media & Publishing",
 ];
 
-export function OrgRegistrationForm() {
+interface OrgRegistrationFormProps {
+  /** Called after successful registration instead of the default redirect */
+  onSuccess?: () => void;
+}
+
+export function OrgRegistrationForm({ onSuccess }: OrgRegistrationFormProps = {}) {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
@@ -60,7 +65,8 @@ export function OrgRegistrationForm() {
         throw new Error(data.error ?? "Failed to create org");
       }
       await res.json();
-      router.push("/network/dashboard");
+      if (onSuccess) onSuccess();
+      else router.push("/network/dashboard");
     } catch (e: any) {
       setError(e.message);
     } finally {

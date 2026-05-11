@@ -8,7 +8,6 @@ import { cn } from "@/lib/utils";
 import { Avatar } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import {
-  LayoutGrid,
   Network,
   Rocket,
   ChevronDown,
@@ -27,12 +26,10 @@ import {
 import { useState } from "react";
 
 const navLinks = [
-  { href: "/directory", label: "Directory", icon: LayoutGrid },
   { href: "/opportunities", label: "Opportunities", icon: Briefcase },
-  { href: "/launchpad", label: "Launch Pad", icon: Rocket },
-  { href: "/ventures", label: "Ventures", icon: TrendingUp },
-  { href: "/match", label: "Match", icon: Sparkles },
-  { href: "/network", label: "Network", icon: Network },
+  { href: "/launchpad",     label: "Launchpad",     icon: Rocket },
+  { href: "/ventures",      label: "Ventures",      icon: TrendingUp },
+  { href: "/match",         label: "Match",         icon: Sparkles },
 ];
 
 const userMenuLinks = [

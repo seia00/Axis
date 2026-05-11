@@ -50,6 +50,12 @@ enum ResourceCategory {
   OTHER
 }
 
+enum ConnectStatus {
+  PENDING
+  ACCEPTED
+  REJECTED
+}
+
 model Account {
   id                String  @id @default(cuid())
   userId            String
@@ -130,6 +136,8 @@ model User {
   applications       Application[]
   calendarEvents     CalendarEvent[]
   matchesFrom        Match[]           @relation("MatchesFrom")
+  connectRequestsSent     ConnectRequest[] @relation("ConnectFrom")
+  connectRequestsReceived ConnectRequest[] @relation("ConnectTo")
 }
 
 model Organization {
@@ -474,6 +482,19 @@ model ProjectResource {
   region        String?
   downloadCount Int      @default(0)
   createdAt     DateTime @default(now())
+}
+
+model ConnectRequest {
+  id         String        @id @default(cuid())
+  fromUserId String
+  toUserId   String
+  status     ConnectStatus @default(PENDING)
+  createdAt  DateTime      @default(now())
+  updatedAt  DateTime      @updatedAt
+  fromUser   User          @relation("ConnectFrom", fields: [fromUserId], references: [id], onDelete: Cascade)
+  toUser     User          @relation("ConnectTo",   fields: [toUserId],   references: [id], onDelete: Cascade)
+
+  @@unique([fromUserId, toUserId])
 }
 
 model Milestone {

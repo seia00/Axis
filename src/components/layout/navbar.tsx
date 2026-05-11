@@ -8,7 +8,6 @@ import { cn } from "@/lib/utils";
 import { Avatar } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import {
-  Network,
   Rocket,
   ChevronDown,
   LogOut,
@@ -26,8 +25,8 @@ import {
 import { useState } from "react";
 
 const navLinks = [
-  { href: "/opportunities", label: "Opportunities", icon: Briefcase },
   { href: "/launchpad",     label: "Launchpad",     icon: Rocket },
+  { href: "/opportunities", label: "Opportunities", icon: Briefcase },
   { href: "/ventures",      label: "Ventures",      icon: TrendingUp },
   { href: "/match",         label: "Match",         icon: Sparkles },
 ];

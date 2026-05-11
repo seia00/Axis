@@ -8,6 +8,7 @@ import { cn } from "@/lib/utils";
 import { Avatar } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import {
+  Network,
   Rocket,
   ChevronDown,
   LogOut,

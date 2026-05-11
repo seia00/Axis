@@ -3,24 +3,36 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { rateLimit, safeError } from "@/lib/security";
+import OpenAI from "openai";
 
-async function callClaude(prompt: string): Promise<string> {
-  const response = await fetch("https://api.anthropic.com/v1/messages", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      "x-api-key": process.env.ANTHROPIC_API_KEY ?? "",
-      "anthropic-version": "2023-06-01",
-    },
-    body: JSON.stringify({
-      model: "claude-haiku-4-5",
-      max_tokens: 2048,
-      messages: [{ role: "user", content: prompt }],
-    }),
+// Lazy OpenAI client — only instantiated on first call so the build
+// never fails if OPENAI_API_KEY is absent (e.g. during static generation).
+let _openai: OpenAI | null = null;
+function getOpenAI(): OpenAI {
+  if (_openai) return _openai;
+  const key = process.env.OPENAI_API_KEY;
+  if (!key) throw new Error("OPENAI_API_KEY is not set");
+  _openai = new OpenAI({ apiKey: key });
+  return _openai;
+}
+
+// gpt-4o-mini: fast, cheap, great at structured JSON output — ideal for match scoring.
+async function callOpenAI(prompt: string): Promise<string> {
+  const completion = await getOpenAI().chat.completions.create({
+    model: "gpt-4o-mini",
+    max_tokens: 2048,
+    temperature: 0.3,  // low temp = consistent, structured output
+    messages: [
+      {
+        role: "system",
+        content:
+          "You are an AI matching engine for AXIS, Japan's student founder platform. " +
+          "Always respond with valid JSON only — no markdown, no code fences, no commentary.",
+      },
+      { role: "user", content: prompt },
+    ],
   });
-  const data = await response.json();
-  if (!response.ok) throw new Error(data.error?.message ?? "Claude API error");
-  return data.content[0]?.text ?? "[]";
+  return completion.choices[0]?.message?.content ?? "[]";
 }
 
 export async function GET(_req: NextRequest) {
@@ -81,7 +93,7 @@ Return ONLY a valid JSON array (no markdown, no code blocks): [{ "opportunityId"
 
 Opportunities: ${JSON.stringify(opportunities.map(o => ({ id: o.id, title: o.title, type: o.type, tags: o.tags, description: o.description.substring(0, 200) })))}`;
 
-      const raw = await callClaude(prompt);
+      const raw = await callOpenAI(prompt);
       const parsed = JSON.parse(raw.trim().replace(/^```json\s*/i, "").replace(/```$/i, ""));
       if (Array.isArray(parsed)) {
         for (const item of parsed) {
@@ -129,7 +141,7 @@ Rate co-founder compatibility (0-1). Explain why they'd work well together.
 Return ONLY valid JSON (no markdown): { "score": 0.0-1.0, "reason": "...", "suggestedCollaboration": "..." }`;
 
       try {
-        const raw = await callClaude(prompt);
+        const raw = await callOpenAI(prompt);
         const parsed = JSON.parse(raw.trim().replace(/^```json\s*/i, "").replace(/```$/i, ""));
         if (parsed.score != null && parsed.reason) {
           newMatches.push({
@@ -164,7 +176,7 @@ Return ONLY valid JSON array (no markdown): [{ "opportunityId": "...", "score": 
 
 Programs: ${JSON.stringify(programs.map(p => ({ id: p.id, title: p.title, description: p.description.substring(0, 200), tags: p.tags })))}`;
 
-      const raw = await callClaude(prompt);
+      const raw = await callOpenAI(prompt);
       const parsed = JSON.parse(raw.trim().replace(/^```json\s*/i, "").replace(/```$/i, ""));
       if (Array.isArray(parsed)) {
         for (const item of parsed) {

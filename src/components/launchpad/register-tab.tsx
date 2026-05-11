@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { OrgRegistrationForm } from "@/components/portal/org-registration-form";
 import { Button } from "@/components/ui/button";
-import { Building2, ExternalLink } from "lucide-react";
+import { Building2 } from "lucide-react";
 
 interface Props {
   /** If provided, the user already leads this org */
@@ -50,12 +50,6 @@ export function RegisterTab({ leadingOrg }: Props) {
           </p>
         </div>
         <div className="flex gap-3">
-          <Link href="/network/profile">
-            <Button variant="secondary" className="flex items-center gap-2">
-              <ExternalLink className="w-4 h-4" />
-              Edit Profile
-            </Button>
-          </Link>
           <Link href={`/directory/${leadingOrg.slug}`}>
             <Button variant="secondary">View Public Page</Button>
           </Link>

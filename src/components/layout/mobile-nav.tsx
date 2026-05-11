@@ -12,8 +12,6 @@ import {
   Shield,
   Settings,
   LogOut,
-  LayoutGrid,
-  Users,
   Briefcase,
   Rocket,
   TrendingUp,
@@ -25,10 +23,8 @@ import { cn } from "@/lib/utils";
 import { useLanguage } from "@/contexts/language-context";
 
 const navItems = [
-  { href: "/directory",     labelKey: "nav.directory",     icon: LayoutGrid  },
-  { href: "/network",       labelKey: "nav.network",       icon: Users       },
-  { href: "/opportunities", labelKey: "nav.opportunities", icon: Briefcase   },
   { href: "/launchpad",     labelKey: "nav.launchpad",     icon: Rocket      },
+  { href: "/opportunities", labelKey: "nav.opportunities", icon: Briefcase   },
   { href: "/ventures",      labelKey: "nav.ventures",      icon: TrendingUp  },
   { href: "/match",         labelKey: "nav.match",         icon: Sparkles    },
   { href: "/calendar",      labelKey: "nav.calendar",      icon: Calendar    },

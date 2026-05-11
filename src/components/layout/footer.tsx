@@ -3,19 +3,16 @@ import Image from "next/image";
 
 const footerLinks = {
   Platform: [
-    { href: "/directory",    label: "Directory" },
+    { href: "/launchpad",     label: "Launchpad" },
     { href: "/opportunities", label: "Opportunities" },
-    { href: "/launchpad",    label: "Launch Pad" },
-    { href: "/match",        label: "AXIS Match" },
-    { href: "/ventures",     label: "Ventures" },
-    { href: "/resources",    label: "Resources" },
-    { href: "/calendar",     label: "Calendar" },
-    { href: "/portfolio",    label: "Portfolio" },
+    { href: "/match",         label: "AXIS Match" },
+    { href: "/ventures",      label: "Ventures" },
+    { href: "/resources",     label: "Resources" },
+    { href: "/calendar",      label: "Calendar" },
+    { href: "/portfolio",     label: "Portfolio" },
   ],
   Community: [
-    { href: "/community",         label: "About" },
-    { href: "/network",           label: "Network Portal" },
-    { href: "/directory/events",  label: "Events" },
+    { href: "/community",              label: "About" },
     { href: "https://discord.gg/axis", label: "Discord" },
   ],
   Legal: [

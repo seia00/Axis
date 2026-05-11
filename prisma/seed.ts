@@ -1,4 +1,4 @@
-import { PrismaClient, OrgTier, ResourceCategory } from "@prisma/client";
+import { PrismaClient, ResourceCategory } from "@prisma/client";
 import { PrismaPg } from "@prisma/adapter-pg";
 // eslint-disable-next-line @typescript-eslint/no-require-imports
 require("dotenv").config();
@@ -27,86 +27,6 @@ async function main() {
       role: "ADMIN",
     },
   });
-
-  // Sample organizations
-  const orgsData = [
-    {
-      name: "Tokyo Youth Climate Network",
-      mission: "We mobilize Tokyo high schoolers to tackle climate change through direct action, education, and advocacy. Founded in 2023, we've organized 15+ events and influenced school sustainability policies across 8 institutions.",
-      activitySummary: "Monthly events including climate marches, school sustainability audits, and youth-led policy workshops. We also run a mentorship program connecting students with environmental professionals.",
-      location: "Tokyo, Japan",
-      isNational: false,
-      focusArea: ["Environment", "Social Impact"],
-      activityType: ["Events & Conferences", "Advocacy"],
-      schoolLevel: ["High School"],
-      tier: OrgTier.PARTNER,
-      verified: true,
-      memberCount: 120,
-      instagram: "tokyoyouthclimate",
-    },
-    {
-      name: "Japan High School Debate League",
-      mission: "Building critical thinking, public speaking, and civic engagement among Japanese high school students through competitive and educational debate programs.",
-      location: "Osaka, Japan",
-      isNational: true,
-      focusArea: ["Academic", "Social Impact"],
-      activityType: ["Competitions", "Workshops"],
-      schoolLevel: ["High School"],
-      tier: OrgTier.VERIFIED,
-      verified: true,
-      memberCount: 340,
-    },
-    {
-      name: "Kyoto Student Entrepreneurs",
-      mission: "Supporting the next generation of Japanese student entrepreneurs through mentorship, workshops, and a peer community focused on early-stage startup development.",
-      location: "Kyoto, Japan",
-      isNational: false,
-      focusArea: ["Entrepreneurship", "Technology"],
-      activityType: ["Workshops", "Networking"],
-      schoolLevel: ["High School"],
-      tier: OrgTier.MEMBER,
-      verified: false,
-      memberCount: 45,
-    },
-    {
-      name: "Sapporo STEM Circle",
-      mission: "Making STEM accessible and exciting for students in Hokkaido through hands-on experiments, robotics competitions, and peer teaching.",
-      location: "Sapporo, Japan",
-      isNational: false,
-      focusArea: ["STEM", "Technology"],
-      activityType: ["Workshops", "Competitions"],
-      schoolLevel: ["High School", "Middle School"],
-      tier: OrgTier.VERIFIED,
-      verified: true,
-      memberCount: 78,
-    },
-    {
-      name: "Fukuoka Youth Arts Collective",
-      mission: "A community for young artists across Fukuoka to collaborate, exhibit, and develop their creative practice in a supportive, student-led environment.",
-      location: "Fukuoka, Japan",
-      isNational: false,
-      focusArea: ["Arts", "Culture"],
-      activityType: ["Events & Conferences", "Media & Publishing"],
-      schoolLevel: ["High School"],
-      tier: OrgTier.MEMBER,
-      verified: false,
-      memberCount: 32,
-    },
-  ];
-
-  for (const orgData of orgsData) {
-    const slug = slugify(orgData.name);
-    await prisma.organization.upsert({
-      where: { slug },
-      update: {},
-      create: {
-        ...orgData,
-        slug,
-        leaderId: admin.id,
-        profileViews: Math.floor(Math.random() * 500),
-      },
-    });
-  }
 
   // Resources
   const resources = [
@@ -479,10 +399,11 @@ async function main() {
   }
 
   // Impact stats
-  await prisma.impactStat.upsert({ where: { key: "total_orgs" }, update: { value: 50 }, create: { key: "total_orgs", value: 50 } });
-  await prisma.impactStat.upsert({ where: { key: "total_students" }, update: { value: 1247 }, create: { key: "total_students", value: 1247 } });
-  await prisma.impactStat.upsert({ where: { key: "total_events" }, update: { value: 213 }, create: { key: "total_events", value: 213 } });
-  await prisma.impactStat.upsert({ where: { key: "total_downloads" }, update: { value: 892 }, create: { key: "total_downloads", value: 892 } });
+  // Stats grow from real activity — seed with 0 so nothing is inflated
+  await prisma.impactStat.upsert({ where: { key: "total_orgs" },      update: {}, create: { key: "total_orgs",      value: 0 } });
+  await prisma.impactStat.upsert({ where: { key: "total_students" },  update: {}, create: { key: "total_students",  value: 0 } });
+  await prisma.impactStat.upsert({ where: { key: "total_events" },    update: {}, create: { key: "total_events",    value: 0 } });
+  await prisma.impactStat.upsert({ where: { key: "total_downloads" }, update: {}, create: { key: "total_downloads", value: 0 } });
 
   console.log("Seeding complete!");
 }

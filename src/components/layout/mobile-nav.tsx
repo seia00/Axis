@@ -44,7 +44,7 @@ export function MobileNav() {
       {/* ── Fixed top bar — liquid glass ────────────────────────────────── */}
       <header
         className="liquid-glass md:hidden fixed top-0 left-0 right-0 z-50 h-12 flex items-center justify-between px-4"
-        style={{ borderRadius: 0, borderLeft: "none", borderTop: "none", borderRight: "none" }}
+        style={{ borderRadius: 0, border: "none" }}
       >
         <Link href="/" onClick={close}>
           <Image
@@ -81,9 +81,7 @@ export function MobileNav() {
             className="liquid-glass-strong md:hidden fixed top-12 left-0 right-0 z-40 overflow-y-auto"
             style={{
               borderRadius: 0,
-              borderLeft: "none",
-              borderTop: "none",
-              borderRight: "none",
+              border: "none",
               maxHeight: "calc(100vh - 3rem)",
             }}
           >

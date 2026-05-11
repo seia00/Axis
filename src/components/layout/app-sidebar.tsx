@@ -203,7 +203,7 @@ export function AppSidebar() {
           sidebarBase,
           collapsed ? "w-56" : "w-14"
         )}
-        style={{ borderRadius: 0, borderLeft: "none", borderTop: "none", borderBottom: "none" }}
+        style={{ borderRadius: 0, border: "none" }}
       >
         <div
           className={cn(
@@ -247,7 +247,7 @@ export function AppSidebar() {
         sidebarBase,
         collapsed ? "w-14" : "w-56"
       )}
-      style={{ borderRadius: 0, borderLeft: "none", borderTop: "none", borderBottom: "none" }}
+      style={{ borderRadius: 0, border: "none" }}
     >
       {/* Logo row */}
       <div

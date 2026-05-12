@@ -61,8 +61,8 @@ export async function POST(req: NextRequest) {
   const user = await prisma.user.findUnique({ where: { id: session.user.id } });
   if (!user) return NextResponse.json({ error: "User not found" }, { status: 404 });
 
-  if (!user.interests?.length && !user.skills?.length && !user.goals?.length) {
-    return NextResponse.json({ error: "Please complete your profile with interests, skills, and goals first." }, { status: 400 });
+  if (!user.name) {
+    return NextResponse.json({ error: "Please add your name in Settings before generating matches." }, { status: 400 });
   }
 
   // Delete old matches for this user

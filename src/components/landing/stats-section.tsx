@@ -8,7 +8,7 @@ import { useLanguage } from "@/contexts/language-context";
 gsap.registerPlugin(ScrollTrigger);
 
 interface Props {
-  stats: { orgCount: number; oppCount: number; projectCount: number };
+  stats: { orgCount: number; oppCount: number; projectCount: number; userCount: number };
 }
 
 export function StatsSection({ stats }: Props) {
@@ -16,10 +16,10 @@ export function StatsSection({ stats }: Props) {
   const { t } = useLanguage();
 
   const items = [
-    { value: Math.max(stats.orgCount, 50),      labelKey: "stats.orgs",     suffix: "+" },
-    { value: 1000,                               labelKey: "stats.founders", suffix: "+" },
-    { value: Math.max(stats.oppCount, 50),       labelKey: "stats.opps",     suffix: "+" },
-    { value: 0,                                  labelKey: "stats.free",     suffix: "" },
+    { value: Math.max(stats.orgCount, 1),      labelKey: "stats.orgs",     suffix: "+" },
+    { value: Math.max(stats.userCount, 1),     labelKey: "stats.founders", suffix: "+" },
+    { value: Math.max(stats.oppCount, 1),      labelKey: "stats.opps",     suffix: "+" },
+    { value: 0,                                labelKey: "stats.free",     suffix: "" },
   ];
 
   useEffect(() => {

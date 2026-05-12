@@ -388,6 +388,31 @@
       inset 0 1px 0 rgba(255, 255, 255, 0.18);
   }
 
+  /* ── Settings input — guaranteed dark background, always readable ─────── */
+  .settings-input {
+    @apply w-full px-3 py-2 text-sm transition-all;
+    border-radius: 3px;
+    font-feature-settings: "ss01";
+    background-color: rgba(10, 8, 20, 0.65);
+    color: rgba(255, 255, 255, 0.85);
+    border: 1px solid rgba(255, 255, 255, 0.10);
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.04);
+  }
+  .settings-input::placeholder {
+    color: rgba(255, 255, 255, 0.25);
+  }
+  .settings-input:hover {
+    border-color: rgba(255, 255, 255, 0.18);
+  }
+  .settings-input:focus {
+    outline: none;
+    border-color: rgba(167, 139, 250, 0.50);
+    box-shadow:
+      0 0 0 3px rgba(167, 139, 250, 0.08),
+      inset 0 1px 0 rgba(255, 255, 255, 0.06);
+    color: rgba(255, 255, 255, 0.95);
+  }
+
   /* ── Card — full liquid glass treatment ─────────────────────────────── */
   .card {
     @apply p-4;

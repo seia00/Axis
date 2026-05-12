@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { Zap, RefreshCw, Loader2, User, Briefcase, BookOpen, X, ArrowRight } from "lucide-react";
 import { StaggerContainer, StaggerItem } from "@/components/animation";
+import { PremiumBanner } from "@/components/ui/premium-banner";
 
 interface Match {
   id: string;
@@ -57,7 +58,7 @@ function ScoreBar({ score }: { score: number }) {
 }
 
 export default function MatchPage() {
-  const { status } = useSession();
+  const { data: session, status } = useSession();
   const router = useRouter();
   const [matches, setMatches] = useState<MatchWithDetail[]>([]);
   const [loading, setLoading] = useState(true);
@@ -177,8 +178,13 @@ export default function MatchPage() {
             }}
           >
             <span className="data-label mr-2">ACTION REQUIRED</span>
-            Complete your profile with interests, skills, and goals to generate matches.
+            Add your name in <a href="/settings" className="underline">Settings</a> to generate matches.
           </div>
+        )}
+
+        {/* Premium upsell — shown to non-subscribers */}
+        {(session?.user as { subscriptionStatus?: string })?.subscriptionStatus !== "active" && (
+          <PremiumBanner variant="membership" className="mb-6" />
         )}
 
         {/* ── Tab bar — IDE-style ────────────────────────────────────────── */}

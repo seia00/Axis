@@ -2,6 +2,7 @@ import { Footer } from "@/components/layout/footer";
 import { Rocket, Users, BookOpen, Target, ArrowRight, Zap } from "lucide-react";
 import Link from "next/link";
 import { Reveal, StaggerContainer, StaggerItem } from "@/components/animation";
+import { PremiumBanner } from "@/components/ui/premium-banner";
 
 export const metadata = { title: "AXIS Ventures" };
 
@@ -57,6 +58,11 @@ export default function VenturesPage() {
             </StaggerItem>
           ))}
         </StaggerContainer>
+      </section>
+
+      {/* Accelerator Premium Banner */}
+      <section className="max-w-7xl mx-auto px-4 sm:px-6 pb-4">
+        <PremiumBanner variant="accelerator" />
       </section>
 
       {/* Timeline */}

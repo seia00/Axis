@@ -3,13 +3,22 @@ import { prisma } from "@/lib/prisma";
 import { z } from "zod";
 import { requireSession, sanitizeUrl, safeError, safeString } from "@/lib/security";
 
-// Tight zod schema — every field length-capped, URLs validated separately.
+const extracurricularSchema = z.object({
+  name:        z.string().max(100),
+  elaboration: z.string().max(500).optional(),
+});
+
 const profileSchema = z.object({
+  name:             z.string().max(80).optional(),
   bio:              z.string().max(500).optional(),
   headline:         z.string().max(120).optional(),
   location:         z.string().max(100).optional(),
   school:           z.string().max(150).optional(),
   username:         z.string().max(40).optional(),
+  age:              z.number().int().min(10).max(100).optional().nullable(),
+  country:          z.string().max(100).optional(),
+  prefecture:       z.string().max(100).optional(),
+  extracurriculars: z.array(extracurricularSchema).max(20).optional(),
   twitterHandle:    z.string().max(50).optional(),
   instagramHandle:  z.string().max(50).optional(),
   linkedinUrl:      z.string().max(500).optional(),
@@ -25,6 +34,7 @@ export async function GET() {
       where: { id: session.user.id },
       select: {
         name: true, bio: true, headline: true, location: true, school: true, username: true,
+        age: true, country: true, prefecture: true, extracurriculars: true,
         twitterHandle: true, instagramHandle: true, linkedinUrl: true, websiteUrl: true,
         subscriptionStatus: true, priceId: true, currentPeriodEnd: true,
       },
@@ -44,20 +54,33 @@ export async function PATCH(req: NextRequest) {
     const body = await req.json().catch(() => ({}));
     const parsed = profileSchema.safeParse(body);
     if (!parsed.success) {
-      return NextResponse.json({ error: "Invalid profile data" }, { status: 400 });
+      return NextResponse.json({ error: "Invalid profile data", details: parsed.error.flatten() }, { status: 400 });
     }
     const input = parsed.data;
-    const data: Record<string, string | null> = {};
+    const data: Record<string, unknown> = {};
 
-    // Plain text fields — trim and length-cap
+    // Name
+    if (input.name !== undefined)
+      data.name = safeString(input.name, 80) || null;
+
+    // Plain text fields
     if (input.bio !== undefined)             data.bio = safeString(input.bio, 500) || null;
     if (input.headline !== undefined)        data.headline = safeString(input.headline, 120) || null;
     if (input.location !== undefined)        data.location = safeString(input.location, 100) || null;
     if (input.school !== undefined)          data.school = safeString(input.school, 150) || null;
+    if (input.country !== undefined)         data.country = safeString(input.country, 100) || null;
+    if (input.prefecture !== undefined)      data.prefecture = safeString(input.prefecture, 100) || null;
     if (input.twitterHandle !== undefined)   data.twitterHandle = safeString(input.twitterHandle, 50).replace(/^@/, "") || null;
     if (input.instagramHandle !== undefined) data.instagramHandle = safeString(input.instagramHandle, 50).replace(/^@/, "") || null;
 
-    // URL fields — must pass sanitizeUrl (rejects javascript:, data:, etc.)
+    // Numeric
+    if (input.age !== undefined) data.age = input.age ?? null;
+
+    // Extracurriculars — stored as JSON array
+    if (input.extracurriculars !== undefined)
+      data.extracurriculars = input.extracurriculars ?? null;
+
+    // URL fields — empty string → null, non-empty must pass sanitizeUrl
     if (input.linkedinUrl !== undefined) {
       if (input.linkedinUrl.trim() === "") {
         data.linkedinUrl = null;
@@ -77,7 +100,7 @@ export async function PATCH(req: NextRequest) {
       }
     }
 
-    // Username has its own constraints — letters/numbers/underscore/dash, lowercase, unique
+    // Username — alphanumeric + underscore/dash, lowercase, min 3, unique
     if (input.username !== undefined) {
       const proposed = input.username.trim().toLowerCase().replace(/[^a-z0-9_-]/g, "").slice(0, 40);
       if (proposed) {
@@ -99,7 +122,8 @@ export async function PATCH(req: NextRequest) {
       where: { id: session.user.id },
       data,
       select: {
-        bio: true, headline: true, location: true, school: true, username: true,
+        name: true, bio: true, headline: true, location: true, school: true, username: true,
+        age: true, country: true, prefecture: true, extracurriculars: true,
         twitterHandle: true, instagramHandle: true, linkedinUrl: true, websiteUrl: true,
       },
     });

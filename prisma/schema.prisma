@@ -117,6 +117,10 @@ model User {
   instagramHandle String?
   linkedinUrl     String?
   websiteUrl      String?
+  age              Int?
+  country          String?
+  prefecture       String?
+  extracurriculars Json?
   stripeCustomerId     String?   @unique
   stripeSubscriptionId String?   @unique
   subscriptionStatus   String    @default("inactive")

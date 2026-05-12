@@ -10,14 +10,15 @@ import { redirect } from "next/navigation";
 
 async function getStats() {
   try {
-    const [orgCount, oppCount, projectCount] = await Promise.all([
+    const [orgCount, oppCount, projectCount, userCount] = await Promise.all([
       prisma.organization.count(),
       prisma.opportunity.count(),
       prisma.project.count(),
+      prisma.user.count(),
     ]);
-    return { orgCount, oppCount, projectCount };
+    return { orgCount, oppCount, projectCount, userCount };
   } catch {
-    return { orgCount: 50, oppCount: 50, projectCount: 20 };
+    return { orgCount: 50, oppCount: 50, projectCount: 20, userCount: 0 };
   }
 }
 

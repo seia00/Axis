@@ -2,10 +2,12 @@
 
 import { useRouter, useSearchParams } from "next/navigation";
 import { useCallback } from "react";
+import { useSession } from "next-auth/react";
 import { Users, Building2, PlusCircle } from "lucide-react";
 import { PeopleTab } from "@/components/launchpad/people-tab";
 import { OrgsTab } from "@/components/launchpad/orgs-tab";
 import { RegisterTab } from "@/components/launchpad/register-tab";
+import { PremiumBanner } from "@/components/ui/premium-banner";
 
 type Tab = "people" | "orgs" | "register";
 
@@ -24,6 +26,7 @@ export function LaunchpadHub({ initialTab, leadingOrg }: Props) {
   const router       = useRouter();
   const searchParams = useSearchParams();
   const active       = (searchParams.get("tab") as Tab | null) ?? initialTab;
+  const { data: session } = useSession();
 
   const setTab = useCallback((tab: Tab) => {
     const params = new URLSearchParams(searchParams.toString());
@@ -60,6 +63,11 @@ export function LaunchpadHub({ initialTab, leadingOrg }: Props) {
           ))}
         </div>
       </div>
+
+      {/* Premium banner — shown to non-subscribers only */}
+      {(session?.user as { subscriptionStatus?: string })?.subscriptionStatus !== "active" && (
+        <PremiumBanner variant="membership" />
+      )}
 
       {/* Tab content */}
       {active === "people"   && <PeopleTab />}

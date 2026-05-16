@@ -15,7 +15,7 @@ const profileSchema = z.object({
   location:         z.string().max(100).optional(),
   school:           z.string().max(150).optional(),
   username:         z.string().max(40).optional(),
-  age:              z.number().int().min(10).max(100).optional().nullable(),
+  age:              z.coerce.number().int().min(5).max(120).optional().nullable(),
   country:          z.string().max(100).optional(),
   prefecture:       z.string().max(100).optional(),
   extracurriculars: z.array(extracurricularSchema).max(20).optional(),

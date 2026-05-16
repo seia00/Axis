@@ -46,8 +46,8 @@ interface NodeDef {
 }
 
 const NODES: NodeDef[] = [
-  { id: "directory",     route: "/directory",     cx: 22, cy: 70, fontVar: "var(--font-plex-mono)",       fontWeight: 500, letterSpacing: "0.04em", fontSize: 2.4 },
-  { id: "network",       route: "/network",       cx: 38, cy: 56, fontVar: "var(--font-instrument)",      fontWeight: 400, italic: true, letterSpacing: "-0.01em", fontSize: 3.2 },
+  { id: "calendar",      route: "/calendar",      cx: 22, cy: 70, fontVar: "var(--font-plex-mono)",       fontWeight: 500, letterSpacing: "0.04em", fontSize: 2.4 },
+  { id: "resources",     route: "/resources",     cx: 38, cy: 56, fontVar: "var(--font-instrument)",      fontWeight: 400, italic: true, letterSpacing: "-0.01em", fontSize: 3.2 },
   { id: "opportunities", route: "/opportunities", cx: 52, cy: 46, fontVar: "var(--font-inter)",           fontWeight: 600, italic: true, letterSpacing: "-0.02em", fontSize: 2.6 },
   { id: "match",         route: "/match",         cx: 56, cy: 28, fontVar: "var(--font-jetbrains-mono)",  fontWeight: 600, letterSpacing: "0.06em", fontSize: 2.4 },
   { id: "launchpad",     route: "/launchpad",     cx: 70, cy: 36, fontVar: "var(--font-inter)",           fontWeight: 800, letterSpacing: "-0.04em", fontSize: 2.8 },

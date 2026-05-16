@@ -98,22 +98,32 @@ export default function SettingsPage() {
     setSaving(true);
     setError("");
     try {
+      const parsedAge = form.age.trim() !== "" ? parseInt(form.age.trim(), 10) : null;
+      // Build payload explicitly — avoids any spread ordering ambiguity
       const payload: Record<string, unknown> = {
-        ...form,
-        age: form.age !== "" ? parseInt(form.age, 10) : undefined,
+        name:            form.name,
+        bio:             form.bio,
+        headline:        form.headline,
+        location:        form.location,
+        school:          form.school,
+        username:        form.username,
+        age:             Number.isFinite(parsedAge) ? parsedAge : null,
+        country:         form.country,
+        prefecture:      form.prefecture,
+        twitterHandle:   form.twitterHandle,
+        instagramHandle: form.instagramHandle,
+        linkedinUrl:     form.linkedinUrl,   // empty string → null handled in API
+        websiteUrl:      form.websiteUrl,    // empty string → null handled in API
         extracurriculars: ecs.filter(e => e.name.trim()).map(e => ({
           name: e.name.trim(),
           elaboration: e.elaboration.trim() || undefined,
         })),
       };
-      // Remove empty strings for URL fields so they get nulled, not rejected
-      if (!payload.linkedinUrl) payload.linkedinUrl = "";
-      if (!payload.websiteUrl) payload.websiteUrl = "";
 
       const res = await fetch("/api/user/profile", {
         method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload),
+        headers:  { "Content-Type": "application/json" },
+        body:     JSON.stringify(payload),
       });
       if (!res.ok) {
         const data = await res.json();

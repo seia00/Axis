@@ -10,7 +10,7 @@ interface PremiumBannerProps {
   className?: string;
 }
 
-const DISMISS_KEY_PREFIX = "axis-banner-dismissed-";
+const DISMISS_KEY_PREFIX = "axis-banner-dismissed-v1-";
 
 const MEMBERSHIP_TIERS = [
   { name: "Basic",       price: "¥399",    color: "text-sky-400",    bg: "bg-sky-950/30 border-sky-500/20" },
@@ -26,10 +26,13 @@ const ACCELERATOR_TIERS = [
 
 export function PremiumBanner({ variant, className }: PremiumBannerProps) {
   const dismissKey = DISMISS_KEY_PREFIX + variant;
-  const [dismissed, setDismissed] = useState(true); // start dismissed to avoid SSR flash
+  // mounted tracks whether we're on the client — avoids SSR/hydration mismatch
+  const [mounted, setMounted] = useState(false);
+  const [dismissed, setDismissed] = useState(false);
 
   useEffect(() => {
     setDismissed(localStorage.getItem(dismissKey) === "1");
+    setMounted(true);
   }, [dismissKey]);
 
   const dismiss = () => {
@@ -37,7 +40,8 @@ export function PremiumBanner({ variant, className }: PremiumBannerProps) {
     setDismissed(true);
   };
 
-  if (dismissed) return null;
+  // Render nothing until client-side JS has run — keeps SSR output stable
+  if (!mounted || dismissed) return null;
 
   const isMembership = variant === "membership";
   const tiers = isMembership ? MEMBERSHIP_TIERS : ACCELERATOR_TIERS;

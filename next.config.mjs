@@ -65,6 +65,7 @@ const nextConfig = {
   // Don't expose Next.js or framework info via the X-Powered-By header.
   poweredByHeader: false,
 
+
   // Strict mode catches bugs early — leave on.
   reactStrictMode: true,
 
@@ -96,6 +97,21 @@ const nextConfig = {
         headers: securityHeaders,
       },
     ];
+  },
+
+  webpack(config) {
+    // @splinetool/react-spline is a pure-ESM package whose exports field only
+    // declares "import" conditions. Next.js 14's webpack looks for "require"
+    // first and falls back to nothing — alias both the root and the /next
+    // subpath directly to their dist files to bypass exports-field resolution.
+    config.resolve.alias = {
+      ...config.resolve.alias,
+      "@splinetool/react-spline": new URL(
+        "./node_modules/@splinetool/react-spline/dist/react-spline.js",
+        import.meta.url
+      ).pathname,
+    };
+    return config;
   },
 };
 

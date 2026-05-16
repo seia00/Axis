@@ -51,7 +51,7 @@ export const translations: Record<Lang, Record<string, string>> = {
     "cta.headline":   "Ready to start building?",
     "cta.sub":        "Join Japan's community of student founders — LinkedIn, Instagram, and Y Combinator all in one place.",
     "cta.join":       "Join AXIS Free",
-    "cta.browse":     "Browse Directory",
+    "cta.browse":     "Explore Launchpad",
 
     // ── Product cards section header ──────────────────────────────────────────
     "products.heading":       "Eight tools.",
@@ -73,6 +73,8 @@ export const translations: Record<Lang, Record<string, string>> = {
     // ── Product taglines ──────────────────────────────────────────────────────
     "product.directory.tagline":      "Find your people",
     "product.network.tagline":        "Build your circle",
+    "product.calendar.tagline":       "Never miss a deadline",
+    "product.resources.tagline":      "Learn from the best",
     "product.opportunities.tagline":  "Discover what's out there",
     "product.launchpad.tagline":      "Build something real",
     "product.ventures.tagline":       "Scale your vision",
@@ -84,6 +86,10 @@ export const translations: Record<Lang, Record<string, string>> = {
       "Browse 50+ verified student organizations across Japan. Filter by focus area, location, and tier.",
     "product.network.desc":
       "Connect with student founders, join organizations, and build the relationships that become co-founder partnerships.",
+    "product.calendar.desc":
+      "Track competition deadlines, org events, and cohort milestones in one place. Never miss an opportunity.",
+    "product.resources.desc":
+      "Templates, toolkits, pitch decks, and legal docs — curated for student founders building from scratch.",
     "product.opportunities.desc":
       "Competitions, fellowships, scholarships, and programs — curated and verified for student founders.",
     "product.launchpad.desc":
@@ -209,7 +215,7 @@ export const translations: Record<Lang, Record<string, string>> = {
     "cta.headline":   "さあ、つくりはじめよう。",
     "cta.sub":        "日本の学生起業家コミュニティへ。LinkedIn・Instagram・Y Combinatorがひとつに。",
     "cta.join":       "AXISに参加する（無料）",
-    "cta.browse":     "ディレクトリを見る",
+    "cta.browse":     "ローンチパッドを見る",
 
     // ── Product cards section header ──────────────────────────────────────────
     "products.heading":        "8つのツール。",
@@ -231,6 +237,8 @@ export const translations: Record<Lang, Record<string, string>> = {
     // ── Product taglines ──────────────────────────────────────────────────────
     "product.directory.tagline":      "仲間を見つけよう",
     "product.network.tagline":        "ネットワークを広げよう",
+    "product.calendar.tagline":       "締め切りを逃さない",
+    "product.resources.tagline":      "トップから学ぼう",
     "product.opportunities.tagline":  "可能性を発見しよう",
     "product.launchpad.tagline":      "本物を作ろう",
     "product.ventures.tagline":       "ビジョンをスケールしよう",
@@ -242,6 +250,10 @@ export const translations: Record<Lang, Record<string, string>> = {
       "日本全国50以上の認定学生団体を検索。分野・地域・ランクでフィルタリング可能。",
     "product.network.desc":
       "学生起業家とつながり、団体に参加し、共同創業者となる関係を築こう。",
+    "product.calendar.desc":
+      "コンテストの締め切り・団体イベント・コホートのマイルストーンを一元管理。機会を逃さない。",
+    "product.resources.desc":
+      "テンプレート・ツールキット・ピッチデッキ・法的書類。ゼロから構築する学生起業家向けに厳選。",
     "product.opportunities.desc":
       "コンテスト・フェローシップ・奨学金・プログラム。学生起業家向けに厳選・検証済み。",
     "product.launchpad.desc":

@@ -43,7 +43,7 @@ export function SignInForm() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center p-4 bg-[var(--background)]">
+    <div className="min-h-screen flex items-center justify-center p-4 bg-[var(--background)] grid-bg">
       <div className="w-full max-w-sm">
         <Link href="/" className="flex items-center gap-2 justify-center mb-8">
           <div className="w-8 h-8 rounded-lg bg-indigo-600 flex items-center justify-center">

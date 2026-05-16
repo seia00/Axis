@@ -37,7 +37,7 @@ export function CTASection() {
             {t("cta.join")}
           </Link>
           <Link
-            href="/directory"
+            href="/launchpad"
             className="inline-flex items-center gap-2 px-7 py-3 rounded-lg border border-white/[0.10] text-white/55 hover:text-white hover:border-white/[0.20] font-medium text-sm transition-all duration-200"
           >
             {t("cta.browse")}

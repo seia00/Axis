@@ -1,5 +1,5 @@
 import { Footer } from "@/components/layout/footer";
-import { Rocket, Users, BookOpen, Target, ArrowRight, Zap } from "lucide-react";
+import { Rocket, Users, BookOpen, Target, ArrowRight, Zap, GraduationCap } from "lucide-react";
 import Link from "next/link";
 import { Reveal, StaggerContainer, StaggerItem } from "@/components/animation";
 import { PremiumBanner } from "@/components/ui/premium-banner";
@@ -44,7 +44,7 @@ export default function VenturesPage() {
         <h2 className="text-2xl font-bold tracking-tight text-center mb-10">What you get</h2>
         <StaggerContainer className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
           {[
-            { icon: Users, title: "Mentorship", desc: "Regular 1-on-1s with experienced student leaders and AXIS advisors." },
+            { icon: GraduationCap, title: "Mentorship", desc: "Regular 1-on-1s with experienced student leaders and AXIS advisors." },
             { icon: Users, title: "Peer Cohort", desc: "Be part of a cohort of 5–10 ventures tackling different problems together." },
             { icon: Target, title: "Launch Checklist", desc: "A structured milestone tracker from idea validation to official launch." },
             { icon: BookOpen, title: "Full Resource Library", desc: "Immediate access to all AXIS templates, toolkits, and legal documents." },
@@ -77,7 +77,7 @@ export default function VenturesPage() {
                 { phase: "Assessment", desc: "AXIS team reviews applications. Top ventures are invited to a 20-min interview.", icon: "🔍" },
                 { phase: "Cohort Launch", desc: "Accepted ventures join a 3-month cohort with weekly check-ins.", icon: "🚀" },
                 { phase: "Milestone Track", desc: "Work through the launch checklist with mentor support.", icon: "📊" },
-                { phase: "Launch Day", desc: "Present your venture to the AXIS community and formally join the Directory.", icon: "🎉" },
+                { phase: "Launch Day", desc: "Present your venture to the AXIS community and officially launch on the platform.", icon: "🎉" },
               ].map(({ phase, desc, icon }) => (
                 <div key={phase} className="flex gap-6 pl-12 relative">
                   <div className="absolute left-0 w-10 h-10 rounded-full bg-[var(--surface-overlay)] border border-[var(--border)] flex items-center justify-center text-lg">

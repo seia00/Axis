@@ -47,24 +47,33 @@ export async function GET(req: NextRequest) {
 
     const opportunities = await prisma.opportunity.findMany({
       where: {
-        ...(ids.length > 0 ? { id: { in: ids } } : {}),
-        ...(q.type ? { type: q.type } : {}),
-        ...(q.region ? { regions: { has: q.region } } : {}),
-        ...(tags.length > 0 ? { tags: { hasSome: tags } } : {}),
-        ...(verifiedOnly ? { isVerified: true } : {}),
-        ...(q.deadlineFrom || q.deadlineTo ? {
-          deadline: {
-            ...(q.deadlineFrom ? { gte: new Date(q.deadlineFrom) } : {}),
-            ...(q.deadlineTo ? { lte: new Date(q.deadlineTo) } : {}),
-          },
-        } : {}),
-        ...(q.search ? {
-          OR: [
-            { title: { contains: q.search, mode: "insensitive" } },
-            { organization: { contains: q.search, mode: "insensitive" } },
-            { description: { contains: q.search, mode: "insensitive" } },
-          ],
-        } : {}),
+        AND: [
+          ...(ids.length > 0 ? [{ id: { in: ids } }] : []),
+          // Case-insensitive type match — handles mixed-case values in the DB
+          ...(q.type ? [{ type: { equals: q.type, mode: "insensitive" as const } }] : []),
+          // Region filter: show opps that explicitly match OR have no regions set (universal)
+          ...(q.region ? [{
+            OR: [
+              { regions: { has: q.region } },
+              { regions: { isEmpty: true } },
+            ],
+          }] : []),
+          ...(tags.length > 0 ? [{ tags: { hasSome: tags } }] : []),
+          ...(verifiedOnly ? [{ isVerified: true }] : []),
+          ...(q.deadlineFrom || q.deadlineTo ? [{
+            deadline: {
+              ...(q.deadlineFrom ? { gte: new Date(q.deadlineFrom) } : {}),
+              ...(q.deadlineTo   ? { lte: new Date(q.deadlineTo) }   : {}),
+            },
+          }] : []),
+          ...(q.search ? [{
+            OR: [
+              { title:        { contains: q.search, mode: "insensitive" as const } },
+              { organization: { contains: q.search, mode: "insensitive" as const } },
+              { description:  { contains: q.search, mode: "insensitive" as const } },
+            ],
+          }] : []),
+        ],
       },
       orderBy: [{ isVerified: "desc" }, { deadline: "asc" }],
       take: 500,

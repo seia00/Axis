@@ -19,6 +19,9 @@ const profileSchema = z.object({
   country:          z.string().max(100).optional(),
   prefecture:       z.string().max(100).optional(),
   extracurriculars: z.array(extracurricularSchema).max(20).optional(),
+  interests:        z.array(z.string().max(100)).max(30).optional(),
+  skills:           z.array(z.string().max(100)).max(30).optional(),
+  goals:            z.array(z.string().max(100)).max(30).optional(),
   twitterHandle:    z.string().max(50).optional(),
   instagramHandle:  z.string().max(50).optional(),
   linkedinUrl:      z.string().max(500).optional(),
@@ -35,6 +38,7 @@ export async function GET() {
       select: {
         name: true, bio: true, headline: true, location: true, school: true, username: true,
         age: true, country: true, prefecture: true, extracurriculars: true,
+        interests: true, skills: true, goals: true,
         twitterHandle: true, instagramHandle: true, linkedinUrl: true, websiteUrl: true,
         subscriptionStatus: true, priceId: true, currentPeriodEnd: true,
       },
@@ -80,6 +84,11 @@ export async function PATCH(req: NextRequest) {
     if (input.extracurriculars !== undefined)
       data.extracurriculars = input.extracurriculars ?? null;
 
+    // String arrays — stored as Prisma String[]
+    if (input.interests !== undefined) data.interests = input.interests;
+    if (input.skills    !== undefined) data.skills    = input.skills;
+    if (input.goals     !== undefined) data.goals     = input.goals;
+
     // URL fields — empty string → null, non-empty must pass sanitizeUrl
     if (input.linkedinUrl !== undefined) {
       if (input.linkedinUrl.trim() === "") {
@@ -124,6 +133,7 @@ export async function PATCH(req: NextRequest) {
       select: {
         name: true, bio: true, headline: true, location: true, school: true, username: true,
         age: true, country: true, prefecture: true, extracurriculars: true,
+        interests: true, skills: true, goals: true,
         twitterHandle: true, instagramHandle: true, linkedinUrl: true, websiteUrl: true,
       },
     });

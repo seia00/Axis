@@ -7,7 +7,7 @@ import { Footer } from "@/components/layout/footer";
 import { Button } from "@/components/ui/button";
 import {
   User, Shield, Bell, Palette, CheckCircle, Loader2,
-  Globe, AtSign, CreditCard, BookOpen, Plus, X,
+  Globe, AtSign, CreditCard, BookOpen, Plus, X, Sparkles,
 } from "lucide-react";
 import { XIcon, InstagramIcon, LinkedInIcon } from "@/components/ui/brand-icons";
 
@@ -43,6 +43,12 @@ export default function SettingsPage() {
   const router = useRouter();
   const [form, setForm] = useState<ProfileForm>(empty);
   const [ecs, setEcs] = useState<Extracurricular[]>([]);
+  const [interests, setInterests] = useState<string[]>([]);
+  const [skills,    setSkills   ] = useState<string[]>([]);
+  const [goals,     setGoals    ] = useState<string[]>([]);
+  const [interestDraft, setInterestDraft] = useState("");
+  const [skillDraft,    setSkillDraft   ] = useState("");
+  const [goalDraft,     setGoalDraft    ] = useState("");
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
   const [error, setError] = useState("");
@@ -82,6 +88,9 @@ export default function SettingsPage() {
           elaboration: ec.elaboration ?? "",
         })));
       }
+      if (Array.isArray(data.interests)) setInterests(data.interests);
+      if (Array.isArray(data.skills))    setSkills(data.skills);
+      if (Array.isArray(data.goals))     setGoals(data.goals);
       setBilling({
         subscriptionStatus: data.subscriptionStatus ?? "inactive",
         priceId: data.priceId ?? null,
@@ -118,6 +127,9 @@ export default function SettingsPage() {
           name: e.name.trim(),
           elaboration: e.elaboration.trim() || undefined,
         })),
+        interests: interests.filter(Boolean),
+        skills:    skills.filter(Boolean),
+        goals:     goals.filter(Boolean),
       };
 
       const res = await fetch("/api/user/profile", {
@@ -152,6 +164,20 @@ export default function SettingsPage() {
       setBillingLoading(null);
     }
   };
+
+  // Tag-input helpers
+  const addTag = (
+    list: string[], setList: (v: string[]) => void,
+    draft: string, setDraft: (v: string) => void,
+    max = 30,
+  ) => {
+    const val = draft.trim();
+    if (!val || list.includes(val) || list.length >= max) return;
+    setList([...list, val]);
+    setDraft("");
+  };
+  const removeTag = (list: string[], setList: (v: string[]) => void, idx: number) =>
+    setList(list.filter((_, i) => i !== idx));
 
   const addEc = () => setEcs(prev => [...prev, { name: "", elaboration: "" }]);
   const removeEc = (i: number) => setEcs(prev => prev.filter((_, j) => j !== i));
@@ -343,6 +369,85 @@ export default function SettingsPage() {
               </div>
             ))}
           </div>
+        </section>
+
+        {/* ── Interests, Skills & Goals ────────────────────────────── */}
+        <section className="card p-6 space-y-5">
+          <div className="flex items-center gap-3 mb-1">
+            <div className="w-9 h-9 rounded-lg bg-violet-600/10 border border-violet-600/20 flex items-center justify-center">
+              <Sparkles className="w-4 h-4 text-violet-400" />
+            </div>
+            <div>
+              <h2 className="font-semibold">Interests, Skills &amp; Goals</h2>
+              <p className="text-xs text-[var(--muted-foreground)]">Helps AI Match surface the right opportunities and people for you</p>
+            </div>
+          </div>
+
+          {(
+            [
+              { label: "Interests", placeholder: "e.g. Entrepreneurship", list: interests, setList: setInterests, draft: interestDraft, setDraft: setInterestDraft },
+              { label: "Skills",    placeholder: "e.g. React, Marketing",  list: skills,    setList: setSkills,    draft: skillDraft,    setDraft: setSkillDraft    },
+              { label: "Goals",     placeholder: "e.g. Start a company",   list: goals,     setList: setGoals,     draft: goalDraft,     setDraft: setGoalDraft     },
+            ] as Array<{
+              label: string; placeholder: string;
+              list: string[]; setList: (v: string[]) => void;
+              draft: string;  setDraft: (v: string) => void;
+            }>
+          ).map(({ label, placeholder, list, setList, draft, setDraft }) => (
+            <div key={label}>
+              <div className="flex items-center justify-between mb-2">
+                <label className="text-xs font-medium text-[var(--muted-foreground)]">{label}</label>
+                {list.length >= 30 && (
+                  <span className="text-[10px] text-white/30">30/30</span>
+                )}
+              </div>
+              {/* Chips */}
+              {list.length > 0 && (
+                <div className="flex flex-wrap gap-1.5 mb-2">
+                  {list.map((tag, i) => (
+                    <span
+                      key={tag}
+                      className="inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-xs bg-violet-500/15 border border-violet-500/25 text-violet-300"
+                    >
+                      {tag}
+                      <button
+                        type="button"
+                        onClick={() => removeTag(list, setList, i)}
+                        className="text-violet-400/60 hover:text-violet-300 transition-colors ml-0.5"
+                        aria-label={`Remove ${tag}`}
+                      >
+                        <X className="w-2.5 h-2.5" />
+                      </button>
+                    </span>
+                  ))}
+                </div>
+              )}
+              {/* Input row */}
+              {list.length < 30 && (
+                <div className="flex gap-2">
+                  <input
+                    className="settings-input flex-1"
+                    value={draft}
+                    onChange={e => setDraft(e.target.value)}
+                    placeholder={placeholder}
+                    onKeyDown={e => {
+                      if (e.key === "Enter") {
+                        e.preventDefault();
+                        addTag(list, setList, draft, setDraft);
+                      }
+                    }}
+                  />
+                  <button
+                    type="button"
+                    onClick={() => addTag(list, setList, draft, setDraft)}
+                    className="flex items-center gap-1 px-2.5 py-1.5 text-xs text-violet-400 hover:text-violet-300 border border-violet-500/20 hover:border-violet-500/40 rounded-[3px] transition-colors bg-violet-950/20 hover:bg-violet-950/30 whitespace-nowrap"
+                  >
+                    <Plus className="w-3.5 h-3.5" /> Add
+                  </button>
+                </div>
+              )}
+            </div>
+          ))}
         </section>
 
         {/* ── Public Profile ───────────────────────────────────────── */}
